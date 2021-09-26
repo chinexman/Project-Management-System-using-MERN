@@ -12,6 +12,12 @@ var dotenv = require("dotenv");
 //configure environment variables
 dotenv.config();
 
+//connect to mongodb
+const mongoose = require("mongoose");
+mongoose.connect("mongodb://localhost/w1googlesso", () => {
+  console.log("connected to database.");
+});
+
 /**
  * Get port from environment and store in Express.
  */
