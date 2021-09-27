@@ -4,10 +4,11 @@ import path from "path";
 import cookieParser from "cookie-parser";
 import logger from "morgan";
 
-import indexRouter from "./routes/index";
-import usersRouter from "./routes/users";
+import passwordRouter from "./w1_resetpassword_Auth/routes/changePassword"
+import indexRouter from "./w1_resetpassword_Auth/routes/index";
+import usersRouter from "./w1_resetpassword_Auth/routes/users";
 
-var app = express();
+const app = express();
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
@@ -21,6 +22,8 @@ app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/", indexRouter);
 app.use("/users", usersRouter);
+app.use("/users", passwordRouter);
+
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
