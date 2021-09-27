@@ -4,6 +4,7 @@
  * Module dependencies.
  */
 
+var databaseConnection = require('../dist/configurations/db_config').default;
 var app = require("../dist/app").default;
 var debug = require("debug")("week11:server");
 var http = require("http");
@@ -11,6 +12,7 @@ var dotenv = require("dotenv");
 
 //configure environment variables
 dotenv.config();
+ databaseConnection();
 
 /**
  * Get port from environment and store in Express.
