@@ -11,7 +11,7 @@ const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const nodemailer_1 = __importDefault(require("../utils/nodemailer"));
 // import EmailDomainValidator from "email-domain-validator";
-// import { validate } from"email-domain-validator";
+const email_domain_validator_1 = require("email-domain-validator");
 const secret = process.env.JWT_SECRET;
 // const days: string = process.env.JWT_EXPIRES_IN as string
 async function signup(req, res) {
@@ -175,40 +175,41 @@ async function forgetPassword(req, res) {
     try {
         const { email } = req.body;
         console.log(email);
-        // const emailValidation: any = await validate(email)
-        // if(emailValidation?.isValidDomain){
-        const user = await users_1.default.findOne({ email: email });
-        console.log(user);
-        // console.log(user)
-        if (user) {
-            const token = jsonwebtoken_1.default.sign({ id: user._id }, secret, { expiresIn: '30mins' });
-            const link = `http://localhost:5009/users/password/resetPassword/${token}`;
-            // console.log(link)
-            // console.log(token)
-            //the variables for the nodemailer
-            const body = `
+        const emailValidation = await (0, email_domain_validator_1.validate)(email);
+        if (emailValidation === null || emailValidation === void 0 ? void 0 : emailValidation.isValidDomain) {
+            const user = await users_1.default.findOne({ email: email });
+            console.log(user);
+            // console.log(user)
+            if (user) {
+                const token = jsonwebtoken_1.default.sign({ id: user._id }, secret, { expiresIn: '30mins' });
+                const link = `http://localhost:5009/users/password/resetPassword/${token}`;
+                // console.log(link)
+                // console.log(token)
+                //the variables for the nodemailer
+                const body = `
         Dear ${user.fullname},
 
         <p>Follow this <a href=${link}> link </a> to change your password. The link would expire in 30 mins.</P>
               `;
-            (0, nodemailer_1.default)(email, body); ///adding the title variable to the nodemailer
-            res.status(200).json({
-                message: "Link sent to your mail.",
-                link: link
-            });
+                (0, nodemailer_1.default)(email, body); ///adding the title variable to the nodemailer
+                res.status(200).json({
+                    message: "Link sent to your mail.",
+                    link: link
+                });
+            }
+            else {
+                res.status(400).json({
+                    message: "Email not found."
+                });
+                return;
+            }
         }
         else {
             res.status(400).json({
-                message: "Email not found."
+                message: "Invalid email provided."
             });
             return;
         }
-        // }else{
-        //   res.status(400).json({
-        //     message: "Invalid email provided."
-        //   })
-        //   return ;
-        // }
     }
     catch (err) {
         console.log(err);

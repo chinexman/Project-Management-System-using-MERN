@@ -14,7 +14,7 @@ const sendMail = (email:string, body: string) => {
     let mailOptions = {
         from: 'isintumejenny@gmail.com',
         to: email,
-        subject: 'Successfully Signed up',
+        subject: 'Reset Your password',
         html: body
     }
 

@@ -1,10 +1,13 @@
 import express, { Request, Response} from "express";
 import SignUp from "../model/users";
 import { signToken } from "../utils/generateToken";
-import joi from "joi"
+import joi, { EmailOptions } from "joi"
 import bcrypt from "bcryptjs"
 import jwt, { JwtPayload } from "jsonwebtoken"
 import sendMailer from "../utils/nodemailer"
+// import EmailDomainValidator from "email-domain-validator";
+// import { validate } from"email-domain-validator";
+
 
 const secret: string = process.env.JWT_SECRET as string;
 // const days: string = process.env.JWT_EXPIRES_IN as string
@@ -68,7 +71,7 @@ export async function login(req: Request, res: Response): Promise<void> {
         .trim()
         .lowercase()
         .required()
-        .email({ minDomainSegments: 2, tlds: { allow: ["com", "net", "in"] } })
+        // .email({ minDomainSegments: 2, tlds: { allow: ["com", "net", "in"] } })
     });
     try {
       const validationResult = await loginSchema.validate(req.body, {
@@ -156,7 +159,7 @@ export async function changePassword(req: customRequest , res: Response){
         }
         else{
             res.status(404).json({
-                message: "Wrong Old password"
+                message: "Incorrect password"
             })
             return;
         }
@@ -178,37 +181,47 @@ export async function forgetPassword(req: Request, res: Response){
   try{
     const { email } = req.body
     console.log(email)
-    const user = await SignUp.findOne({ email: email })
-    console.log(user)
-    // console.log(user)
+    // const emailValidation: any = await validate(email)
 
-    if(user){
-      const token = jwt.sign({ id: user._id}, secret, { expiresIn: '30mins' });
-      const link = `http://localhost:5009/users/password/resetPassword/${token}`
-      // console.log(link)
-      // console.log(token)
-      
-      //the variables for the nodemailer
-      
-      const body = `
-      Dear ${user.fullname},
+    // if(emailValidation?.isValidDomain){
+      const user = await SignUp.findOne({ email: email })
+      console.log(user)
+      // console.log(user)
 
-      <p>Follow this <a href=${link}> link </a> to change your password. The link would expire in 30 mins.</P>
-            `
+      if(user){
+        const token = jwt.sign({ id: user._id}, secret, { expiresIn: '30mins' });
+        const link = `http://localhost:5009/users/password/resetPassword/${token}`
+        // console.log(link)
+        // console.log(token)
+        
+        //the variables for the nodemailer
+        
+        const body = `
+        Dear ${user.fullname},
 
-      sendMailer(email, body)
+        <p>Follow this <a href=${link}> link </a> to change your password. The link would expire in 30 mins.</P>
+              `
 
-      res.status(200).json({
-        message: "Link sent to your mail.",
-        link: link
-    })
+        sendMailer(email, body)///adding the title variable to the nodemailer
 
-    }else{
-      res.status(400).json({
-        message: "Wrong email provided"
-    })
-      return ;
-    }
+        res.status(200).json({
+          message: "Link sent to your mail.",
+          link: link
+        })
+
+      }else{
+        res.status(400).json({
+          message: "Email not found."
+        })
+        return ;
+      }
+    
+    // }else{
+    //   res.status(400).json({
+    //     message: "Invalid email provided."
+    //   })
+    //   return ;
+    // }
   }catch(err){
     console.log(err)
     res.status(404).json({
