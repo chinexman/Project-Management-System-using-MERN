@@ -10,25 +10,30 @@ var app = require("../dist/app").default;
 var debug = require("debug")("week11:server");
 var http = require("http");
 var mongoose = require("mongoose")
+var server = http.createServer(app);
+const mongoose = require("mongoose");
+
 
 
 /**
  * Get port from environment and store in Express.
  */
-
-mongoose
- .connect(process.env.DATABASE_URL)
- .then(console.log("Database is connected"))
-
-
 var port = normalizePort(process.env.PORT || "3000");
+
+//connect to mongodb
+mongoose
+  .connect(process.env.DATABASE_URL)
+  .then(() => console.log("connected to database successfully"))
+  .catch((err) =>
+    console.log("unable to connect to the database: ", err.message)
+  );
+
+
 app.set("port", port);
 
 /**
  * Create HTTP server.
  */
-
-var server = http.createServer(app);
 
 /**
  * Listen on provided port, on all network interfaces.
