@@ -1,11 +1,13 @@
 import createError from "http-errors";
-import express from "express";
+import express, { NextFunction } from "express";
 import path from "path";
 import cookieParser from "cookie-parser";
 import logger from "morgan";
+//import sendMail from './util/nodemailer';
+require('dotenv').config()
 
-import indexRouter from "./routes/index";
-import usersRouter from "./routes/users";
+//import indexRouter from "./routes/index";
+import usersRouter from "./wk1-signup/routes/users";
 
 var app = express();
 
@@ -19,9 +21,9 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
-app.use("/", indexRouter);
-app.use("/users", usersRouter);
 
+app.use("/user", usersRouter);
+//app.use(sendMail)
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
   next(createError(404));
@@ -45,3 +47,4 @@ app.use(function (
 });
 
 export default app;
+
