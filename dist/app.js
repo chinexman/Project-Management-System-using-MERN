@@ -9,10 +9,13 @@ const path_1 = __importDefault(require("path"));
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const morgan_1 = __importDefault(require("morgan"));
 const passport_1 = __importDefault(require("passport"));
+const express_session_1 = __importDefault(require("express-session"));
+require("./wk1_sso_fb/authentication/fbauthentication");
+const home_1 = __importDefault(require("./wk1_sso_fb/routes/home"));
+const userRoutes_1 = __importDefault(require("./wk1_sso_fb/routes/userRoutes"));
 const cookie_session_1 = __importDefault(require("cookie-session"));
 const index_1 = __importDefault(require("./w1_googleAuth/routes/index"));
 const connect_flash_1 = __importDefault(require("connect-flash"));
-require("dotenv").config();
 //import indexRouter from "./routes/index";
 const users_1 = __importDefault(require("./wk1-signup/routes/users"));
 const route_1 = __importDefault(require("./w1-Login/route"));
@@ -24,6 +27,15 @@ app.use((0, morgan_1.default)("dev"));
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: false }));
 app.use((0, cookie_parser_1.default)());
+app.use((0, express_session_1.default)({
+    resave: false,
+    saveUninitialized: true,
+    secret: "SECRET",
+}));
+app.use(passport_1.default.initialize());
+app.use(passport_1.default.session());
+app.use("/", home_1.default);
+app.use("/users", userRoutes_1.default);
 app.use(express_1.default.static(path_1.default.resolve(path_1.default.join(__dirname, "../", "public"))));
 app.use((0, cookie_session_1.default)({
     maxAge: 3 * 60 * 1000,
@@ -48,11 +60,11 @@ app.use((req, res, next) => {
 app.use("/user", route_1.default);
 //app.use(sendMail)
 // catch 404 and forward to error handler
-app.use(function (req, res, next) {
+app.use(function (_req, _res, next) {
     next((0, http_errors_1.default)(404));
 });
 // error handler
-app.use(function (err, req, res, next) {
+app.use(function (err, req, res, _next) {
     // set locals, only providing error in development
     res.locals.message = err.message;
     res.locals.error = req.app.get("env") === "development" ? err : {};

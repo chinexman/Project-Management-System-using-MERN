@@ -4,11 +4,15 @@ import path from "path";
 import cookieParser from "cookie-parser";
 import logger from "morgan";
 import passport from "passport";
+import passportfacebook from "passport-facebook";
+import session from "express-session"
+import "./wk1_sso_fb/authentication/fbauthentication"
+import homeRouter from "./wk1_sso_fb/routes/home";
+import userRouter from "./wk1_sso_fb/routes/userRoutes";
 import cookieSession from "cookie-session";
 import googleRouter from "./w1_googleAuth/routes/index";
 import flash from "connect-flash";
 
-require("dotenv").config();
 
 //import indexRouter from "./routes/index";
 import usersRouter from "./wk1-signup/routes/users";
@@ -18,13 +22,29 @@ const app = express();
 // view engine setup
 app.set("views", path.resolve(path.join(__dirname, "../", "views")));
 app.set("view engine", "ejs");
-
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
+
+app.use(
+  session({
+    resave: false,
+    saveUninitialized: true,
+    secret: "SECRET",
+  })
+);
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+
+app.use("/", homeRouter);
+app.use("/users", userRouter);
+
 app.use(express.static(path.resolve(path.join(__dirname, "../", "public"))));
+
 
 app.use(
   cookieSession({
@@ -54,7 +74,7 @@ app.use("/user", loginRoute);
 
 //app.use(sendMail)
 // catch 404 and forward to error handler
-app.use(function (req, res, next) {
+app.use(function (_req, _res, next) {
   next(createError(404));
 });
 
@@ -63,7 +83,7 @@ app.use(function (
   err: createError.HttpError,
   req: express.Request,
   res: express.Response,
-  next: express.NextFunction
+  _next: express.NextFunction
 ) {
   // set locals, only providing error in development
   res.locals.message = err.message;

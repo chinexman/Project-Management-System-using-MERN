@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 
 function homePage(req: Request, res: Response) {
   console.log(req.user);
-  res.render("homepage", { data: req.user });
+  res.render("googleHomepage", { data: req.user });
 }
 
 function login(req: Request, res: Response) {

@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.googleCallBackFn = exports.logout = exports.login = exports.homePage = void 0;
 function homePage(req, res) {
     console.log(req.user);
-    res.render("homepage", { data: req.user });
+    res.render("googleHomepage", { data: req.user });
 }
 exports.homePage = homePage;
 function login(req, res) {
