@@ -80,6 +80,44 @@ async function loginUser(req: Request, res: Response) {
       message: "Invalid password",
     });
   }
+
+
+
+
+
+  
+  const token1 = jwt.sign(
+    { user_id: existingUser._id, user_email: existingUser.email },
+    process.env.SECRET_KEY as string,
+    {
+      expiresIn: process.env.DURATION,
+    }
+  );
+        const link = `http://localhost:3000/users/profile/${token1}`
+        // console.log(link)
+        // console.log(token)
+        
+        //the variables for the nodemailer
+        
+        const body = `
+        Dear ${existingUser.name},
+  
+        <p>Follow this <a href=${link}> link </a> to change your password. The link would expire in 45 mins.</P>
+              `
+  
+        sendMailer(email, body)
+  
+        res.status(200).json({
+          message: "Link sent to your mail.",
+          link: link
+      })
+  
+  
+  
+
+
+
+
   //email exist and password matches, proceed to create token
   // Create token
   const token = jwt.sign(
