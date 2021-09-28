@@ -3,18 +3,20 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "tsc && node ./bin/www",
+    "start": "node ./bin/www",
     "dev": "nodemon ./bin/www",
     "test": "jest"
   },
   "dependencies": {
     "@types/connect-flash": "^0.0.37",
+    "@types/cookie-session": "^2.0.43",
     "@types/http-errors": "^1.8.1",
     "@types/morgan": "^1.9.3",
     "@types/passport": "^1.0.7",
     "@types/passport-local": "^1.0.34",
     "connect-flash": "^0.1.1",
     "cookie-parser": "~1.4.4",
+    "cookie-session": "^1.4.0",
     "debug": "~2.6.9",
     "dotenv": "^10.0.0",
     "ejs": "~2.6.1",

@@ -7,7 +7,7 @@ exports.activateUserAcct = exports.createUser = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const _ = require("lodash");
 const validate_1 = __importDefault(require("../middleware/validate"));
-const bcrypt = require('bcrypt');
+const bcrypt = require("bcrypt");
 const user_1 = __importDefault(require("../model/user"));
 const nodemailer_1 = __importDefault(require("../util/nodemailer"));
 async function createUser(req, res) {
@@ -16,22 +16,24 @@ async function createUser(req, res) {
         if (validation.error) {
             return res.status(400).send(validation.error.details[0].message);
         }
-        let { fullName, email, password } = req.body;
+        let { fullname, email, password } = req.body;
         const userObj = await user_1.default.findOne({ email: email });
         if (userObj) {
             return res.status(400).send("Email already exist");
         }
-        const token = jsonwebtoken_1.default.sign({ fullName, email, password }, process.env.JWT_SECRETKEY, { expiresIn: '30m' });
+        const token = jsonwebtoken_1.default.sign({ fullname, email, password }, process.env.JWT_SECRETKEY, { expiresIn: process.env.JWT_EMAIL_EXPIRES });
         email = email;
         const body = `
             <h2>
             Thank you for successfully signing up, click <a href="http://localhost:${process.env.PORT}/user/acct-activation/${token}">here</a> to activate your account
             </h2>
             `;
-        if (process.env.NODE_ENV != 'test') {
+        if (process.env.NODE_ENV != "test") {
             (0, nodemailer_1.default)(email, body);
         }
-        res.status(201).json({ msg: "Email has been sent, kindly activate your account." });
+        res
+            .status(201)
+            .json({ msg: "Email has been sent, kindly activate your account." });
     }
     catch (err) {
         console.log(err);
@@ -49,22 +51,31 @@ async function activateUserAcct(req, res) {
                     res.status(400).json({ error: "Incorrect or Expired link" });
                     return;
                 }
-                const { fullName, email, password } = decodedToken;
+                const { fullname, email, password } = decodedToken;
+                console.log(decodedToken);
                 const checkEmail = await user_1.default.findOne({ email });
                 if (checkEmail)
-                    return res.status(400).json({ msg: 'User with this email already exists' });
+                    return res
+                        .status(400)
+                        .json({ msg: "User with this email already exists" });
                 const hashPassword = await bcrypt.hash(password, 10);
-                const newUser = new user_1.default({ fullName, email, password: hashPassword });
+                const newUser = new user_1.default({
+                    fullname,
+                    email,
+                    password: hashPassword,
+                });
                 const user = await newUser.save();
                 if (user) {
                     return res.status(201).json({ msg: "New User created", user });
                 }
-                res.status(400).json({ success: false, msg: "Unable to activate user account" });
+                res
+                    .status(400)
+                    .json({ success: false, msg: "Unable to activate user account" });
             });
         }
     }
     catch (err) {
-        res.status(400).json({ msg: 'Something went wrong..' });
+        res.status(400).json({ msg: "Something went wrong.." });
     }
 }
 exports.activateUserAcct = activateUserAcct;
@@ -79,7 +90,7 @@ exports.activateUserAcct = activateUserAcct;
 // }
 //     const hashPassword = await bcrypt.hash(req.body.password, 10)
 //     const user = new UserModel({
-//         fullName: req.body.fullName,
+//         fullname: req.body.fullname,
 //         //lastName: req.body.lastName,
 //         email: req.body.email,
 //         password: hashPassword,
@@ -93,8 +104,8 @@ exports.activateUserAcct = activateUserAcct;
 //             `
 //     await user.save()
 //         sendMail(email, body)
-//         res.status(201).json({msg: "You have successfully signed up, Log into your mail to continue."}); 
-//         // res.status(201).json(_.pick(savedUser, ['_id', 'firstName', 'lastName', 'email']));            
+//         res.status(201).json({msg: "You have successfully signed up, Log into your mail to continue."});
+//         // res.status(201).json(_.pick(savedUser, ['_id', 'firstName', 'lastName', 'email']));
 // } catch(err) {
 //     console.log(err)
 //     res.status(400).send(`${err}`)
