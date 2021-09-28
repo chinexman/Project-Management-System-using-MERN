@@ -97,5 +97,5 @@
     // "skipDefaultLibCheck": true,                      /* Skip type checking .d.ts files that are included with TypeScript. */
     "skipLibCheck": true /* Skip type checking all .d.ts files. */
   },
-  "include": ["./src/*"]
+  "include": ["./src/*", "src/wk1-signup/model", "src/wk1-signup/routes", "src/wk1-signup/util", "src/wk1-signup/middleware", "src/wk1-signup/controller"]
 }
