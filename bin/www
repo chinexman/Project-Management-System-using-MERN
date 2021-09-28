@@ -14,15 +14,10 @@ const mongoose = require("mongoose");
 //configure environment variables
 dotenv.config();
 
-//connect to mongodb
-mongoose.connect("mongodb://localhost/w1googlesso", () => {
-  console.log("connected to database.");
-});
-
 /**
  * Get port from environment and store in Express.
  */
-
+//connect to mongodb
 mongoose
   .connect(process.env.DATABASE_URL)
   .then(() => console.log("connected to database successfully"));
