@@ -8,12 +8,12 @@ const profileModel_1 = __importDefault(require("../models/profileModel"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const joi_1 = __importDefault(require("joi"));
 function authorizeUser(req, res) {
-    const jwtToken = req.cookies.token || req.headers.token;
-    if (!jwtToken) {
+    const Token = req.cookies.token || req.headers.token;
+    if (!Token) {
         throw new Error("Unauthorized user");
     }
     try {
-        const userAuthorization = jsonwebtoken_1.default.verify(jwtToken.toString(), process.env.SECRET_KEY);
+        const userAuthorization = jsonwebtoken_1.default.verify(Token.toString(), process.env.SECRET_KEY);
         console.log(userAuthorization);
         return userAuthorization;
     }
@@ -28,14 +28,14 @@ async function createProfile(req, res) {
     console.log(req.cookies.token);
     console.log(user);
     const profileSchema = joi_1.default.object({
-        email: joi_1.default.string().min(3).max(255).required(),
-        firstName: joi_1.default.string().min(3).max(255).required(),
-        lastName: joi_1.default.string().min(3).max(255).required(),
-        gender: joi_1.default.string().min(3).max(255).required(),
-        role: joi_1.default.string().min(3).max(255).required(),
-        location: joi_1.default.string().min(3).max(255).required(),
-        about: joi_1.default.string().min(10).max(255).required(),
-        profileImage: joi_1.default.string().min(3).max(255).required(),
+        email: joi_1.default.string().min(3).max(255),
+        firstName: joi_1.default.string().min(3).max(255),
+        lastName: joi_1.default.string().min(3).max(255),
+        gender: joi_1.default.string().min(3).max(255),
+        role: joi_1.default.string().min(3).max(255),
+        location: joi_1.default.string().min(3).max(255),
+        about: joi_1.default.string().min(10).max(255),
+        profileImage: joi_1.default.string().min(3).max(255),
     });
     const profileValidate = profileSchema.validate(req.body);
     if (profileValidate.error) {
@@ -107,3 +107,25 @@ async function updateProfile(req, res) {
     });
 }
 exports.updateProfile = updateProfile;
+// const profileAccount = await Profile.create({
+//     userId : user.user_id,
+//     email : "",
+//     firstName: "",
+//     lastName: "",
+//     gender: "",
+//     role: "",
+//     location: "",
+//     about: "",
+//     profileImage: "",
+//     createdAt: new Date().toISOString();,
+//     updatedAt: new Date().toISOString();,
+// });
+//required fields
+// email: joi.string().min(3).max(255).required(),
+// firstName: joi.string().min(3).max(255).required(),
+// lastName: joi.string().min(3).max(255).required(),
+// gender: joi.string().min(3).max(255).required(),
+// role: joi.string().min(3).max(255).required(),
+// location: joi.string().min(3).max(255).required(),
+// about: joi.string().min(10).max(255).required(),
+// profileImage: joi.string().min(3).max(255).required(),

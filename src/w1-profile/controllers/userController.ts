@@ -86,7 +86,7 @@ async function loginUser(req: Request, res: Response) {
     { user_id: existingUser._id, user_email: existingUser.email },
     process.env.SECRET_KEY as string,
     {
-      expiresIn: process.env.TOKEN_EXPIRATION,
+      expiresIn: process.env.DURATION,
     }
   );
   res.cookie("token", token, { httpOnly: true });

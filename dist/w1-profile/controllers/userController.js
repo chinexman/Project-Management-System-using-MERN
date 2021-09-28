@@ -79,7 +79,7 @@ async function loginUser(req, res) {
     //email exist and password matches, proceed to create token
     // Create token
     const token = jsonwebtoken_1.default.sign({ user_id: existingUser._id, user_email: existingUser.email }, process.env.SECRET_KEY, {
-        expiresIn: process.env.TOKEN_EXPIRATION,
+        expiresIn: process.env.DURATION,
     });
     res.cookie("token", token, { httpOnly: true });
     res.status(200).json({

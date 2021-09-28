@@ -5,16 +5,16 @@ import joi from 'joi';
 
 
 function authorizeUser(req: Request, res: Response) {
-    const jwtToken = req.cookies.token || req.headers.token;
-    if (!jwtToken) {
+    const Token = req.cookies.token || req.headers.token;
+    if (!Token) {
         throw new Error("Unauthorized user")
     }
     try {
         const userAuthorization = jwt.verify(
-            jwtToken.toString(),
+            Token.toString(),
             process.env.SECRET_KEY as string
         ) as JwtPayload;
-      console.log(userAuthorization);
+        console.log(userAuthorization);
         return userAuthorization;
     } catch (err) {
         throw new Error("Invalid token!")
@@ -28,14 +28,14 @@ async function createProfile(req: Request, res: Response) {
     console.log(user);
 
     const profileSchema = joi.object({
-        email: joi.string().min(3).max(255).required(),
-        firstName: joi.string().min(3).max(255).required(),
-        lastName: joi.string().min(3).max(255).required(),
-        gender: joi.string().min(3).max(255).required(),
-        role: joi.string().min(3).max(255).required(),
-        location: joi.string().min(3).max(255).required(),
-        about: joi.string().min(10).max(255).required(),
-        profileImage: joi.string().min(3).max(255).required(),
+        email: joi.string().min(3).max(255),
+        firstName: joi.string().min(3).max(255),
+        lastName: joi.string().min(3).max(255),
+        gender: joi.string().min(3).max(255),
+        role: joi.string().min(3).max(255),
+        location: joi.string().min(3).max(255),
+        about: joi.string().min(10).max(255),
+        profileImage: joi.string().min(3).max(255),
     });
 
     const profileValidate = profileSchema.validate(req.body);
@@ -45,25 +45,25 @@ async function createProfile(req: Request, res: Response) {
         });
     }
 
-    let findProfile = await Profile.findOne({userId:user.user_id}) 
+    let findProfile = await Profile.findOne({ userId: user.user_id })
     console.log(findProfile)
     console.log("i got befor findprofile")
-        if (findProfile) {
-           return res.status(400).json({
-                message: `Profile  with user ${user.user_email} already exist`
-            });
-        }
+    if (findProfile) {
+        return res.status(400).json({
+            message: `Profile  with user ${user.user_email} already exist`
+        });
+    }
 
 
-console.log("second place");
+    console.log("second place");
     let profileObject = req.body;
     const createdAt = new Date().toISOString();
     const updatedAt = createdAt;
     profileObject = { ...profileObject, createdAt, updatedAt };
 
     const profileAccount = await Profile.create({
-        userId : user.user_id,
-        email : profileObject.email,
+        userId: user.user_id,
+        email: profileObject.email,
         firstName: profileObject.firstName,
         lastName: profileObject.lastName,
         gender: profileObject.gender,
@@ -91,18 +91,18 @@ console.log("second place");
 // }
 
 //Function to edit a Profile
-async function updateProfile(req: Request, res: Response){
+async function updateProfile(req: Request, res: Response) {
     const user = authorizeUser(req, res);
-const { firstName,lastName,gender,role,location,about,profileImage} = req.body
-    
-    let findProfile = await Profile.findOne({userId: user.user_id}) 
+    const { firstName, lastName, gender, role, location, about, profileImage } = req.body
+
+    let findProfile = await Profile.findOne({ userId: user.user_id })
     console.log(findProfile)
-        if (!findProfile) {
-           return res.status(404).json({
-                status: "failed",
-                message: "Profile does not exist"
-            });
-        }
+    if (!findProfile) {
+        return res.status(404).json({
+            status: "failed",
+            message: "Profile does not exist"
+        });
+    }
 
     //   findProfile.firstName = firstName,
     //   findProfile.lastName = lastName,
@@ -112,7 +112,7 @@ const { firstName,lastName,gender,role,location,about,profileImage} = req.body
     //   findProfile.about = about,
     //   findProfile.profileImage = profileImage
 
-     let updatedProfile = await Profile.findOneAndUpdate({userId:user.user_id}, { firstName:firstName,lastName:lastName,gender:gender,role:role,location:location,about:about,profileImage:profileImage}, {new: true});
+    let updatedProfile = await Profile.findOneAndUpdate({ userId: user.user_id }, { firstName: firstName, lastName: lastName, gender: gender, role: role, location: location, about: about, profileImage: profileImage }, { new: true });
     res.status(201).json({
         status: "success",
         data: updatedProfile
@@ -134,8 +134,37 @@ const { firstName,lastName,gender,role,location,about,profileImage} = req.body
 export {
     createProfile,
     updateProfile,
-    authorizeUser, 
+    authorizeUser,
     // // getAllProfiles, 
     // deleteProfile,
     // getAProfile
 }
+
+
+
+
+
+// const profileAccount = await Profile.create({
+//     userId : user.user_id,
+//     email : "",
+//     firstName: "",
+//     lastName: "",
+//     gender: "",
+//     role: "",
+//     location: "",
+//     about: "",
+//     profileImage: "",
+//     createdAt: new Date().toISOString();,
+//     updatedAt: new Date().toISOString();,
+// });
+
+
+//required fields
+// email: joi.string().min(3).max(255).required(),
+// firstName: joi.string().min(3).max(255).required(),
+// lastName: joi.string().min(3).max(255).required(),
+// gender: joi.string().min(3).max(255).required(),
+// role: joi.string().min(3).max(255).required(),
+// location: joi.string().min(3).max(255).required(),
+// about: joi.string().min(10).max(255).required(),
+// profileImage: joi.string().min(3).max(255).required(),
