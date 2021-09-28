@@ -21,7 +21,7 @@ app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: false }));
 app.use((0, cookie_parser_1.default)());
 app.use(express_1.default.static(path_1.default.join(__dirname, "public")));
-app.use("/", users_1.default);
+app.use("/user", users_1.default);
 //app.use(sendMail)
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

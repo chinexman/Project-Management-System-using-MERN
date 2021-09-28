@@ -9,10 +9,6 @@ const userSchema = new mongoose_1.default.Schema({
         type: String,
         required: true
     },
-    // lastName: {
-    //     type: String,
-    //     required: String
-    // },
     email: {
         type: String,
         required: true,

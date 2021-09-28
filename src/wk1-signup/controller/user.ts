@@ -20,15 +20,14 @@ export async function createUser(req: Request, res:Response) {
             if(userObj) {
                 return res.status(400).send("Email already exist");
         }
-        const token = jwt.sign({fullName, email, password}, 'activateVerification', {expiresIn: '30m'})
+        const token = jwt.sign({fullName, email, password}, process.env.JWT_SECRETKEY as string, {expiresIn: '30m'})
 
          email = email
          const body = `
             <h2>
-            Thank you for successfully signing up, click <a href="http://localhost:3800/auth/acctActivation/${token}">here</a> to activate your account
+            Thank you for successfully signing up, click <a href="http://localhost:${process.env.PORT}/user/acct-activation/${token}">here</a> to activate your account
             </h2>
             `
-            //<p>http://localhost:3000/auth/acctActivation/${token}</P>
             if(process.env.NODE_ENV != 'test'){
                 sendMail(email, body)
             }
@@ -46,7 +45,7 @@ export async function createUser(req: Request, res:Response) {
            const token = req.params.token
            console.log(token)
            if(token) {
-               jwt.verify(token, 'activateVerification', async (err: any, decodedToken: any) => {
+               jwt.verify(token, process.env.JWT_SECRETKEY as string, async (err: any, decodedToken: any) => {
              if(err) {
                  res.status(400).json({error: "Incorrect or Expired link"})
                  return;
@@ -60,7 +59,7 @@ export async function createUser(req: Request, res:Response) {
              const user = await newUser.save()
 
              if(user) {
-                 return res.status(201).json({user, msg: "New User created"})
+                 return res.status(201).json({ msg: "New User created", user})
              }
              res.status(400).json({success: false, msg: "Unable to activate user account"})
                } )
