@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateProfile = exports.createProfile = void 0;
+exports.authorizeUser = exports.updateProfile = exports.createProfile = void 0;
 const profileModel_1 = __importDefault(require("../models/profileModel"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const joi_1 = __importDefault(require("joi"));
@@ -21,6 +21,7 @@ function authorizeUser(req, res) {
         throw new Error("Invalid token!");
     }
 }
+exports.authorizeUser = authorizeUser;
 //Function to create Profile 
 async function createProfile(req, res) {
     const user = authorizeUser(req, res);

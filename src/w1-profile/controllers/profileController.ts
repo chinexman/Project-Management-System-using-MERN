@@ -133,7 +133,8 @@ const { firstName,lastName,gender,role,location,about,profileImage} = req.body
 
 export {
     createProfile,
-    updateProfile, 
+    updateProfile,
+    authorizeUser, 
     // // getAllProfiles, 
     // deleteProfile,
     // getAProfile

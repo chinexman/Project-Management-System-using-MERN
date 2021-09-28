@@ -1,4 +1,4 @@
-import user_model from "../models/usersModel";
+import userModel from "../models/usersModel";
 import express, { Request, Response } from "express";
 import Joi from "joi";
 import bcrypt from "bcrypt";
@@ -24,7 +24,7 @@ async function registerUser(req: Request, res: Response) {
     });
   }
   //check for existing email
-  const existingUser = await user_model.findOne({ email: req.body.email });
+  const existingUser = await userModel.findOne({ email: req.body.email });
   if (existingUser) {
     return res.status(400).json({
       message: "User with email already exists!",
@@ -33,7 +33,7 @@ async function registerUser(req: Request, res: Response) {
   //Hash user password
   const hashPassword = bcrypt.hashSync(req.body.password, 12);
   // Register user
-  const value = await user_model.create({
+  const value = await userModel.create({
     name: req.body.name,
     email: req.body.email.toLowerCase(),
     password: hashPassword,
@@ -60,7 +60,7 @@ async function loginUser(req: Request, res: Response) {
     });
   }
   //check for existing email
-  const existingUser = await user_model.findOne({
+  const existingUser = await userModel.findOne({
     email: req.body.email.toLowerCase(),
   });
   if (!existingUser) {
@@ -99,7 +99,7 @@ async function loginUser(req: Request, res: Response) {
 
 //Function to get All Users
 async function getAllUsers(req: Request, res: Response) {
-  const result= await user_model.find();
+  const result= await userModel.find();
   return result;
 }
 
