@@ -9,13 +9,12 @@ var debug = require("debug")("week11:server");
 var http = require("http");
 var dotenv = require("dotenv");
 var server = http.createServer(app);
-const mongoose = require('mongoose')
+const mongoose = require("mongoose");
 
 //configure environment variables
 dotenv.config();
 
 //connect to mongodb
-const mongoose = require("mongoose");
 mongoose.connect("mongodb://localhost/w1googlesso", () => {
   console.log("connected to database.");
 });
@@ -24,7 +23,9 @@ mongoose.connect("mongodb://localhost/w1googlesso", () => {
  * Get port from environment and store in Express.
  */
 
-mongoose.connect(process.env.DATABASE_URL).then(() => console.log('connected to database successfully'))
+mongoose
+  .connect(process.env.DATABASE_URL)
+  .then(() => console.log("connected to database successfully"));
 
 var port = normalizePort(process.env.PORT || "3800");
 app.set("port", port);
