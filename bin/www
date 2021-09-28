@@ -20,7 +20,10 @@ dotenv.config();
 //connect to mongodb
 mongoose
   .connect(process.env.DATABASE_URL)
-  .then(() => console.log("connected to database successfully"));
+  .then(() => console.log("connected to database successfully"))
+  .catch((err) =>
+    console.log("unable to connect to the database: ", err.message)
+  );
 
 var port = normalizePort(process.env.PORT || "3800");
 app.set("port", port);
