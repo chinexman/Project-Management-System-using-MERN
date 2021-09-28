@@ -1,8 +1,9 @@
 import createError from "http-errors";
-import express, { NextFunction } from "express";
+import express, { Request,Response, NextFunction } from "express";
 import path from "path";
 import cookieParser from "cookie-parser";
 import logger from "morgan";
+import flash from "connect-flash";
 //import sendMail from './util/nodemailer';
 require('dotenv').config()
 
@@ -28,7 +29,14 @@ app.use("/", usersRouter);
 app.use(function (req, res, next) {
   next(createError(404));
 });
-
+//Connect flash
+app.use(flash())
+ //GLobal Vars
+app.use((req:Request, res:Response, next:NextFunction)=>{
+  res.locals.success_msg = req.flash('sucess_msg');
+  res.locals.error_msg=req.flash('error_msg');
+  next();
+})
 // error handler
 app.use(function (
   err: createError.HttpError,
