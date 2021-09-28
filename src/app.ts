@@ -8,9 +8,6 @@ import cookieSession from "cookie-session";
 import googleRouter from "./w1_googleAuth/routes/index";
 import flash from "connect-flash";
 
-
-
-
 require("dotenv").config();
 
 //import indexRouter from "./routes/index";
@@ -26,19 +23,12 @@ app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-<<<<<<< HEAD
+
 app.use(express.static(path.resolve(path.join(__dirname, "../", "public"))));
 
 app.use(
   cookieSession({
     maxAge: 3 * 60 * 1000, //3 MINUTES
-=======
-app.use(express.static(path.join(__dirname, "public")));
-
-app.use(
-  cookieSession({
-    maxAge: 3 * 60 * 1000,
->>>>>>> f542de08ade63b0d23a3cc74f6017ac41dc09335
     secret: process.env.JWT_SECRETKEY,
     keys: [
       process.env.COOKIE_SESSION_KEY1 as string,
@@ -48,12 +38,8 @@ app.use(
 );
 app.use(passport.initialize());
 app.use(passport.session());
-<<<<<<< HEAD
 
 app.use("/w1-googlesso", googleRouter);
-=======
->>>>>>> f542de08ade63b0d23a3cc74f6017ac41dc09335
-
 app.use("/user", usersRouter);
 
 //Connect flash
