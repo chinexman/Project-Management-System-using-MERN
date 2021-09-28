@@ -3,8 +3,8 @@ import { createUser, activateUserAcct } from '../controller/user'
 import { Router } from "express";
 const router = Router();
 
-router.post("/user", createUser);
-router.get("/auth/acctActivation/:token", activateUserAcct);
-router.get("/auth", activateUserAcct);
+router.post("/signup", createUser);
+router.get("/acct-activation/:token", activateUserAcct);
+
 
 export default router;

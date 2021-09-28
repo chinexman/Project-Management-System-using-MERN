@@ -1,37 +1,10 @@
 const nodemailer = require('nodemailer')
 require('dotenv').config()
-// let transporter = nodemailer.createTransport({
-//     service: 'gmail',
-//     auth: {
-//         user: 'isintumejenny@gmail.com',
-//         pass: 'Jen.ny18',
-
-//     }
-// })
-
-// const sendMail = (email:string, body: string) => { 
-
-//     let mailOptions = {
-//         from: `Project Management Team <isintumejenny@gmail.com>`,
-//         to: email,
-//         subject: 'Successfully Signed up',
-//         html: body
-//     }
-
-//     return transporter.sendMail(mailOptions, (err:any, data:any) => {
-//         if (err) {
-//             console.log('Error Occus: ', err)
-//         }
-//         console.log('Email sent!!:' + data)
-//     })
-// }
-
-
 let transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        user: 'isintumejenny@gmail.com',
-        pass: 'Jen.ny18',
+        user: process.env.BASE_EMAIL,
+        pass: process.env.BASE_PASS,
 
     }
 })
@@ -45,7 +18,9 @@ const sendMail = (email:string, body: string) => {
         html: body
     }
 
-    return transporter.sendMail(mailOptions, (err:any, data:any) => {
+
+
+  return transporter.sendMail(mailOptions, (err:any, data:any) => {
         if (err) {
             console.log('Error Occurs: ', err)
         }
