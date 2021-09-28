@@ -10,12 +10,11 @@ const validate_1 = __importDefault(require("../middleware/validate"));
 const bcrypt = require('bcrypt');
 const user_1 = __importDefault(require("../model/user"));
 const nodemailer_1 = __importDefault(require("../util/nodemailer"));
-console.log('first');
 async function createUser(req, res) {
     try {
         const validation = validate_1.default.validate(req.body);
         if (validation.error) {
-            return res.send(validation.error.details[0].message);
+            return res.status(400).send(validation.error.details[0].message);
         }
         let { fullName, email, password } = req.body;
         const userObj = await user_1.default.findOne({ email: email });
@@ -30,7 +29,9 @@ async function createUser(req, res) {
             </h2>
             `;
         //<p>http://localhost:3000/auth/acctActivation/${token}</P>
-        (0, nodemailer_1.default)(email, body);
+        if (process.env.NODE_ENV != 'test') {
+            (0, nodemailer_1.default)(email, body);
+        }
         res.status(201).json({ msg: "Email has been sent, kindly activate your account." });
     }
     catch (err) {
@@ -40,7 +41,6 @@ async function createUser(req, res) {
 }
 exports.createUser = createUser;
 async function activateUserAcct(req, res) {
-    console.log('checking for bug');
     try {
         const token = req.params.token;
         console.log(token);

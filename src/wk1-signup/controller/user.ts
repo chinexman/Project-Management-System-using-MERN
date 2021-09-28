@@ -5,14 +5,14 @@ import userSchema from '../middleware/validate'
 const bcrypt = require('bcrypt')
 import UserModel from '../model/user'
 import sendMail from '../util/nodemailer'
-console.log('first')
+
 
 export async function createUser(req: Request, res:Response) {
 
     try{
         const validation = userSchema.validate(req.body)
         if(validation.error) {
-          return res.send(validation.error.details[0].message)
+          return res.status(400).send(validation.error.details[0].message)
         }
         let {fullName, email, password} = req.body;
         
@@ -29,7 +29,9 @@ export async function createUser(req: Request, res:Response) {
             </h2>
             `
             //<p>http://localhost:3000/auth/acctActivation/${token}</P>
-            sendMail(email, body)
+            if(process.env.NODE_ENV != 'test'){
+                sendMail(email, body)
+            }
             res.status(201).json({msg: "Email has been sent, kindly activate your account."})           
                
         } catch(err) {
@@ -39,7 +41,7 @@ export async function createUser(req: Request, res:Response) {
     }
 
     export async function activateUserAcct(req: Request, res:Response) {
-        console.log('checking for bug')
+
        try {
            const token = req.params.token
            console.log(token)

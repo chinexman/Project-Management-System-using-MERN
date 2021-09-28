@@ -45,7 +45,9 @@ const sendMail = (email:string, body: string) => {
         html: body
     }
 
-    return transporter.sendMail(mailOptions, (err:any, data:any) => {
+
+
+  return transporter.sendMail(mailOptions, (err:any, data:any) => {
         if (err) {
             console.log('Error Occurs: ', err)
         }
