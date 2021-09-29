@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.authorizeUser = exports.updateProfile = exports.createProfile = void 0;
+exports.viewProfile = exports.authorizeUser = exports.updateProfile = exports.createProfile = void 0;
 const profileModel_1 = __importDefault(require("../models/profileModel"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const joi_1 = __importDefault(require("joi"));
@@ -15,18 +15,26 @@ function authorizeUser(req, res) {
     try {
         const userAuthorization = jsonwebtoken_1.default.verify(Token.toString(), process.env.SECRET_KEY);
         console.log(userAuthorization);
-        return userAuthorization;
+        return userAuthorization.user_id;
     }
     catch (err) {
         throw new Error("Invalid token!");
     }
 }
 exports.authorizeUser = authorizeUser;
+async function viewProfile(req, res) {
+    const user_id = authorizeUser(req, res);
+    let viewprofile = await profileModel_1.default.findOne({ userId: user_id });
+    return res.status(400).json({
+        status: "profile details",
+        data: viewprofile
+    });
+}
+exports.viewProfile = viewProfile;
 //Function to create Profile 
 async function createProfile(req, res) {
-    const user = authorizeUser(req, res);
+    const user_id = authorizeUser(req, res);
     console.log(req.cookies.token);
-    console.log(user);
     const profileSchema = joi_1.default.object({
         email: joi_1.default.string().min(3).max(255),
         firstName: joi_1.default.string().min(3).max(255),
@@ -43,12 +51,12 @@ async function createProfile(req, res) {
             message: profileValidate.error.details[0].message,
         });
     }
-    let findProfile = await profileModel_1.default.findOne({ userId: user.user_id });
+    let findProfile = await profileModel_1.default.findOne({ userId: user_id });
     console.log(findProfile);
     console.log("i got befor findprofile");
     if (findProfile) {
         return res.status(400).json({
-            message: `Profile  with user ${user.user_email} already exist`
+            message: `Profile  already exist`
         });
     }
     console.log("second place");
@@ -57,7 +65,7 @@ async function createProfile(req, res) {
     const updatedAt = createdAt;
     profileObject = { ...profileObject, createdAt, updatedAt };
     const profileAccount = await profileModel_1.default.create({
-        userId: user.user_id,
+        userId: user_id,
         email: profileObject.email,
         firstName: profileObject.firstName,
         lastName: profileObject.lastName,
@@ -83,9 +91,9 @@ exports.createProfile = createProfile;
 // }
 //Function to edit a Profile
 async function updateProfile(req, res) {
-    const user = authorizeUser(req, res);
+    const user_id = authorizeUser(req, res);
     const { firstName, lastName, gender, role, location, about, profileImage } = req.body;
-    let findProfile = await profileModel_1.default.findOne({ userId: user.user_id });
+    let findProfile = await profileModel_1.default.findOne({ userId: user_id });
     console.log(findProfile);
     if (!findProfile) {
         return res.status(404).json({
@@ -100,7 +108,7 @@ async function updateProfile(req, res) {
     //   findProfile.location = location,
     //   findProfile.about = about,
     //   findProfile.profileImage = profileImage
-    let updatedProfile = await profileModel_1.default.findOneAndUpdate({ userId: user.user_id }, { firstName: firstName, lastName: lastName, gender: gender, role: role, location: location, about: about, profileImage: profileImage }, { new: true });
+    let updatedProfile = await profileModel_1.default.findOneAndUpdate({ userId: user_id }, { firstName: firstName, lastName: lastName, gender: gender, role: role, location: location, about: about, profileImage: profileImage }, { new: true });
     res.status(201).json({
         status: "success",
         data: updatedProfile
@@ -108,7 +116,7 @@ async function updateProfile(req, res) {
 }
 exports.updateProfile = updateProfile;
 // const profileAccount = await Profile.create({
-//     userId : user.user_id,
+//     userId : user_id,
 //     email : "",
 //     firstName: "",
 //     lastName: "",

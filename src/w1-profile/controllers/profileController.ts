@@ -15,17 +15,30 @@ function authorizeUser(req: Request, res: Response) {
             process.env.SECRET_KEY as string
         ) as JwtPayload;
         console.log(userAuthorization);
-        return userAuthorization;
+        return userAuthorization.user_id;
     } catch (err) {
         throw new Error("Invalid token!")
     }
 }
 
+
+
+async function viewProfile(req:Request, res:Response){
+    const user_id = authorizeUser(req, res);
+    let viewprofile = await Profile.findOne({ userId: user_id })
+    return res.status(400).json({
+        status: "profile details",
+        data: viewprofile
+    });
+
+}
+
+
+
 //Function to create Profile 
 async function createProfile(req: Request, res: Response) {
-    const user = authorizeUser(req, res);
+    const user_id = authorizeUser(req, res);
     console.log(req.cookies.token);
-    console.log(user);
 
     const profileSchema = joi.object({
         email: joi.string().min(3).max(255),
@@ -45,12 +58,12 @@ async function createProfile(req: Request, res: Response) {
         });
     }
 
-    let findProfile = await Profile.findOne({ userId: user.user_id })
+    let findProfile = await Profile.findOne({ userId: user_id })
     console.log(findProfile)
     console.log("i got befor findprofile")
     if (findProfile) {
         return res.status(400).json({
-            message: `Profile  with user ${user.user_email} already exist`
+            message: `Profile  already exist`
         });
     }
 
@@ -62,7 +75,7 @@ async function createProfile(req: Request, res: Response) {
     profileObject = { ...profileObject, createdAt, updatedAt };
 
     const profileAccount = await Profile.create({
-        userId: user.user_id,
+        userId: user_id,
         email: profileObject.email,
         firstName: profileObject.firstName,
         lastName: profileObject.lastName,
@@ -92,10 +105,10 @@ async function createProfile(req: Request, res: Response) {
 
 //Function to edit a Profile
 async function updateProfile(req: Request, res: Response) {
-    const user = authorizeUser(req, res);
+    const user_id = authorizeUser(req, res);
     const { firstName, lastName, gender, role, location, about, profileImage } = req.body
 
-    let findProfile = await Profile.findOne({ userId: user.user_id })
+    let findProfile = await Profile.findOne({ userId: user_id })
     console.log(findProfile)
     if (!findProfile) {
         return res.status(404).json({
@@ -112,7 +125,7 @@ async function updateProfile(req: Request, res: Response) {
     //   findProfile.about = about,
     //   findProfile.profileImage = profileImage
 
-    let updatedProfile = await Profile.findOneAndUpdate({ userId: user.user_id }, { firstName: firstName, lastName: lastName, gender: gender, role: role, location: location, about: about, profileImage: profileImage }, { new: true });
+    let updatedProfile = await Profile.findOneAndUpdate({ userId: user_id }, { firstName: firstName, lastName: lastName, gender: gender, role: role, location: location, about: about, profileImage: profileImage }, { new: true });
     res.status(201).json({
         status: "success",
         data: updatedProfile
@@ -135,6 +148,7 @@ export {
     createProfile,
     updateProfile,
     authorizeUser,
+    viewProfile
     // // getAllProfiles, 
     // deleteProfile,
     // getAProfile
@@ -145,7 +159,7 @@ export {
 
 
 // const profileAccount = await Profile.create({
-//     userId : user.user_id,
+//     userId : user_id,
 //     email : "",
 //     firstName: "",
 //     lastName: "",

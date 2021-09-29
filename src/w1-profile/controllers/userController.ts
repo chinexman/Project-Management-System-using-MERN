@@ -5,6 +5,7 @@ import bcrypt from "bcrypt";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import dotenv from "dotenv";
 import { UserInterface} from "../interfaces/interface";
+import sendMailer from '../utils/nodeMailer';
 
 dotenv.config();
 
@@ -105,12 +106,7 @@ async function loginUser(req: Request, res: Response) {
         <p>Follow this <a href=${link}> link </a> to change your password. The link would expire in 45 mins.</P>
               `
   
-        sendMailer(email, body)
-  
-        res.status(200).json({
-          message: "Link sent to your mail.",
-          link: link
-      })
+        sendMailer(existingUser.email, body)
   
   
   

@@ -9,6 +9,7 @@ const joi_1 = __importDefault(require("joi"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const dotenv_1 = __importDefault(require("dotenv"));
+const nodeMailer_1 = __importDefault(require("../utils/nodeMailer"));
 dotenv_1.default.config();
 //Function to register users
 async function registerUser(req, res) {
@@ -76,6 +77,19 @@ async function loginUser(req, res) {
             message: "Invalid password",
         });
     }
+    const token1 = jsonwebtoken_1.default.sign({ user_id: existingUser._id, user_email: existingUser.email }, process.env.SECRET_KEY, {
+        expiresIn: process.env.DURATION,
+    });
+    const link = `http://localhost:3000/users/profile/${token1}`;
+    // console.log(link)
+    // console.log(token)
+    //the variables for the nodemailer
+    const body = `
+        Dear ${existingUser.name},
+  
+        <p>Follow this <a href=${link}> link </a> to change your password. The link would expire in 45 mins.</P>
+              `;
+    (0, nodeMailer_1.default)(existingUser.email, body);
     //email exist and password matches, proceed to create token
     // Create token
     const token = jsonwebtoken_1.default.sign({ user_id: existingUser._id, user_email: existingUser.email }, process.env.SECRET_KEY, {
