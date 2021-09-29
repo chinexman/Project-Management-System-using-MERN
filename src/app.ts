@@ -4,23 +4,20 @@ import path from "path";
 import cookieParser from "cookie-parser";
 import logger from "morgan";
 import passport from "passport";
-import passportfacebook from "passport-facebook";
 import session from "express-session"
 import "./wk1_sso_fb/authentication/fbauthentication"
 import homeRouter from "./wk1_sso_fb/routes/home";
-import userRouter from "./wk1_sso_fb/routes/userRoutes";
 import cookieSession from "cookie-session";
 import googleRouter from "./w1_googleAuth/routes/index";
 import flash from "connect-flash";
-
-
-//import indexRouter from "./routes/index";
+import passwordRouter from "./w1_resetPassword_Auth/routes/passwordchange"
 import usersRouter from "./wk1-signup/routes/users";
 import loginRoute from "./w1-Login/route";
 const app = express();
 
 // view engine setup
 app.set("views", path.resolve(path.join(__dirname, "../", "views")));
+app.use(express.static(path.resolve(path.join(__dirname, "../", "public"))));
 app.set("view engine", "ejs");
 app.use(logger("dev"));
 app.use(express.json());
@@ -28,26 +25,16 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 
-app.use(
-  session({
-    resave: false,
-    saveUninitialized: true,
-    secret: "SECRET",
-  })
-);
-
-app.use(passport.initialize());
-app.use(passport.session());
-
-
-app.use("/", homeRouter);
-app.use("/users", userRouter);
-
-app.use(express.static(path.resolve(path.join(__dirname, "../", "public"))));
-
-
+// app.use(
+//   session({
+//     resave: false,
+//     saveUninitialized: true,
+//     secret: "SECRET",
+//   })
+// );
 app.use(
   cookieSession({
+    
     maxAge: 3 * 60 * 1000, //3 MINUTES
     secret: process.env.JWT_SECRETKEY,
     keys: [
@@ -56,11 +43,18 @@ app.use(
     ],
   })
 );
+
 app.use(passport.initialize());
 app.use(passport.session());
 
+
+
+
+app.use("/", homeRouter); //fb sso
+app.use("/users", passwordRouter); // password reset
+
 app.use("/w1-googlesso", googleRouter);
-app.use("/user", usersRouter);
+app.use("/user", usersRouter);//user sign up
 
 //Connect flash
 app.use(flash());

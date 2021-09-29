@@ -20,7 +20,7 @@ passport.use(
             message: " This email  does not exit ",
           });
         }
-        const passwordMatch = bcrypt.compareSync(password, user.password);
+        const passwordMatch = bcrypt.compareSync(password, user.password as string);
         if (!passwordMatch) {
           return done(null, false, { message: "User password is incorrect" });
         } else {

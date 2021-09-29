@@ -18,9 +18,9 @@ const userSchema = new mongoose.Schema({
 });
 
 interface User {
-  fullname: string;
-  email: string;
-  password: string;
+  fullname?: string;
+  email?: string;
+  password?: string;
 }
 
 const UserModel = mongoose.model<User>("user", userSchema);
