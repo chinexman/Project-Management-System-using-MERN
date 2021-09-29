@@ -10,7 +10,7 @@ import homeRouter from "./wk1_sso_fb/routes/home";
 import cookieSession from "cookie-session";
 import googleRouter from "./w1_googleAuth/routes/index";
 import flash from "connect-flash";
-import passwordRouter from "./w1_resetpassword_Auth/routes/changePassword"
+import passwordRouter from "./w1_resetPassword_Auth/routes/passwordchange"
 import usersRouter from "./wk1-signup/routes/users";
 import loginRoute from "./w1-Login/route";
 const app = express();
@@ -25,25 +25,16 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 
-app.use(
-  session({
-    resave: false,
-    saveUninitialized: true,
-    secret: "SECRET",
-  })
-);
-
-app.use(passport.initialize());
-app.use(passport.session());
-
-app.use("/", homeRouter); //fb sso
-app.use("/users", passwordRouter); // password reset
-
-
-
-
+// app.use(
+//   session({
+//     resave: false,
+//     saveUninitialized: true,
+//     secret: "SECRET",
+//   })
+// );
 app.use(
   cookieSession({
+    
     maxAge: 3 * 60 * 1000, //3 MINUTES
     secret: process.env.JWT_SECRETKEY,
     keys: [
@@ -52,8 +43,15 @@ app.use(
     ],
   })
 );
+
 app.use(passport.initialize());
 app.use(passport.session());
+
+
+
+
+app.use("/", homeRouter); //fb sso
+app.use("/users", passwordRouter); // password reset
 
 app.use("/w1-googlesso", googleRouter);
 app.use("/user", usersRouter);//user sign up

@@ -1,142 +1,142 @@
-import express, { Request, Response} from "express";
-import SignUp from "../model/users";
-import { signToken } from "../utils/generateToken";
-import joi, { EmailOptions } from "joi"
+import  { Request, Response} from "express";
+import SignUp from "../../wk1-signup/model/user";
+import { generateJwtToken } from "../utils/generateToken";
+import joi from "joi"
 import bcrypt from "bcryptjs"
 import jwt, { JwtPayload } from "jsonwebtoken"
-import sendMailer from "../utils/nodemailer"
+import sendMail from "../../wk1-signup/util/nodemailer"
 // import EmailDomainValidator from "email-domain-validator";
 // import { validate } from"email-domain-validator";
 
 
-const secret: string = process.env.JWT_SECRET as string;
+const secret: string = process.env.JWT_SECRETKEY as string;
 // const days: string = process.env.JWT_EXPIRES_IN as string
 
-export async function signup (req: Request, res: Response): Promise<void> {
-    const registerSchema = joi
-    .object({
-        name: joi.string().trim().min(4).max(64).required(),
-        password: joi.string().required(),
-        repeat_password: joi.ref('password'),
-        email: joi
-        .string()
-        .trim()
-        .lowercase().required()
-    })
-    .with('password', 'repeat_password');///what does this line mean
+// export async function signup (req: Request, res: Response): Promise<void> {
+//     const registerSchema = joi
+//     .object({
+//         name: joi.string().trim().min(4).max(64).required(),
+//         password: joi.string().required(),
+//         repeat_password: joi.ref('password'),
+//         email: joi
+//         .string()
+//         .trim()
+//         .lowercase().required()
+//     })
+//     .with('password', 'repeat_password');///what does this line mean
 
 
-    try {
-        const validateInput = await registerSchema.validate(req.body, {
-            abortEarly: false,
-        });
-        //  console.log(validateInput.error)
-        if(validateInput.error){
-          // console.log("verify block")
-          // console.log(validateInput.error)
-            res.status(400).json({
-                message: "Please verify the inputs provided"
-            })
-            return;
-        }
+//     try {
+//         const validateInput = await registerSchema.validate(req.body, {
+//             abortEarly: false,
+//         });
+//         //  console.log(validateInput.error)
+//         if(validateInput.error){
+//           // console.log("verify block")
+//           // console.log(validateInput.error)
+//             res.status(400).json({
+//                 message: "Please verify the inputs provided"
+//             })
+//             return;
+//         }
 
-        const newUser = await SignUp.create({
-            name: req.body.name,
-            email: req.body.email,
-            password: req.body.password,
-        });
+//         const newUser = await SignUp.create({
+//             name: req.body.name,
+//             email: req.body.email,
+//             password: req.body.password,
+//         });
 
-        res.status(201).json({
-            message: 'success',
-            data: {
-                newUser
-            }
-        })
+//         res.status(201).json({
+//             message: 'success',
+//             data: {
+//                 newUser
+//             }
+//         })
         
-    console.log(req.body);
-    }catch(err: any){
-      console.log(err)
-      res.json({
-        mesg: err
-      })
-    }
-}
+//     console.log(req.body);
+//     }catch(err: any){
+//       console.log(err)
+//       res.json({
+//         mesg: err
+//       })
+//     }
+// }
 
-export async function login(req: Request, res: Response): Promise<void> {
-    const { email, password } = req.body;
-    const loginSchema = joi.object({
-      password: joi.string().required(),
-      email: joi
-        .string()
-        .trim()
-        .lowercase()
-        .required()
-        // .email({ minDomainSegments: 2, tlds: { allow: ["com", "net", "in"] } })
-    });
-    try {
-      const validationResult = await loginSchema.validate(req.body, {
-        abortEarly: false,
-      });
-      // console.log("validationResult.error",validationResult.error)
-      if (validationResult.error) {
-          // console.log("validation error")
-          res.status(400).json({
-          message: "Invalid login details",
-        });
-        return;
-      }
-      const user = await SignUp.findOne({ email });//it seems this is the line of code that beaks the code
-      // console.log("user-login", user)
+// export async function login(req: Request, res: Response): Promise<void> {
+//     const { email, password } = req.body;
+//     const loginSchema = joi.object({
+//       password: joi.string().required(),
+//       email: joi
+//         .string()
+//         .trim()
+//         .lowercase()
+//         .required()
+//         // .email({ minDomainSegments: 2, tlds: { allow: ["com", "net", "in"] } })
+//     });
+//     try {
+//       const validationResult = await loginSchema.validate(req.body, {
+//         abortEarly: false,
+//       });
+//       // console.log("validationResult.error",validationResult.error)
+//       if (validationResult.error) {
+//           // console.log("validation error")
+//           res.status(400).json({
+//           message: "Invalid login details",
+//         });
+//         return;
+//       }
+//       const user = await SignUp.findOne({ email });//it seems this is the line of code that beaks the code
+//       // console.log("user-login", user)
   
-      if(user){
-        // console.log("user", user)
-        const validUser = await bcrypt.compare(password, user.password)//the syntax => incomingpassword, hashedpassword
-        // console.log("validUser", validUser)
-        if(validUser){
-          const token = signToken(user);
-        //   console.log(token);
-        //   user.tokens = user.tokens.concat({ token });
-          await user.save();
-          // res.cookie('jwt', token, { httpOnly: true });
-          // res.clearCookie()
-          // res.redirect('/loginusers');
-          res.status(200).json({
-            token: token,
-            message: `Welcome back, ${user.name}`
-          });
-          return;
-        }else{
-          // console.log("else block")
-          res.status(400).json({
-            message: `Wrong password provided`
-          });
+//       if(user){
+//         // console.log("user", user)
+//         const validUser = await bcrypt.compare(password, user.password)//the syntax => incomingpassword, hashedpassword
+//         // console.log("validUser", validUser)
+//         if(validUser){
+//           const token = generateJwtToken(user);
+//         //   console.log(token);
+//         //   user.tokens = user.tokens.concat({ token });
+//           await user.save();
+//           // res.cookie('jwt', token, { httpOnly: true });
+//           // res.clearCookie()
+//           // res.redirect('/loginusers');
+//           res.status(200).json({
+//             token: token,
+//             message: `Welcome back, ${user.name}`
+//           });
+//           return;
+//         }else{
+//           // console.log("else block")
+//           res.status(400).json({
+//             message: `Wrong password provided`
+//           });
   
-          return;
-        }
-      }else{
-        res.status(400).json({
-          message: 'Incorrect password or email'
-        });
-        return;
-      }
+//           return;
+//         }
+//       }else{
+//         res.status(400).json({
+//           message: 'Incorrect password or email'
+//         });
+//         return;
+//       }
   
-    } catch (err: any) {
-      console.log("catch error")
-      console.log(err)
-      res.status(400).json({
-        message: `Invalid login details`
-      });
-      return;
-    }
-  }
+//     } catch (err: any) {
+//       console.log("catch error")
+//       console.log(err)
+//       res.status(400).json({
+//         message: `Invalid login details`
+//       });
+//       return;
+//     }
+//   }
+
 type customRequest = {user?: any} & Request
 
 export async function changePassword(req: customRequest , res: Response){
-    const user = req.user
     const { oldPassword, newPassword, repeatPassword } = req.body
 
     //validation of all input fields
-    const id = req.user?.id
+    const id = req.user._id
 
     try{
         const validUser = await bcrypt.compare( oldPassword, req.user.password)
@@ -190,7 +190,7 @@ export async function forgetPassword(req: Request, res: Response){
 
       if(user){
         const token = jwt.sign({ id: user._id}, secret, { expiresIn: '30mins' });
-        const link = `http://localhost:5009/users/password/resetPassword/${token}`
+        const link = `http://localhost:${process.env.PORT}/users/password/resetPassword/${token}`
         // console.log(link)
         // console.log(token)
         
@@ -202,7 +202,7 @@ export async function forgetPassword(req: Request, res: Response){
         <p>Follow this <a href=${link}> link </a> to change your password. The link would expire in 30 mins.</P>
               `
 
-        sendMailer(email, body)///adding the title variable to the nodemailer
+        sendMail(email, body)///adding the title variable to the nodemailer
 
         res.status(200).json({
           message: "Link sent to your mail.",
@@ -238,7 +238,7 @@ export async function verifyResetPassword(req: Request, res: Response){
     const verification = await jwt.verify(token, secret) as JwtPayload///verification
     console.log(verification, "verification")
     const id = verification.id
-    const isValidId = SignUp.findOne({_id: id})
+    const isValidId = await SignUp.findOne({_id: id})
     try{
       if(isValidId){
         //line missing?

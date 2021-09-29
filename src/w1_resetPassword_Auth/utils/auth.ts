@@ -1,12 +1,12 @@
 import { Request, NextFunction, Response  } from "express";
 import jwt from "jsonwebtoken";
 // import Users from "../model/usersScema"
-const secret: string = process.env.JWT_SECRET as string;
+const secret: string = process.env.JWT_SECRETKEY as string;
 //replacing the req with the context function
 export async function auth(req: any, res: any, next: NextFunction): Promise<void> {
     try {
         // console.log(req.headers, "headers")
-        const token = req.headers.auth;
+        const token = req.headers.auth ;
         if(!token) {
             return res.status(401).send({//replace with throw new error
                 message: 'no token provided'
