@@ -62,3 +62,8 @@ typings/
 
 #ignore DS STORE
 .DS_Store
+Memory_server
+__test__
+__tests__
+test
+mongodb.handler.ts

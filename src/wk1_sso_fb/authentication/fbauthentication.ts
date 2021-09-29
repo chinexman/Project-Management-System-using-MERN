@@ -1,11 +1,40 @@
 import passport from "passport";
 import passportfacebook from "passport-facebook";
 // import findOrCreate from "mongoose-findorcreate"
-const findOrCreate = require("mongoose-findorcreate")
 import dotenv from "dotenv"
 // import User from "../models/userSchema";
-const User = require("../models/userSchema");
+import mongoose from "mongoose";
+const findOrCreate = require("mongoose-findorcreate");
 dotenv.config()
+
+
+interface userInterface {
+  facebookId: String;
+  fullname: String;
+}
+
+const userSchema = new mongoose.Schema(
+  {
+    facebookId: {
+      type: String,
+      required: [true, "id is required"],
+    },
+    fullname: {
+      type: String,
+      required: [true, "fullname is required"],
+    },
+    email: {
+      type: String,
+      required: [true, "email is required"],
+      unique: true,
+    },
+  },
+  { timestamps: true }
+);
+userSchema.plugin(findOrCreate);
+const User = mongoose.model("FBusers", userSchema);
+
+
 
 const FacebookStrategy = passportfacebook.Strategy
 
@@ -26,7 +55,8 @@ passport.use(
       profileFields: ["id", "displayName", "email"],
     },
     function (accessToken, refreshToken, profile, done) {
-      User.findOrCreate(
+      //TODO ovie refactor this code!
+      User.findOneAndUpdate( //User.findOrCreate(
         { facebookId: profile.id, fullname: profile.displayName, email: profile._json.email },
         function (err: any, user: any) {
           //    return cb(err, user);
