@@ -2,29 +2,33 @@ import express, { Request, Response, NextFunction } from 'express';
 import Profile from "../models/profileModel"
 import jwt, { JwtPayload } from 'jsonwebtoken'
 import joi from 'joi';
+// import {authorizeUser}
 
 
-function authorizeUser(req: Request, res: Response) {
-    const Token = req.cookies.token || req.headers.token;
-    if (!Token) {
-        throw new Error("Unauthorized user")
-    }
-    try {
-        const userAuthorization = jwt.verify(
-            Token.toString(),
-            process.env.SECRET_KEY as string
-        ) as JwtPayload;
-        console.log(userAuthorization);
-        return userAuthorization.user_id;
-    } catch (err) {
-        throw new Error("Invalid token!")
-    }
+
+// function authorizeUser(req: customRequest, res: Response) {
+//     const Token = req.cookies.token || req.headers.token;
+//     if (!Token) {
+//         throw new Error("Unauthorized user")
+//     }
+//     try {
+//         const userAuthorization = jwt.verify(
+//             Token.toString(),
+//             process.env.SECRET_KEY as string
+//         ) as JwtPayload;
+//         console.log(userAuthorization);
+//         return userAuthorization.user_id;
+//     } catch (err) {
+//         throw new Error("Invalid token!")
+//     }
+// }
+
+
+type customRequest = Request & {
+    user?: { _id?: string },
 }
-
-
-
-async function viewProfile(req:Request, res:Response){
-    const user_id = authorizeUser(req, res);
+async function viewProfile(req: customRequest, res: Response) {
+    const user_id = req.user!._id
     let viewprofile = await Profile.findOne({ userId: user_id })
     return res.status(400).json({
         status: "profile details",
@@ -36,8 +40,8 @@ async function viewProfile(req:Request, res:Response){
 
 
 //Function to create Profile 
-async function createProfile(req: Request, res: Response) {
-    const user_id = authorizeUser(req, res);
+async function createProfile(req: customRequest, res: Response) {
+    const user_id = req.user!._id
     console.log(req.cookies.token);
 
     const profileSchema = joi.object({
@@ -97,15 +101,15 @@ async function createProfile(req: Request, res: Response) {
 
 
 //Function to get Profile by id
-// async function getAProfile(id: String, request: any) {
-//     const userId = authorizeUser(request)
+// async function getAProfile(id: String, customrequest: any) {
+//     const userId = authorizeUser(customrequest)
 //     let singleProfile = await Profile.findOne({userId, _id: id})
 //     return singleProfile
 // }
 
 //Function to edit a Profile
-async function updateProfile(req: Request, res: Response) {
-    const user_id = authorizeUser(req, res);
+async function updateProfile(req: customRequest, res: Response) {
+    const user_id = req.user!._id
     const { firstName, lastName, gender, role, location, about, profileImage } = req.body
 
     let findProfile = await Profile.findOne({ userId: user_id })
@@ -133,8 +137,8 @@ async function updateProfile(req: Request, res: Response) {
 }
 
 //Function to delete a Profile
-// async function deleteProfile(id: string, request: any){
-//     const userId = authorizeUser(request)
+// async function deleteProfile(id: string, customrequest: any){
+//     const userId = authorizeUser(customrequest)
 //     const ProfileId = id;
 //     let findProfile = await Profile.findOne({userId, _id: id}) 
 //         if (!findProfile) {
@@ -147,7 +151,6 @@ async function updateProfile(req: Request, res: Response) {
 export {
     createProfile,
     updateProfile,
-    authorizeUser,
     viewProfile
     // // getAllProfiles, 
     // deleteProfile,

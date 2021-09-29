@@ -3,27 +3,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.viewProfile = exports.authorizeUser = exports.updateProfile = exports.createProfile = void 0;
+exports.viewProfile = exports.updateProfile = exports.createProfile = void 0;
 const profileModel_1 = __importDefault(require("../models/profileModel"));
-const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const joi_1 = __importDefault(require("joi"));
-function authorizeUser(req, res) {
-    const Token = req.cookies.token || req.headers.token;
-    if (!Token) {
-        throw new Error("Unauthorized user");
-    }
-    try {
-        const userAuthorization = jsonwebtoken_1.default.verify(Token.toString(), process.env.SECRET_KEY);
-        console.log(userAuthorization);
-        return userAuthorization.user_id;
-    }
-    catch (err) {
-        throw new Error("Invalid token!");
-    }
-}
-exports.authorizeUser = authorizeUser;
 async function viewProfile(req, res) {
-    const user_id = authorizeUser(req, res);
+    const user_id = req.user._id;
     let viewprofile = await profileModel_1.default.findOne({ userId: user_id });
     return res.status(400).json({
         status: "profile details",
@@ -33,7 +17,7 @@ async function viewProfile(req, res) {
 exports.viewProfile = viewProfile;
 //Function to create Profile 
 async function createProfile(req, res) {
-    const user_id = authorizeUser(req, res);
+    const user_id = req.user._id;
     console.log(req.cookies.token);
     const profileSchema = joi_1.default.object({
         email: joi_1.default.string().min(3).max(255),
@@ -84,14 +68,14 @@ async function createProfile(req, res) {
 }
 exports.createProfile = createProfile;
 //Function to get Profile by id
-// async function getAProfile(id: String, request: any) {
-//     const userId = authorizeUser(request)
+// async function getAProfile(id: String, customrequest: any) {
+//     const userId = authorizeUser(customrequest)
 //     let singleProfile = await Profile.findOne({userId, _id: id})
 //     return singleProfile
 // }
 //Function to edit a Profile
 async function updateProfile(req, res) {
-    const user_id = authorizeUser(req, res);
+    const user_id = req.user._id;
     const { firstName, lastName, gender, role, location, about, profileImage } = req.body;
     let findProfile = await profileModel_1.default.findOne({ userId: user_id });
     console.log(findProfile);

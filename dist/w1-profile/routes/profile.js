@@ -1,14 +1,12 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const profileController_1 = require("../controllers/profileController");
-const userAuthorization_1 = __importDefault(require("../Auth/userAuthorization"));
+// import  userAuthorization  from '../Auth/userAuthorization'
+const Auth_1 = require("../../w1-Login/Auth");
 const router = (0, express_1.Router)();
 //registration route
-router.get('/profile/', userAuthorization_1.default, profileController_1.viewProfile);
-router.post('/profile', userAuthorization_1.default, profileController_1.createProfile);
-router.put('/profile/', userAuthorization_1.default, profileController_1.updateProfile);
+router.get('/profile/', Auth_1.authorization, profileController_1.viewProfile);
+router.post('/profile', Auth_1.authorization, profileController_1.createProfile);
+router.put('/profile/', Auth_1.authorization, profileController_1.updateProfile);
 exports.default = router;
