@@ -3,24 +3,32 @@
 /**
  * Module dependencies.
  */
-
+//configure environment variables
+var dotenv = require("dotenv");
+dotenv.config();
 var app = require("../dist/app").default;
 var debug = require("debug")("week11:server");
 var http = require("http");
-var dotenv = require("dotenv");
+var mongoose = require("mongoose")
 var server = http.createServer(app);
-const mongoose = require('mongoose')
 
-//configure environment variables
-dotenv.config();
+
+
 
 /**
  * Get port from environment and store in Express.
  */
+var port = normalizePort(process.env.PORT || "3000");
 
-mongoose.connect(process.env.DATABASE_URL).then(() => console.log('connected to database successfully'))
+//connect to mongodb
+mongoose
+  .connect(process.env.DATABASE_URL)
+  .then(() => console.log("connected to database successfully"))
+  .catch((err) =>
+    console.log("unable to connect to the database: ", err.message)
+  );
 
-var port = normalizePort(process.env.PORT || "3800");
+
 app.set("port", port);
 
 /**
@@ -30,7 +38,10 @@ app.set("port", port);
 /**
  * Listen on provided port, on all network interfaces.
  */
-server.listen(port);
+
+server.listen(port, () => {
+  console.log(`listening on port ${port}`)
+});
 server.on("error", onError);
 server.on("listening", onListening);
 
