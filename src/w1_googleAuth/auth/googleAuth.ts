@@ -1,7 +1,8 @@
 import dotenv from "dotenv";
 import passport from "passport";
 import passportGoogleOauth from "passport-google-oauth20";
-import userModel from "../models/pseudoUser";
+import userModel from "../../wk1-signup/model/user";
+import bcrypt from "bcrypt"
 
 const GoogleStrategy = passportGoogleOauth.Strategy;
 
@@ -37,9 +38,10 @@ passport.use(
       if (!currentUser) {
         // console.log("google strategy new : ", currentUser);
         const newUser = await userModel.create({
-          google_id: profile.id,
+          googleId: profile.id,
+          fullname: profile.displayName,
           email: profile.emails![0]["value"],
-          user: profile.displayName,
+          password: bcrypt.hashSync(profile.id, 12),
         });
         return done(null, newUser);
       }

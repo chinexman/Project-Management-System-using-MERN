@@ -18,6 +18,14 @@ const userSchema = new mongoose_1.default.Schema({
         type: String,
         required: true,
     },
+    facebookId: {
+        type: String,
+        required: false,
+    },
+    googleId: {
+        type: String,
+        required: false,
+    },
 });
 const UserModel = mongoose_1.default.model("user", userSchema);
 exports.default = UserModel;

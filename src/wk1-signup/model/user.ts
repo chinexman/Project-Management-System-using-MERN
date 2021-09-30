@@ -15,12 +15,22 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  facebookId: {
+    type: String,
+    required: false,
+  },
+  googleId: {
+    type: String,
+    required: false,
+  },
 });
 
 interface User {
   fullname?: string;
   email?: string;
   password?: string;
+  facebookId?: string;
+  googleId?: string;
 }
 
 const UserModel = mongoose.model<User>("user", userSchema);
