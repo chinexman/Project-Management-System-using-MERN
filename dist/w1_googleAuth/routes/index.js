@@ -11,8 +11,8 @@ require("../auth/googleAuth");
 const router = (0, express_1.Router)();
 //google
 router.get("/google", passport_1.default.authenticate("google", { scope: ["profile", "email"] }));
-router.get("/google/redirect", passport_1.default.authenticate("google"), googleController_1.googleCallBackFn);
+router.get("/google/redirect", passport_1.default.authenticate("google"), googleController_1.googleSuccessCallBackFn);
 router.get("/login", googleController_1.login);
-router.get("/profile", authorizeUser_1.default, googleController_1.homePage);
+router.get("/googleprofile", authorizeUser_1.default, googleController_1.homePage);
 router.get("/logout", googleController_1.logout);
 exports.default = router;

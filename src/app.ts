@@ -3,15 +3,16 @@ import express, { Request, Response, NextFunction } from "express";
 import path from "path";
 import cookieParser from "cookie-parser";
 import logger from "morgan";
-import profileRouter from "./w1-profile/routes/profile"
+// import profileRouter from "./w1-profile/routes/profile";
 import passport from "passport";
-import homeRouter from "./wk1_sso_fb/routes/home";
+// import homeRouter from "./wk1_sso_fb/routes/home";
 import cookieSession from "cookie-session";
-import googleRouter from "./w1_googleAuth/routes/index";
+// import googleRouter from "./w1_googleAuth/routes/index";
 import flash from "connect-flash";
-import passwordRouter from "./w1_resetPassword_Auth/routes/passwordchange"
-import usersRouter from "./wk1-signup/routes/users";
-import loginRoute from "./w1-Login/route";
+// import passwordRouter from "./w1_resetPassword_Auth/routes/passwordchange";
+// import usersRouter from "./wk1-signup/routes/users";
+import mainUsersRouter from "./routers/users_router";
+// import loginRoute from "./w1-Login/route";
 const app = express();
 
 // view engine setup
@@ -23,17 +24,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-// app.use(
-//   session({
-//     resave: false,
-//     saveUninitialized: true,
-//     secret: "SECRET",
-//   })
-// );
-
 app.use(
   cookieSession({
-
     maxAge: 3 * 60 * 1000, //3 MINUTES
     secret: process.env.JWT_SECRETKEY,
     keys: [
@@ -46,17 +38,6 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-
-
-
-app.use("/", homeRouter); //fb sso
-app.use("/users", passwordRouter); // password reset
-
-app.use("/w1-googlesso", googleRouter);
-app.use("/user", usersRouter);//user sign up
-// app.use("/w1-profiles/users", userProfileRouter);
-app.use('/w1-profiles/users', profileRouter)
-
 //Connect flash
 app.use(flash());
 //GLobal Vars
@@ -65,7 +46,29 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   res.locals.error_msg = req.flash("error_msg");
   next();
 });
-app.use("/user", loginRoute);
+// combination area
+/*  ROUTES
+/welcome
+../login
+../logout
+../loginfail
+../google
+../google/redirect
+../auth/facebook
+../auth/facebook/callback
+../loginPage
+../signup
+/acc-activation/:token 
+*/
+app.use("/users", mainUsersRouter);
+
+// app.use("/user", usersRouter); //user sign up
+// app.use("/user", loginRoute); // user login
+// app.use("/user", googleRouter); // google signin
+// app.use("/", homeRouter); //fb sso
+// app.use("/user", passwordRouter); // password reset
+// app.use("/user", profileRouter); // user profile
+// app.use("/w1-profiles/users", userProfileRouter);
 
 //app.use(sendMail)
 // catch 404 and forward to error handler
