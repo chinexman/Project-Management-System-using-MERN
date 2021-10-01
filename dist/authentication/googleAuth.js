@@ -12,18 +12,6 @@ const bcrypt_1 = __importDefault(require("bcrypt"));
 const GoogleStrategy = passport_google_oauth20_1.default.Strategy;
 const FacebookStrategy = passport_facebook_1.default.Strategy;
 dotenv_1.default.config();
-//for cookie purpose after login
-passport_1.default.serializeUser((user, done) => {
-    //tokenize userId
-    done(null, user._id);
-});
-//again visit the page
-passport_1.default.deserializeUser((id, done) => {
-    // console.log(id);
-    user_1.default.findById(id).then((user) => {
-        done(null, user);
-    });
-});
 passport_1.default.use(new FacebookStrategy({
     clientID: process.env.FACEBOOK_CLIENT_ID,
     clientSecret: process.env.FACEBOOK_CLIENT_SECRET,

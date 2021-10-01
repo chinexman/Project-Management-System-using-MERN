@@ -4,7 +4,7 @@ import bcrypt from "bcrypt";
 import { Strategy as localStrategy } from "passport-local";
 
 interface User {
-  id?: string;
+  _id?: string;
 }
 
 passport.use(
@@ -35,7 +35,7 @@ passport.use(
   )
 );
 passport.serializeUser((user: User, done) => {
-  done(null, user.id);
+  done(null, user._id);
 });
 
 passport.deserializeUser((id, done) => {

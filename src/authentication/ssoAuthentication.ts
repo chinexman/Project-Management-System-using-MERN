@@ -10,18 +10,6 @@ const FacebookStrategy = passportfacebook.Strategy;
 
 dotenv.config();
 type customUser = { _id?: string } & Express.User;
-//for cookie purpose after login
-passport.serializeUser((user: customUser, done) => {
-  //tokenize userId
-  done(null, user._id);
-});
-//again visit the page
-passport.deserializeUser((id, done) => {
-  // console.log(id);
-  userModel.findById(id).then((user) => {
-    done(null, user);
-  });
-});
 
 passport.use(
   new FacebookStrategy(
