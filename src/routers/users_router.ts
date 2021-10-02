@@ -14,9 +14,8 @@ import {
 } from "../controllers/users_controller";
 import passport from "passport";
 import { Router, Request, Response, NextFunction } from "express";
-import "../configFiles/passportConfig";
 import { authorization } from "../authentication/Auth";
-import "../authentication/ssoAuthentication";
+import "../authentication/passportStrategies";
 
 const router = Router();
 
