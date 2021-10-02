@@ -16,7 +16,7 @@ import passport from "passport";
 import { Router, Request, Response, NextFunction } from "express";
 import "../configFiles/passportConfig";
 import { authorization } from "../authentication/Auth";
-import "../authentication/googleAuth";
+import "../authentication/ssoAuthentication";
 
 const router = Router();
 
