@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-
 interface User {
   fullname?: string;
   email?: string;
@@ -7,13 +6,11 @@ interface User {
   facebookId?: string;
   googleId?: string;
 }
-
-const userSchema = new mongoose.Schema<User>({
+const userSchema = new mongoose.Schema({
   fullname: {
     type: String,
     required: true,
   },
-
   email: {
     type: String,
     required: true,
@@ -31,8 +28,21 @@ const userSchema = new mongoose.Schema<User>({
     type: String,
     required: false,
   },
+  gender: {
+    type: String,
+  },
+  role: {
+    type: String,
+  },
+  location: {
+    type: String,
+  },
+  about: {
+    type: String,
+  },
+  profileImage: {
+    type: String,
+  },
 });
-
 const UserModel = mongoose.model<User>("user", userSchema);
-
 export default UserModel;

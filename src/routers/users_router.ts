@@ -9,7 +9,6 @@ import {
   verifyResetPassword,
   forgetPassword,
   viewProfile,
-  createProfile,
   updateProfile,
 } from "../controllers/users_controller";
 import passport from "passport";
@@ -79,7 +78,6 @@ router.get(
 router.get("/loginPage", loginPage);
 router.post("/signup", createUser);
 router.get("/profile", authorization, viewProfile);
-router.post("/profile", authorization, createProfile);
 router.put("/profile", authorization, updateProfile);
 router.get("/acct-activation/:token", activateUserAcct);
 router.post("/password/changepassword", authorization, changePassword);
