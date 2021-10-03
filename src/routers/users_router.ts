@@ -11,6 +11,7 @@ import {
   viewProfile,
   updateProfile,
 } from "../controllers/users_controller";
+import {createInvite} from '../controllers/projectController'
 import passport from "passport";
 import { Router, Request, Response, NextFunction } from "express";
 import { authorization } from "../authentication/Auth";
@@ -79,6 +80,7 @@ router.get("/loginPage", loginPage);
 router.post("/signup", createUser);
 router.get("/profile", authorization, viewProfile);
 router.put("/profile", authorization, updateProfile);
+router.post('/invite',authorization, createInvite);
 router.get("/acct-activation/:token", activateUserAcct);
 router.post("/password/changepassword", authorization, changePassword);
 router.post("/password/forgetPassword", forgetPassword);
