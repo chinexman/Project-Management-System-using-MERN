@@ -6,7 +6,11 @@ import bcrypt from "bcrypt";
 import UserModel from "../models/user";
 import sendMail from "../utils/nodemailer";
 import Joi from "joi";
+import Team from "../models/team"
+import { teamType } from "../models/team"
 const _ = require("lodash");
+
+
 const secret: string = process.env.JWT_SECRETKEY as string;
 export async function createUser(req: Request, res: Response) {
   try {
@@ -264,3 +268,30 @@ export async function updateProfile(req: customRequest, res: Response) {
   });
 }
 export async function authInvite(req: customRequest, res: Response) {}
+
+///jah'swill////////////////////////////////////
+export async function createTeam(req: Request, res: Response){
+  const { projectId }  = req.params
+  //check for project using Id
+  // const project = Projects.findOne({ projectId})
+  let project; //templine
+  if(project){
+    const { teamName, about, team-members } = req.body
+    const accountSchema = Joi.object({
+      accountNumber: Joi.string().trim().required().max(10).min(10),
+      balance: Joi.string().trim().required()
+    });
+    try {
+        const validationResult = await accountSchema.validate(req.body, {
+            abortEarly: false,
+        })
+        if(validationResult.error) {
+            console.log("validation error")
+            res.status(400).json ({
+                message: "Invalid input, check and try again"
+            })
+            return;
+        }
+  }
+
+}
