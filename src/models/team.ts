@@ -29,6 +29,10 @@ const teamModel = new mongoose.Schema({
     "projectId": {
         type: String,
         require: true
+    },
+    "createdBy" : {
+        type: String,
+        require: true
     }
 
 }, {timestamps: true}) 
