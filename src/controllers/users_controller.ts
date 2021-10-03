@@ -7,6 +7,8 @@ import UserModel from "../models/user";
 import sendMail from "../utils/nodemailer";
 import Joi from "joi";
 const _ = require("lodash");
+import taskModel from "../models/task";
+
 const secret: string = process.env.JWT_SECRETKEY as string;
 export async function createUser(req: Request, res: Response) {
   try {

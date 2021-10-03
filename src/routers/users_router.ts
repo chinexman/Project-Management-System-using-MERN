@@ -84,5 +84,6 @@ router.post("/password/changepassword", authorization, changePassword);
 router.post("/password/forgetPassword", forgetPassword);
 router.get("/password/resetPassword/:token", verifyResetPassword);
 router.post("/password/resetPassword/:token", resetPassword);
+
 //googlesso, fbsso, profile, changepassword,
 export default router;
