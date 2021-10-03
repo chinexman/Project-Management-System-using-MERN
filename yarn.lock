@@ -3586,7 +3586,7 @@ oauth@0.9.x:
   resolved "https://registry.yarnpkg.com/oauth/-/oauth-0.9.15.tgz#bd1fefaf686c96b75475aed5196412ff60cfb9c1"
   integrity sha1-vR/vr2hslrdUda7VGWQS/2DPucE=
 
-object-assign@^4.1.0:
+object-assign@^4.0.1, object-assign@^4.1.0:
   version "4.1.1"
   resolved "https://registry.yarnpkg.com/object-assign/-/object-assign-4.1.1.tgz#2109adc7965887cfc05cbbd442cac8bfbb360863"
   integrity sha1-IQmtx5ZYh8/AXLvUQsrIv7s2CGM=
@@ -4302,6 +4302,15 @@ superagent@^6.1.0:
     qs "^6.9.4"
     readable-stream "^3.6.0"
     semver "^7.3.2"
+
+supertest-session@^4.1.0:
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/supertest-session/-/supertest-session-4.1.0.tgz#81d851ca311e12cc0b34c294012615649a55c159"
+  integrity sha512-zJmc2+WBpT772Pk6InGg90n0l1E+8rr5ue8PAyxefIEJWqbrn0RC02brrw7EC1wecoY+UH/AaQxMeo3sPrnPPA==
+  dependencies:
+    cookiejar "^2.1.2"
+    methods "^1.1.2"
+    object-assign "^4.0.1"
 
 supertest@^6.1.6:
   version "6.1.6"

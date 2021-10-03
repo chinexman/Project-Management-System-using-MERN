@@ -15,11 +15,21 @@ export async function deleteTask(req: Request, res: Response) {
   if (
     !taskModel.exists({
       _id: task_id,
-      admin: user._id,
     })
   ) {
     return res.status(404).json({
       message: "Task does not exist!",
+    });
+  }
+
+  if (
+    !taskModel.exists({
+      _id: task_id,
+      admin: user._id,
+    })
+  ) {
+    return res.status(403).json({
+      message: "You are not authorized to delete this task.",
     });
   }
   const deletedTask = await taskModel.findOneAndDelete({
