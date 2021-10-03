@@ -5,7 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importDefault(require("mongoose"));
 const projectsSchema = new mongoose_1.default.Schema({
-    userId: {
+    owner: {
         type: String
     },
     projectname: {
@@ -14,6 +14,7 @@ const projectsSchema = new mongoose_1.default.Schema({
         unique: true
     },
     collaborators: [{ email: String, isVerified: Boolean }]
+    // collaborators:[{type:mongoose.schemaTypes.ObjectId, ref:"collaborator"}]
 }, {
     timestamps: true
 });

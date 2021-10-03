@@ -20,7 +20,7 @@ async function createProject(req, res) {
             message: projectValidate.error.details[0].message
         });
     }
-    let findProject = await projectModel_1.default.findOne({ userId: user_id });
+    let findProject = await projectModel_1.default.findOne({ owner: user_id });
     if (!findProject) {
         res.status(400).json({
             message: "Project name already exist"
@@ -32,7 +32,7 @@ async function createProject(req, res) {
     projectObject = { ...projectObject, createdAt, updatedAt };
     let collaborator = projectObject.collaborators;
     const ProjectIN = await projectModel_1.default.create({
-        userId: user_id,
+        owner: user_id,
         projectname: projectObject.projectname,
         collaborators: [],
         createdAt: projectObject.createdAt,
@@ -61,16 +61,16 @@ async function createInvite(req, res) {
             message: emailValidate.error.details[0].message
         });
     }
-    let findProject = await projectModel_1.default.findOne({ userId: user_id, projectname: projectname });
+    let findProject = await projectModel_1.default.findOne({ owner: user_id, projectname: projectname });
     if (findProject) {
         console.log(findProject.collaborators);
         findProject.collaborators.push({ email: email, isVerified: isVerified });
         await findProject.save();
     }
     console.log(findProject);
-    //     let updatedProject = await Project.findOneAndUpdate({ userId: user_id }, { collaborators: email }, { new: true });
+    //     let updatedProject = await Project.findOneAndUpdate({ owner: user_id }, { collaborators: email }, { new: true });
     //    console.log(updatedProject)
-    const token = jsonwebtoken_1.default.sign({ userId: user_id, findProjectId: findProject === null || findProject === void 0 ? void 0 : findProject._id }, process.env.JWT_SECRETKEY, {
+    const token = jsonwebtoken_1.default.sign({ owner: user_id, findProjectId: findProject === null || findProject === void 0 ? void 0 : findProject._id }, process.env.JWT_SECRETKEY, {
         expiresIn: process.env.JWT_EMAIL_EXPIRES
     });
     const link = `http://localhost:3000/user/invite/createinvite${token}`;

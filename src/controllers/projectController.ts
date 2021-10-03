@@ -2,7 +2,6 @@
 
 import express, { Response, Request } from 'express';
 import Project from '../models/projectModel';
-import collaborator from '../models/collaboratorModel';
 import jwt, {JwtPayload} from 'jsonwebtoken';
 import joi from 'joi';
 import sendMail from '../utils/nodemailer';
