@@ -79,7 +79,8 @@ async function createInvite(req, res) {
    to join the collaborators. please click on this link ${link}`;
     (0, nodemailer_1.default)(email, body);
     res.status(200).json({
-        message: `email invite have been sent to ${email}`
+        message: `email invite have been sent to ${email}`,
+        token: link
     });
 }
 exports.createInvite = createInvite;
