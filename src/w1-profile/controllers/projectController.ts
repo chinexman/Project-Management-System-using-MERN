@@ -1,10 +1,10 @@
 
 
 import express, { Response, Request } from 'express';
-import Project from '../models/projectModel';
-import jwt, {JwtPayload} from 'jsonwebtoken';
+import Project from '../models/projectsModel';
+import Team from '../models/teamsModel';
 import joi from 'joi';
-import sendMail from '../utils/nodemailer';
+import sendMail from '../utils/nodeMailer';
 type customRequest = Request & {
     user?: { _id?: string, email?: string, fullname?: string },
 
@@ -14,6 +14,7 @@ async function createProject(req: customRequest, res: Response) {
 
 
     const user_id = req.user?._id;
+
     const projectsSchema = joi.object({
         projectname: joi.string().min(3).max(255).required()
 
@@ -26,8 +27,8 @@ async function createProject(req: customRequest, res: Response) {
         })
     }
 
-    let findProject = await Project.findOne({ owner: user_id })
-    if (!findProject) {
+    let findProject = await Project.findOne({ userId: user_id })
+    if (findProject) {
         res.status(400).json({
             message: "Project name already exist"
         })
@@ -40,14 +41,14 @@ async function createProject(req: customRequest, res: Response) {
     projectObject = { ...projectObject, createdAt, updatedAt }
 
 
-    let collaborator = projectObject.collaborators;
+    let team = projectObject.teams;
 
 
 
     const ProjectIN = await Project.create({
-        owner: user_id,
+        userId: user_id,
         projectname: projectObject.projectname,
-        collaborators:[],
+        teams: team,
         createdAt: projectObject.createdAt,
         updatedAt: projectObject.updatedAt
     });
@@ -61,16 +62,13 @@ async function createProject(req: customRequest, res: Response) {
 
 async function createInvite(req: customRequest, res: Response) {
 
-    const {email, projectname} = req.body;
-    
+    const {email} = req.body;
     console.log(email);
     const fullname = req.user?.fullname;
     const user_id = req.user?._id;
-    const isVerified :boolean = false;
+
     const emailSchema = joi.object({
         email: joi.string().required().min(6).max(225).email(),
-        projectname: joi.string().min(3).max(255).required()
-
 
     })
 
@@ -82,37 +80,28 @@ async function createInvite(req: customRequest, res: Response) {
     }
 
 
-    let findProject = await Project.findOne({ owner: user_id ,projectname:projectname})
+    let findProject = await Project.findOne({ userId: user_id })
     if (findProject) {
-        console.log(findProject.collaborators);
-        findProject.collaborators.push({email:email, isVerified:isVerified});
+        console.log(findProject.teams);
+        findProject.teams.push(email);
         await findProject.save();
     }
     console.log(findProject);
 
-    //     let updatedProject = await Project.findOneAndUpdate({ owner: user_id }, { collaborators: email }, { new: true });
+    //     let updatedProject = await Project.findOneAndUpdate({ userId: user_id }, { teams: email }, { new: true });
     //    console.log(updatedProject)
 
-
-  const token = jwt.sign({owner:user_id, findProjectId: findProject?._id,email:email}, 
-    process.env.JWT_SECRETKEY as string, {
-       expiresIn: process.env.JWT_EMAIL_EXPIRES as string
-
-  })
-
-
-    const link = `http://localhost:3000/user/invite/createinvite${token}`
+    const link = `http://localhost:3000/user/invite/`
 
     const body = `
    You have be invited by ${fullname}
-   to join the collaborators. please click on this link ${link}`;
+   to join the teams. please click on this link ${link}`;
 
     sendMail(email, body);
 
     res.status(200).json({
 
-        message: `email invite have been sent to ${email}`,
-        token : link
+        message: `email invite have been sent to ${email}`
     })
 
 }
@@ -121,15 +110,10 @@ async function updateProject(req: customRequest, res: Response) {
 
 }
 
-async function verifyCreateInvite(req:customRequest, res:Response){
-
-}
-
 export {
     createProject,
     updateProject,
-    createInvite,
-    verifyCreateInvite
+    createInvite
 }
 
 
