@@ -27,7 +27,7 @@ async function createProject(req: customRequest, res: Response) {
         })
     }
 
-    let findProject = await Project.findOne({ userId: user_id })
+    let findProject = await Project.findOne({ owner: user_id })
     if (!findProject) {
         res.status(400).json({
             message: "Project name already exist"
@@ -46,7 +46,7 @@ async function createProject(req: customRequest, res: Response) {
 
 
     const ProjectIN = await Project.create({
-        userId: user_id,
+        owner: user_id,
         projectname: projectObject.projectname,
         collaborators:[],
         createdAt: projectObject.createdAt,
@@ -83,7 +83,7 @@ async function createInvite(req: customRequest, res: Response) {
     }
 
 
-    let findProject = await Project.findOne({ userId: user_id ,projectname:projectname})
+    let findProject = await Project.findOne({ owner: user_id ,projectname:projectname})
     if (findProject) {
         console.log(findProject.collaborators);
         findProject.collaborators.push({email:email, isVerified:isVerified});
@@ -91,11 +91,11 @@ async function createInvite(req: customRequest, res: Response) {
     }
     console.log(findProject);
 
-    //     let updatedProject = await Project.findOneAndUpdate({ userId: user_id }, { collaborators: email }, { new: true });
+    //     let updatedProject = await Project.findOneAndUpdate({ owner: user_id }, { collaborators: email }, { new: true });
     //    console.log(updatedProject)
 
 
-  const token = jwt.sign({userId:user_id, findProjectId: findProject?._id}, 
+  const token = jwt.sign({owner:user_id, findProjectId: findProject?._id}, 
     process.env.JWT_SECRETKEY as string, {
        expiresIn: process.env.JWT_EMAIL_EXPIRES as string
 

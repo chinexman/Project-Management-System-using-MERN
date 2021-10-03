@@ -1,12 +1,13 @@
 import { boolean } from 'joi';
 import mongoose from 'mongoose';
-import teamsSchema from './collaboratorModel'
+import collaborator from './collaboratorModel'
+
 
 
 interface ProjectInterface {
-    userId:string,
+    owner:string,
     projectname:string,
-    collaborators:[{ email:string,isVerified:boolean}]
+    collaborators:[{ ownerId:string,projectId:string, email:string,isVerified:boolean}]
     createdAt:string,
     updatedAt:string
 
@@ -15,7 +16,7 @@ interface ProjectInterface {
 
 
 const projectsSchema = new  mongoose.Schema({
-  userId: {
+  owner: {
       type:String
   },
   projectname : {
@@ -23,7 +24,8 @@ const projectsSchema = new  mongoose.Schema({
       required:true,
       unique:true
   },
-  collaborators: [{ email:String,isVerified:Boolean}]
+//   collaborators: [{ email:String,isVerified:Boolean}]
+collaborators:[{type:mongoose.schemaTypes.ObjectId, ref:"collaborator"}]
 
 
 },{

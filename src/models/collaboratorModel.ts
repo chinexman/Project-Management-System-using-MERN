@@ -1,9 +1,9 @@
 import mongoose from 'mongoose';
 
 interface collaboratorInterface {
-    userId : string,
+    ownerId : string,
     projectId: string,
-    collaborators: string,
+    collaborator: string,
     createdAt:string,
     updatedAt:string
 }
@@ -11,16 +11,21 @@ interface collaboratorInterface {
 const collaboratorsSchema = new mongoose.Schema({
 
 
-    userId: {
+    ownerId: {
         type:String
     },
     projectId:{
         type:String
     },
-    collaborators:{
+    collaborator:{
         type:String,
         required:true,
         unique: true
+    },
+    isVerified:{
+        type:Boolean,
+        required:true
+
     }
 
 
@@ -28,6 +33,6 @@ const collaboratorsSchema = new mongoose.Schema({
     timestamps:true
 })
 
-const collaborator = mongoose.model('collaborators',collaboratorsSchema);
+const collaborator = mongoose.model('collaborator',collaboratorsSchema);
 
 export default collaborator
