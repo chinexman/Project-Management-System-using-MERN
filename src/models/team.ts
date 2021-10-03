@@ -23,7 +23,7 @@ const teamModel = new mongoose.Schema({
         type: String,
         require: true
     },
-    "team-members" : [
+    "members" : [
         {type: mongoose.SchemaTypes.ObjectId}
     ],//cool
     "projectId": {

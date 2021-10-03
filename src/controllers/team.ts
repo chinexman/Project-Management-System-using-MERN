@@ -1,5 +1,9 @@
 import express, { Request, Response } from "express"
-
+import Joi from "joi";
+import Team from "../models/team";
+import Project from "../models/projectModel";
+import UserModel from "../models/user";
+import {User} from "../models/user";
 
 
 
@@ -8,15 +12,16 @@ import express, { Request, Response } from "express"
 export async function createTeam(req: Request, res: Response){
   const { projectId }  = req.params
   //check for project using Id
-  // const project = Projects.findOne({ projectId})
-  let project; //templine
+  const project = await Project.findOne({ projectId})
   if(project){
-    const { teamName, about, teamMembers } = req.body
+    const { teamName, about } = req.body
+    const ownerId = project.owner ///i hope this is the owners id....///check out to create a project
     const teamSchema = 
       Joi.object({
       teamName: Joi.string().trim().required(),
       about: Joi.string().trim().required(),
-      teamMembers: Joi.array(),//making this fiels not required so an empty array can be stored in DB,    
+    //   members: Joi.string().trim()//making this fiels not required so an empty array can be stored in DB,//how to mak ethi sfield not compulsory
+      //inputting the emails of tea members and using thi sto check the user Db to find the id's to save
     });
     try {
         const inputValidation = await teamSchema.validate(req.body, {
@@ -30,7 +35,37 @@ export async function createTeam(req: Request, res: Response){
             })
             return;
         }
-        
+            // var membersEmail = members.split(",")///singular use of var bCus of line 45
+            // console.log(membersEmail)
+            // let membersId = membersEmail.map(async (mail: string) => await UserModel.findOne({email: mail}))
+            // let checkForNull = membersId.filter((elem: User ) => elem === null)
+            // if(checkForNull)
+        //     const newTeam = await Team.create({
+        //         teamName,
+        //         about,
+        //         // "members": membersEmail,
+        //         "createdBy": ownerId,
+        //         projectId
+            
+
+        //     return res.json({
+        //         messsage: "Team crated successfully",
+        //         teamCreated: newTeam,
+        //         membersStatus: "members added"
+        //     })
+        // }
+
+        const newTeam = await Team.create({
+            teamName,
+            about,
+            "createdBy": ownerId,
+            projectId
+        })
+        return res.json({
+            messsage: "Team crated successfully",
+            teamCreated: newTeam,
+            membersStatus: "No members added"
+        })
 
     }catch(err){
       res.json({
