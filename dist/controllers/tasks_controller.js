@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.uploadFileCloudinary = exports.getAllTasks = exports.deleteTask = exports.createTask = void 0;
+exports.getTasksByStatus = exports.uploadFileCloudinary = exports.getAllTasks = exports.deleteTask = exports.createTask = void 0;
 const task_1 = __importDefault(require("../models/task"));
 const cloudinary_1 = require("../utils/cloudinary");
 async function createTask(req, res) {
@@ -105,3 +105,18 @@ exports.uploadFileCloudinary = uploadFileCloudinary;
 //     },
 //   });
 // }
+async function getTasksByStatus(req, res) {
+    //  const taskStatus = await Task.findById({ status: req.params.status });
+    try {
+        const getTask = await task_1.default.find({ status: req.params.status });
+        console.log(getTask);
+        if (getTask.length < 1) {
+            return res.status(404).json({ msg: `${req.params.status} cleared` });
+        }
+        res.status(200).json({ msg: getTask });
+    }
+    catch (err) {
+        res.status(400).send(err);
+    }
+}
+exports.getTasksByStatus = getTasksByStatus;

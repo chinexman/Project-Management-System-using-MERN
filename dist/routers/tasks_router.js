@@ -2,10 +2,11 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const Auth_1 = require("../authentication/Auth");
-const { createTask, deleteTask, getAllTasks, uploadFileCloudinary, } = require("../controllers/tasks_controller");
+const { createTask, deleteTask, getAllTasks, uploadFileCloudinary, getTasksByStatus, } = require("../controllers/tasks_controller");
 const router = (0, express_1.Router)();
 router.post("/create", Auth_1.authorization, createTask);
 router.delete("/delete/:id", Auth_1.authorization, deleteTask);
 router.get("/getTasks", Auth_1.authorization, getAllTasks);
 router.post("/upload", Auth_1.authorization, uploadFileCloudinary);
+router.get("/getTasks/:status", Auth_1.authorization, getTasksByStatus);
 exports.default = router;
