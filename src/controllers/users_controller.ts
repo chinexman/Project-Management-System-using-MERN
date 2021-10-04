@@ -1,6 +1,6 @@
 //user_controller
 import jwt, { JwtPayload } from "jsonwebtoken";
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import joiUserSchema from "../validations/validate";
 import bcrypt from "bcrypt";
 import UserModel from "../models/user";
@@ -8,6 +8,8 @@ import sendMail from "../utils/nodemailer";
 import Joi from "joi";
 const _ = require("lodash");
 const secret: string = process.env.JWT_SECRETKEY as string;
+
+
 export async function createUser(req: Request, res: Response) {
   try {
     const validation = joiUserSchema.validate(req.body);
@@ -37,6 +39,7 @@ export async function createUser(req: Request, res: Response) {
     res.status(400).send(`${err}`);
   }
 }
+
 export async function activateUserAcct(req: Request, res: Response) {
   try {
     const token = req.params.token;
@@ -77,6 +80,7 @@ export async function activateUserAcct(req: Request, res: Response) {
     res.status(400).json({ msg: "Something went wrong.." });
   }
 }
+
 export function logout(req: Request, res: Response) {
   req.logOut();
   res.json({
@@ -88,6 +92,7 @@ export function loginPage(req: Request, res: Response) {
   console.log(req.user);
   res.render("loginPage");
 }
+
 export function googleSuccessCallBackFn(req: Request, res: Response) {
   console.log("googleSuccessCB:", req.user);
   res.redirect("/users/welcome");
@@ -264,3 +269,47 @@ export async function updateProfile(req: customRequest, res: Response) {
   });
 }
 export async function authInvite(req: customRequest, res: Response) {}
+
+
+// /logic to update project
+export async function updateProject (req:Request, res: Response, next: NextFunction) {
+  try {
+    const { name, startDate, deadline, isFavorite, isCompleted } = req.body;
+const id = req.params.id
+    const project = await Model.findByPk(id);
+
+    if (!project) {
+      res.status(404);
+      throw new Error("Peoject isn't available ");
+    }
+
+    // UPDATE OR RETAIN PROJECT DATA
+    project.name = name || project.name;
+    project.startDate = startDate || project.startDate;
+    project.deadline = deadline || project.deadline;
+    project.isFavorite = isFavorite || project.isFavorite;
+    project.isCompleted = isCompleted || project.isCompleted;
+
+    await project.save();
+
+    res.status(200).json({ message: 'Project updated successfully', project });
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+// Logic to get all prjects 
+export async function getAllProject (req: Request, res: Response, next: NextFunction) {
+  const userId = req.user!.id;
+  try {
+    const projects = await Model.findAll({userId});
+    if (projects.length === 0) {
+      res.status(404);
+      throw new Error('There are no projects available ');
+    } else {
+      res.json(projects);
+    }
+  } catch (error) {
+    console.log(error)
+  }
+}
