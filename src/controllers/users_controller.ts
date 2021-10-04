@@ -1,4 +1,5 @@
 //user_controller
+
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { Request, Response } from "express";
 import joiUserSchema from "../validations/validate";

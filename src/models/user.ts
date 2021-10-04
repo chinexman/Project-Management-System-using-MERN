@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
-interface User {
+export interface User {
+  _id: any;
   fullname?: string;
   email?: string;
   password?: string;
