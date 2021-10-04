@@ -109,3 +109,16 @@ export async function uploadFileCloudinary(req: Request, res: Response) {
 //     },
 //   });
 // }
+export async function getTasksByStatus(req: userInterface, res: Response) {
+  //  const taskStatus = await Task.findById({ status: req.params.status });
+  try {
+    const getTask = await Task.find({ status: req.params.status });
+    console.log(getTask);
+    if (getTask.length < 1) {
+      return res.status(404).json({ msg: `${req.params.status} cleared` });
+    }
+    res.status(200).json({ msg: getTask });
+  } catch (err) {
+    res.status(400).send(err);
+  }
+}
