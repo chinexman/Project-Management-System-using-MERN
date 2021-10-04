@@ -54,9 +54,9 @@ export async function uploadFileCloudinary(req: Request, res: Response) {
   const file_secure_url = response.secure_url;
   //done with processing.
   const newUpload = new fileModel({
-    name: [file_secure_url],
+    name: file?.originalname,
+    url: file_secure_url,
   });
-  console.log(typeof newUpload);
   await newUpload.save();
   res
     .status(200)

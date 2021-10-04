@@ -49,9 +49,9 @@ async function uploadFileCloudinary(req, res) {
     const file_secure_url = response.secure_url;
     //done with processing.
     const newUpload = new file_1.default({
-        name: [file_secure_url],
+        name: file === null || file === void 0 ? void 0 : file.originalname,
+        url: file_secure_url,
     });
-    console.log(typeof newUpload);
     await newUpload.save();
     res
         .status(200)

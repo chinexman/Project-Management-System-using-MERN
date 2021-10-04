@@ -6,7 +6,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importDefault(require("mongoose"));
 const fileSystem = new mongoose_1.default.Schema({
     name: {
-        type: [String],
+        type: String,
+    },
+    url: {
+        type: String,
     },
 }, { timestamps: true });
 const fileModel = mongoose_1.default.model("file", fileSystem);
