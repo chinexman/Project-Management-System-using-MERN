@@ -6,8 +6,8 @@ import bcrypt from "bcrypt";
 import UserModel from "../models/user";
 import sendMail from "../utils/nodemailer";
 import Joi from "joi";
-import Team from "../models/team"
-import { teamType } from "../models/team"
+import Team from "../models/teamModel"
+import { teamType } from "../models/teamModel"
 const _ = require("lodash");
 
 

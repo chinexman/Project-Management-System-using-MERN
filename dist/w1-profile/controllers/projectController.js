@@ -3,11 +3,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.verifyCreateInvite = exports.createInvite = exports.updateProject = exports.createProject = void 0;
-const projectModel_1 = __importDefault(require("../models/projectModel"));
-const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+exports.createInvite = exports.updateProject = exports.createProject = void 0;
+const projectsModel_1 = __importDefault(require("../models/projectsModel"));
 const joi_1 = __importDefault(require("joi"));
-const nodemailer_1 = __importDefault(require("../utils/nodemailer"));
+const nodeMailer_1 = __importDefault(require("../utils/nodeMailer"));
 async function createProject(req, res) {
     var _a;
     const user_id = (_a = req.user) === null || _a === void 0 ? void 0 : _a._id;
@@ -20,10 +19,9 @@ async function createProject(req, res) {
             message: projectValidate.error.details[0].message
         });
     }
-    const { projectname } = req.body;
-    let findProject = await projectModel_1.default.findOne({ projectname }); ////checking the project by the owner instead of the prject name
+    let findProject = await projectsModel_1.default.findOne({ userId: user_id });
     if (findProject) {
-        return res.status(400).json({
+        res.status(400).json({
             message: "Project name already exist"
         });
     }
@@ -31,13 +29,13 @@ async function createProject(req, res) {
     const createdAt = new Date().toISOString();
     const updatedAt = createdAt;
     projectObject = { ...projectObject, createdAt, updatedAt };
-    let collaborator = projectObject.collaborators;
-    const ProjectIN = await projectModel_1.default.create({
-        owner: user_id,
-        projectname: projectname,
-        collaborators: [] ///how are we going to add collaborators
-        // createdAt: projectObject.createdAt,
-        // updatedAt: projectObject.updatedAt
+    let team = projectObject.teams;
+    const ProjectIN = await projectsModel_1.default.create({
+        userId: user_id,
+        projectname: projectObject.projectname,
+        teams: team,
+        createdAt: projectObject.createdAt,
+        updatedAt: projectObject.updatedAt
     });
     res.status(201).json({
         status: "success",
@@ -47,14 +45,12 @@ async function createProject(req, res) {
 exports.createProject = createProject;
 async function createInvite(req, res) {
     var _a, _b;
-    const { email, projectname } = req.body;
+    const { email } = req.body;
     console.log(email);
     const fullname = (_a = req.user) === null || _a === void 0 ? void 0 : _a.fullname;
     const user_id = (_b = req.user) === null || _b === void 0 ? void 0 : _b._id;
-    const isVerified = false;
     const emailSchema = joi_1.default.object({
         email: joi_1.default.string().required().min(6).max(225).email(),
-        projectname: joi_1.default.string().min(3).max(255).required()
     });
     const emailValidate = emailSchema.validate(req.body);
     if (emailValidate.error) {
@@ -62,32 +58,25 @@ async function createInvite(req, res) {
             message: emailValidate.error.details[0].message
         });
     }
-    let findProject = await projectModel_1.default.findOne({ owner: user_id, projectname: projectname });
+    let findProject = await projectsModel_1.default.findOne({ userId: user_id });
     if (findProject) {
-        console.log(findProject.collaborators);
-        findProject.collaborators.push({ email: email, isVerified: isVerified });
+        console.log(findProject.teams);
+        findProject.teams.push(email);
         await findProject.save();
     }
     console.log(findProject);
-    //     let updatedProject = await Project.findOneAndUpdate({ owner: user_id }, { collaborators: email }, { new: true });
+    //     let updatedProject = await Project.findOneAndUpdate({ userId: user_id }, { teams: email }, { new: true });
     //    console.log(updatedProject)
-    const token = jsonwebtoken_1.default.sign({ owner: user_id, findProjectId: findProject === null || findProject === void 0 ? void 0 : findProject._id, email: email }, process.env.JWT_SECRETKEY, {
-        expiresIn: process.env.JWT_EMAIL_EXPIRES
-    });
-    const link = `http://localhost:3000/user/invite/createinvite${token}`;
+    const link = `http://localhost:3000/user/invite/`;
     const body = `
    You have be invited by ${fullname}
-   to join the collaborators. please click on this link ${link}`;
-    (0, nodemailer_1.default)(email, body);
+   to join the teams. please click on this link ${link}`;
+    (0, nodeMailer_1.default)(email, body);
     res.status(200).json({
-        message: `email invite have been sent to ${email}`,
-        token: link
+        message: `email invite have been sent to ${email}`
     });
 }
 exports.createInvite = createInvite;
 async function updateProject(req, res) {
 }
 exports.updateProject = updateProject;
-async function verifyCreateInvite(req, res) {
-}
-exports.verifyCreateInvite = verifyCreateInvite;

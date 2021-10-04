@@ -8,6 +8,7 @@ import cookieSession from "cookie-session";
 import flash from "connect-flash";
 import mainUsersRouter from "./routers/users_router";
 import mainProjectRouter from './routers/project_router'
+import mainTeamRouter from "./routers/teams_router"
 const app = express();
 
 // view engine setup
@@ -57,6 +58,8 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 */
 app.use("/users", mainUsersRouter);
 app.use("/users/projects", mainProjectRouter);
+app.use("/users/teams", mainTeamRouter);
+
 
 //app.use(sendMail)
 // catch 404 and forward to error handler

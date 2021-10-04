@@ -4,9 +4,9 @@ import mongoose from "mongoose";
 export interface teamType {
     "teamName": String,
     "about": String,
-    "team-members": teamMembersObj[],
+    "members": teamMembersObj[],
     "projectId": String
-
+    "createdBy": string
 }
 
 interface teamMembersObj {

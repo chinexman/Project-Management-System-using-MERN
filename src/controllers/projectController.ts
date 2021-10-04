@@ -25,10 +25,10 @@ async function createProject(req: customRequest, res: Response) {
             message: projectValidate.error.details[0].message
         })
     }
-
-    let findProject = await Project.findOne({ owner: user_id })
-    if (!findProject) {
-        res.status(400).json({
+    const { projectname } = req.body
+    let findProject = await Project.findOne({ projectname })////checking the project by the owner instead of the prject name
+    if (findProject) {
+      return  res.status(400).json({
             message: "Project name already exist"
         })
     }
@@ -46,10 +46,10 @@ async function createProject(req: customRequest, res: Response) {
 
     const ProjectIN = await Project.create({
         owner: user_id,
-        projectname: projectObject.projectname,
-        collaborators:[],
-        createdAt: projectObject.createdAt,
-        updatedAt: projectObject.updatedAt
+        projectname: projectname,
+        collaborators:[] ///how are we going to add collaborators
+        // createdAt: projectObject.createdAt,
+        // updatedAt: projectObject.updatedAt
     });
 
     res.status(201).json({
