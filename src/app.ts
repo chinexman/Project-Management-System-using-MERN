@@ -56,7 +56,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 /acc-activation/:token 
 */
 app.use("/users", mainUsersRouter);
-app.use("/users/projects", mainProjectRouter);
+app.use("/users", mainProjectRouter);
 
 //app.use(sendMail)
 // catch 404 and forward to error handler

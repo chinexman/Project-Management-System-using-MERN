@@ -4,7 +4,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const users_controller_1 = require("../controllers/users_controller");
-const projectController_1 = require("../controllers/projectController");
 const passport_1 = __importDefault(require("passport"));
 const express_1 = require("express");
 const Auth_1 = require("../authentication/Auth");
@@ -44,7 +43,6 @@ router.get("/loginPage", users_controller_1.loginPage);
 router.post("/signup", users_controller_1.createUser);
 router.get("/profile", Auth_1.authorization, users_controller_1.viewProfile);
 router.put("/profile", Auth_1.authorization, users_controller_1.updateProfile);
-router.post('/invite', Auth_1.authorization, projectController_1.createInvite);
 router.get("/acct-activation/:token", users_controller_1.activateUserAcct);
 router.post("/password/changepassword", Auth_1.authorization, users_controller_1.changePassword);
 router.post("/password/forgetPassword", users_controller_1.forgetPassword);

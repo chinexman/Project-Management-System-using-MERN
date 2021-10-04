@@ -12,6 +12,7 @@ const passport_1 = __importDefault(require("passport"));
 const cookie_session_1 = __importDefault(require("cookie-session"));
 const connect_flash_1 = __importDefault(require("connect-flash"));
 const users_router_1 = __importDefault(require("./routers/users_router"));
+const project_router_1 = __importDefault(require("./routers/project_router"));
 const app = (0, express_1.default)();
 // view engine setup
 app.set("views", path_1.default.resolve(path_1.default.join(__dirname, "../", "views")));
@@ -53,6 +54,7 @@ app.use((req, res, next) => {
 /acc-activation/:token
 */
 app.use("/users", users_router_1.default);
+app.use("/users", project_router_1.default);
 //app.use(sendMail)
 // catch 404 and forward to error handler
 app.use(function (_req, _res, next) {
