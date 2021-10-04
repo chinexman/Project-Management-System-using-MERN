@@ -236,8 +236,11 @@ async function resetPassword(req, res) {
 }
 exports.resetPassword = resetPassword;
 async function viewProfile(req, res) {
+    console.log("i am about to view profile");
     const user_id = req.user._id;
-    let viewprofile = await user_1.default.findOne({ userId: user_id });
+    console.log(user_id);
+    let viewprofile = await user_1.default.findOne({ _id: user_id });
+    console.log(viewprofile);
     return res.status(200).json({
         status: "profile details",
         data: viewprofile,

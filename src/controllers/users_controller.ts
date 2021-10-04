@@ -230,8 +230,11 @@ export async function resetPassword(req: Request, res: Response) {
   }
 }
 export async function viewProfile(req: customRequest, res: Response) {
+  console.log("i am about to view profile")
   const user_id = req.user!._id;
-  let viewprofile = await UserModel.findOne({ userId: user_id });
+  console.log(user_id);
+  let viewprofile = await UserModel.findOne({ _id: user_id });
+  console.log(viewprofile);
   return res.status(200).json({
     status: "profile details",
     data: viewprofile,

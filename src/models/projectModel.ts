@@ -16,7 +16,8 @@ export interface ProjectInterface {
 
 const projectsSchema = new mongoose.Schema({
     owner: {
-        type: String
+        type: String,
+        required:true
     },
     name: {
         type: String,
