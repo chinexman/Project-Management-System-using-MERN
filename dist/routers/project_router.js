@@ -6,5 +6,5 @@ const Auth_1 = require("../authentication/Auth");
 const router = (0, express_1.Router)();
 router.post('/invite', Auth_1.authorization, projectController_1.createInvite);
 router.post('/project', Auth_1.authorization, projectController_1.createProject);
-router.post('/invite/:token', Auth_1.authorization, projectController_1.verifyCreateInvite);
+// router.get('/invite/:token',authorization, verifyCreateInvite);
 exports.default = router;

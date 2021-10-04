@@ -10,8 +10,9 @@ import {
   forgetPassword,
   viewProfile,
   updateProfile,
+  createInviteUser
 } from "../controllers/users_controller";
-import {createInvite,verifyCreateInvite,createProject} from '../controllers/projectController'
+import {createInvite,createProject} from '../controllers/projectController'
 import passport from "passport";
 import { Router, Request, Response, NextFunction } from "express";
 import { authorization } from "../authentication/Auth";
@@ -77,7 +78,7 @@ router.get(
   })
 );
 router.get("/loginPage", loginPage);
-router.post("/signup", createUser);
+router.post("/signup", createUser)
 router.get("/profile", authorization, viewProfile);
 router.put("/profile", authorization, updateProfile);
 router.get("/acct-activation/:token", activateUserAcct);
@@ -85,5 +86,7 @@ router.post("/password/changepassword", authorization, changePassword);
 router.post("/password/forgetPassword", forgetPassword);
 router.get("/password/resetPassword/:token", verifyResetPassword);
 router.post("/password/resetPassword/:token", resetPassword);
+router.post('/inviteUser/:token',createInviteUser);
+
 //googlesso, fbsso, profile, changepassword,
 export default router;

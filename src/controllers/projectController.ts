@@ -1,11 +1,11 @@
 
 
 import express, { Response, Request } from 'express';
-import Project from '../models/projectModel';
+import projectModel, {ProjectInterface} from '../models/projectModel';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import joi from 'joi';
 import sendMail from '../utils/nodemailer';
-import UserModel from '../models/user';
+import UserModel, { User } from '../models/user';
 type customRequest = Request & {
     user?: { _id?: string, email?: string, fullname?: string },
 
@@ -31,7 +31,7 @@ async function createProject(req: customRequest, res: Response) {
         })
     }
 
-    let findProject = await Project.findOne({ projectname: projectname })
+    let findProject = await projectModel.findOne({ name: projectname })
     console.log(findProject);
     if (findProject) {
         res.status(400).json({
@@ -39,75 +39,105 @@ async function createProject(req: customRequest, res: Response) {
         })
     }
 
-    const ProjectIN = await Project.create({
+    const newProject = await projectModel.create({
         owner: user_id,
-        projectname: projectname,
+        name: projectname,
         collaborators: [],
 
     });
 
-   return  res.status(201).json({
+    return res.status(201).json({
         status: "success",
-        data: ProjectIN
+        data: newProject
     })
 
 }
 
 async function createInvite(req: customRequest, res: Response) {
 
-    const { email, projectname } = req.body;
+    let { email, projectname } = req.body;
 
-    console.log(email);
     const fullname = req.user?.fullname;
     const user_id = req.user?._id;
     const isVerified: boolean = false;
     const emailSchema = joi.object({
-        email: joi.string().required().min(6).max(225).email(),
-        projectname: joi.string().min(3).max(255).required()
+           email: joi.string().required().min(6).max(225).email(),
+           projectname: joi.string().min(3).max(255).required()
 
 
-    })
+             })
 
     const emailValidate = emailSchema.validate(req.body);
-    if (emailValidate.error) {
+        if (emailValidate.error) {
         return res.status(400).json({
             message: emailValidate.error.details[0].message
         })
-    }
+        }
+    
+    let isVerifiedEmail: User | null;
+    let body: string = "";
+    let findProject = await projectModel.findOne({ owner: user_id, name: projectname })
+       if(!findProject)  return res.status(400).json({
+        message: ` ${projectname} does not exist on this user`
+       })
+    
+    
+    isVerifiedEmail = await UserModel.findOne({ email: email })
+    if (!isVerifiedEmail) {
+
+             findProject.collaborators.push({ email: email, isVerified: false });   
+              await findProject.save();
+            
+            
+              const token = jwt.sign(
+                { owner: user_id, projectId: findProject?._id, email: email },
+                process.env.JWT_SECRETKEY as string,
+                { expiresIn: process.env.JWT_EMAIL_EXPIRES as string })
+                
+                const link = `http://localhost:3008/users/inviteUser/${token}`
+                
+                body = `
+                You have be invited by ${fullname}
+                to join the ${findProject.name}project. please click on this link ${link}`;
+                
+                
+                
+                if (process.env.NODE_ENV != "test") {
+                    sendMail(email, body);
+                }
+
+               return res.status(200).json({
+
+                    message: `email invite have been sent to ${email}`,
+                    token: link
+                })
+                console.log("i got here")
+                
+                
+ } else {
+
+            findProject.collaborators.push({ email: email, isVerified: true });
+            
+            body = `
+                  You have be invited by ${fullname}
+                  to  the ${findProject.name}project.`;
+
+           if (process.env.NODE_ENV != "test") {
+              sendMail(email, body);
+            }
 
 
-    let findProject = await Project.findOne({ owner: user_id, projectname: projectname })
-    if (findProject) {
-        console.log(findProject.collaborators);
-        findProject.collaborators.push({ email: email, isVerified: isVerified });
-        await findProject.save();
-    }
-    console.log(findProject);
+            return res.status(200).json({
 
-    //     let updatedProject = await Project.findOneAndUpdate({ owner: user_id }, { collaborators: email }, { new: true });
-    //    console.log(updatedProject)
+                message: `${email} have been added to ${findProject.name}project`,
+    
+            })
 
 
-    const token = jwt.sign({ owner: user_id, ProjectId: findProject?._id, email: email },
-        process.env.JWT_SECRETKEY as string, {
-        expiresIn: process.env.JWT_EMAIL_EXPIRES as string
-
-    })
 
 
-    const link = `http://localhost:3000/user/invite/createinvite${token}`
+        }
 
-    const body = `
-   You have be invited by ${fullname}
-   to join the ${projectname}project. please click on this link ${link}`;
-
-    sendMail(email, body);
-
-    res.status(200).json({
-
-        message: `email invite have been sent to ${email}`,
-        token: link
-    })
 
 }
 
@@ -115,42 +145,96 @@ async function updateProject(req: customRequest, res: Response) {
 
 }
 
-async function verifyCreateInvite(req: customRequest, res: Response) {
-    try {
-        const token = req.params.token;
-        console.log(token);
-        if (token) {
-            jwt.verify(
-                token,
-                process.env.JWT_SECRETKEY as string,
-                async (err: any, decodedToken: any) => {
-                    if (err) {
-                        return res.status(400).json({ error: "Incorrect or Expired link" })
-                    }
-                    const { email, projectId, ownerId } = decodedToken
-                    console.log(decodedToken);
+// async function verifyCreateInvite(req: customRequest, res: Response) {
 
-                    const checkEmail = await UserModel.findOne({ email });
-                    if (checkEmail) {
+//     let verifyInvite : ProjectInterface | null;
+//     try {
+//         const token = req.params.token;
+//         // console.log(token);
+//         if (token) {
+//             jwt.verify(
+//                 token,
+//                 process.env.JWT_SECRETKEY as string,
+//                 async (err: any, decodedToken: any) => {
+//                     if (err) {
+//                         return res.status(400).json({ error: "Incorrect or Expired link" })
+//                     }
+//                     const { email, projectId, owner } = decodedToken
+//                     console.log(decodedToken)
 
-                        const verifyInvite = await Project.findOne({ projectId });
-                        if (verifyInvite) {
-                            // verifyInvite.collaborators.isVerified= true;
-                        }
-                    }
+//                 // body implementation
 
-                })
-        }//if
 
-    } catch (err) { }
+//                     const { password,fullname} = req.body
+//                     const emailSchema = joi.object({
+//                         fullname: joi.string().required().min(6).max(225).email(),
+//                         password: joi.string().min(3).max(255).required()
+             
+             
+//                           })
+             
+//                  const emailValidate = emailSchema.validate(req.body);
+//                      if (emailValidate.error) {
+//                      return res.status(400).json({
+//                          message: emailValidate.error.details[0].message
+//                      })
+//                      }
 
-}
+
+
+
+//                   //end body implementation
+//                     const checkEmail = await UserModel.findOne({ email });
+//                     console.log(checkEmail)
+//                     if (!checkEmail) {
+                        
+//                         verifyInvite = await projectModel.findOne({ _id: projectId, owner: owner });
+//                        console.log(verifyInvite);
+//                        if (verifyInvite) {
+//                            const collab = verifyInvite.collaborators.find(email);
+//                            collab!.isVerified = true;
+//                            await verifyInvite.save();
+                        
+//                         }
+//                         return res.status(200).json({
+//                             message: `you have being added to ${verifyInvite?.name} project`
+//                         })
+                   
+//                     }else{
+//                         return res.status(400).json({
+//                             message: `${email} is already registered`
+//                         })
+//                     }
+
+
+//                 })
+//         }//if
+
+//     } catch (err) { }
+
+
+
+
+// }
 
 export {
     createProject,
     updateProject,
     createInvite,
-    verifyCreateInvite
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

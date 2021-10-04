@@ -8,13 +8,12 @@ const projectsSchema = new mongoose_1.default.Schema({
     owner: {
         type: String
     },
-    projectname: {
+    name: {
         type: String,
         required: true,
         unique: true
     },
     collaborators: [{ email: String, isVerified: Boolean }]
-    // collaborators:[{type:mongoose.schemaTypes.ObjectId, ref:"collaborator"}]
 }, {
     timestamps: true
 });

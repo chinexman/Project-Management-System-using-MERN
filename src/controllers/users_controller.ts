@@ -5,7 +5,10 @@ import joiUserSchema from "../validations/validate";
 import bcrypt from "bcrypt";
 import UserModel from "../models/user";
 import sendMail from "../utils/nodemailer";
+import projectModel from "../models/projectModel";
+import { ProjectInterface } from "../models/projectModel";
 import Joi from "joi";
+import collaborator from '../models/collaboratorModel';
 const _ = require("lodash");
 const secret: string = process.env.JWT_SECRETKEY as string;
 export async function createUser(req: Request, res: Response) {
@@ -65,6 +68,7 @@ export async function activateUserAcct(req: Request, res: Response) {
           });
           const user = await newUser.save();
           if (user) {
+
             return res.status(201).json({ msg: "New User created", user });
           }
           res
@@ -263,4 +267,81 @@ export async function updateProfile(req: customRequest, res: Response) {
     data: updatedProfile,
   });
 }
-export async function authInvite(req: customRequest, res: Response) {}
+
+
+
+export async function createInviteUser(req: Request, res: Response) {
+    
+  try {
+      const token = req.params.token;
+      // console.log(token);
+
+      //decode the token
+      if (token) {
+          jwt.verify(
+              token,
+              process.env.JWT_SECRETKEY as string,
+              async (err: any, decodedToken: any) => {
+                  if (err) {
+                      return res.status(400).json({ error: "Incorrect or Expired link" })
+                  }
+                  const { email, projectId, owner } = decodedToken
+                  console.log(decodedToken)
+
+              // body validation
+                  const { password,fullname} = req.body
+                  const inviteUserSchema = Joi.object({
+                      fullname: Joi.string().required().min(6).max(225),
+                      password: Joi.string().min(3).max(255).required()
+                        })
+           
+               const inviteUserValidate = inviteUserSchema.validate(req.body);
+                   if (inviteUserValidate.error) {
+                   return res.status(400).json({
+                       message: inviteUserValidate.error.details[0].message
+                   })
+                   }
+                   
+                   // 
+                   const checkEmail = await UserModel.findOne({ email });
+                   if (checkEmail) {
+                     return res.status(400).json({
+                         message: "User with this email already exists"
+                     })
+                    }
+
+          const hashPassword = await bcrypt.hash(password, 10);
+          const newUser = new UserModel({
+            fullname,
+            email,
+            password: hashPassword,
+          });
+          const user = await newUser.save();
+          console.log(user)
+
+         const verifyInvite = await projectModel.findOne({ _id: projectId, owner: owner });
+         console.log(verifyInvite);
+           
+         if (verifyInvite) {
+           console.log("i got here")
+          const collab = verifyInvite.collaborators.find(collaborator=> collaborator.email === email);
+          console.log(" second spot");
+          collab!.isVerified = true;
+          await verifyInvite.save();
+      
+      }
+      return res.status(200).json({
+          message: `you have being added to ${verifyInvite?.name} project`
+      })
+    
+
+              })
+      }//if
+
+  } catch (err) { 
+
+  }
+
+}
+
+

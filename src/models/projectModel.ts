@@ -3,34 +3,33 @@ import mongoose from 'mongoose';
 
 
 
-interface ProjectInterface {
-    owner:string,
-    projectname:string,
-    collaborators:[{ email:string,isVerified:boolean}]
-    createdAt:string,
-    updatedAt:string
+export interface ProjectInterface {
+    owner: string,
+    name: string,
+    collaborators: [{ email: string, isVerified: boolean }]
+    createdAt: string,
+    updatedAt: string
 
 }
 
 
 
-const projectsSchema = new  mongoose.Schema({
-  owner: {
-      type:String
-  },
-  projectname : {
-      type:String,
-      required:true,
-      unique:true
-  },
-  collaborators: [{ email:String,isVerified:Boolean}]
-// collaborators:[{type:mongoose.schemaTypes.ObjectId, ref:"collaborator"}]
+const projectsSchema = new mongoose.Schema({
+    owner: {
+        type: String
+    },
+    name: {
+        type: String,
+        required: true,
+        unique: true
+    },
+    collaborators: [{ email: String, isVerified: Boolean }]
 
-
-},{
-    timestamps:true
+}, {
+    timestamps: true
 })
 
 const Project = mongoose.model<ProjectInterface>('projects', projectsSchema);
+
 
 export default Project;
