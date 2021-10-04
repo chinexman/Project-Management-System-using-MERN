@@ -5,7 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const passport_1 = __importDefault(require("passport"));
 const passport_facebook_1 = __importDefault(require("passport-facebook"));
-const user_1 = __importDefault(require("../../wk1-signup/model/user"));
+const user_1 = __importDefault(require("../models/user"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
 // const userSchema = new mongoose.Schema(
 //   {
@@ -48,7 +48,7 @@ passport_1.default.use(new FacebookStrategy({
             facebookId: profile.id,
             fullname: profile.displayName,
             email: profile._json.email,
-            password: bcrypt_1.default.hashSync(profile.id, 12)
+            password: bcrypt_1.default.hashSync(profile.id, 12),
         });
         return done(null, profile);
     }

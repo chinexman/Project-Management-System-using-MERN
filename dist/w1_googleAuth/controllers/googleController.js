@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.googleCallBackFn = exports.logout = exports.login = exports.homePage = void 0;
+exports.googleSuccessCallBackFn = exports.logout = exports.login = exports.homePage = void 0;
 function homePage(req, res) {
     console.log(req.user);
     res.render("googleHomepage", { data: req.user });
@@ -12,11 +12,10 @@ function login(req, res) {
 exports.login = login;
 function logout(req, res) {
     req.logout();
-    res.redirect("/w1-googlesso/login");
 }
 exports.logout = logout;
-function googleCallBackFn(req, res) {
+function googleSuccessCallBackFn(req, res) {
     console.log(req.user);
-    res.redirect("/w1-googlesso/profile");
+    res.redirect("/user/googleprofile");
 }
-exports.googleCallBackFn = googleCallBackFn;
+exports.googleSuccessCallBackFn = googleSuccessCallBackFn;

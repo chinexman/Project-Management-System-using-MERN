@@ -5,7 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.resetPassword = exports.verifyResetPassword = exports.forgetPassword = exports.changePassword = void 0;
 const user_1 = __importDefault(require("../../wk1-signup/model/user"));
-const bcryptjs_1 = __importDefault(require("bcryptjs"));
+const bcrypt_1 = __importDefault(require("bcrypt"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const nodemailer_1 = __importDefault(require("../../wk1-signup/util/nodemailer"));
 // import EmailDomainValidator from "email-domain-validator";
@@ -16,28 +16,28 @@ async function changePassword(req, res) {
     //validation of all input fields
     const id = req.user._id;
     try {
-        const validUser = await bcryptjs_1.default.compare(oldPassword, req.user.password);
+        const validUser = await bcrypt_1.default.compare(oldPassword, req.user.password);
         // console.log(validUser, "validUser")
         if (validUser) {
             if (newPassword === repeatPassword) {
-                const newPasswordUpdate = await bcryptjs_1.default.hash(newPassword, 12);
-                const newUserInfo = await user_1.default.findByIdAndUpdate({ _id: id }, { password: newPassword }, { new: true });
+                const newPasswordUpdate = await bcrypt_1.default.hash(newPassword, 12);
+                const newUserInfo = await user_1.default.findByIdAndUpdate({ _id: id }, { password: newPasswordUpdate }, { new: true });
                 // console.log(newUserInfo, "newUserInfo")
                 res.status(200).json({
-                    newUserInfo
+                    newUserInfo,
                 });
                 return;
             }
             else {
                 res.status(404).json({
-                    message: "Password and repeat password does not match"
+                    message: "Password and repeat password does not match",
                 });
                 return;
             }
         }
         else {
             res.status(404).json({
-                message: "Incorrect password"
+                message: "Incorrect password",
             });
             return;
         }
@@ -46,7 +46,7 @@ async function changePassword(req, res) {
     catch (err) {
         // console.log(err)
         res.status(400).json({
-            error: err
+            error: err,
         });
         return;
     }
@@ -62,8 +62,8 @@ async function forgetPassword(req, res) {
         console.log(user);
         // console.log(user)
         if (user) {
-            const token = jsonwebtoken_1.default.sign({ id: user._id }, secret, { expiresIn: '30mins' });
-            const link = `http://localhost:${process.env.PORT}/users/password/resetPassword/${token}`;
+            const token = jsonwebtoken_1.default.sign({ id: user._id }, secret, { expiresIn: "30mins" });
+            const link = `http://localhost:${process.env.PORT}/user/password/resetPassword/${token}`;
             // console.log(link)
             // console.log(token)
             //the variables for the nodemailer
@@ -75,26 +75,20 @@ async function forgetPassword(req, res) {
             (0, nodemailer_1.default)(email, body); ///adding the title variable to the nodemailer
             res.status(200).json({
                 message: "Link sent to your mail.",
-                link: link
+                link: link,
             });
         }
         else {
             res.status(400).json({
-                message: "Email not found."
+                message: "Email not found.",
             });
             return;
         }
-        // }else{
-        //   res.status(400).json({
-        //     message: "Invalid email provided."
-        //   })
-        //   return ;
-        // }
     }
     catch (err) {
         console.log(err);
         res.status(404).json({
-            message: "Route crashed"
+            message: "Route crashed",
         });
     }
 }
@@ -102,21 +96,20 @@ exports.forgetPassword = forgetPassword;
 async function verifyResetPassword(req, res) {
     let { token } = req.params;
     console.log(token, "token-verify");
-    const verification = await jsonwebtoken_1.default.verify(token, secret); ///verification
+    const verification = (await jsonwebtoken_1.default.verify(token, secret)); ///verification
     console.log(verification, "verification");
     const id = verification.id;
     const isValidId = await user_1.default.findOne({ _id: id });
     try {
         if (isValidId) {
             //line missing?
-            token = jsonwebtoken_1.default.sign({ id: id }, secret, { expiresIn: '1d' });
-            res.render("reset-password", { title: "Reset-Password",
-                token: token });
+            token = jsonwebtoken_1.default.sign({ id: id }, secret, { expiresIn: "1d" });
+            res.render("reset-password", { title: "Reset-Password", token: token });
         }
     }
     catch (err) {
         res.json({
-            message: err
+            message: err,
         });
     }
 }
@@ -126,7 +119,7 @@ async function resetPassword(req, res) {
     console.log(token, "token-reset");
     try {
         // res.json(req.params)
-        const verification = await jsonwebtoken_1.default.verify(token, secret); ///verification
+        const verification = (await jsonwebtoken_1.default.verify(token, secret)); ///verification
         console.log(verification, "verification-reset");
         const id = verification.id;
         if (verification) {
@@ -134,30 +127,30 @@ async function resetPassword(req, res) {
             if (user) {
                 let { newPassword, repeatPassword } = req.body;
                 if (newPassword === repeatPassword) {
-                    newPassword = await bcryptjs_1.default.hash(newPassword, 12);
+                    newPassword = await bcrypt_1.default.hash(newPassword, 12);
                     const updatedUser = await user_1.default.findOneAndUpdate({ _id: id }, { password: newPassword }, { new: true });
                     res.status(400).json({
-                        updatedUser: updatedUser
+                        updatedUser: updatedUser,
                     });
                     return;
                 }
                 else {
                     res.status(400).json({
-                        message: "newpassword and repeatpassword don't match"
+                        message: "newpassword and repeatpassword don't match",
                     });
                     return;
                 }
             }
             else {
                 res.status(400).json({
-                    message: "user does not exist"
+                    message: "user does not exist",
                 });
                 return;
             }
         }
         else {
             res.status(400).json({
-                message: "verification error"
+                message: "verification error",
             });
             return;
         }
@@ -166,58 +159,9 @@ async function resetPassword(req, res) {
         res.status(400).json({
             message: "This is the catch block message",
             // message: "Catch block",
-            error: err.message
+            error: err.message,
         });
         return;
     }
 }
 exports.resetPassword = resetPassword;
-// export async function resetPassword (req: Request, res: Response){
-//   try{ 
-//     // res.json(req.params)
-//     const { token } = req.params
-//     console.log(token, "token")
-//     const verification = await jwt.verify(token, secret) as JwtPayload///verification
-//     console.log(verification, "verification")
-//     const id = verification.id
-//     if(verification){
-//       const user = await SignUp.findOne({ _id: id })
-//         if(user){
-//           let { newPassword, repeatPassword } = req.body
-//           if( newPassword === repeatPassword){
-//             newPassword = await bcrypt.hash(newPassword, 12);
-//             const updatedUser = await SignUp.findOneAndUpdate({ _id: id }, {password: newPassword}, {new: true})
-//             res.status(400).json({
-//               updatedUser: updatedUser
-//             })
-//             return ;
-//           }else{
-//             res.status(400).json({
-//               message: "newpassword and repeatpassword don't match"
-//             })
-//             return ;
-//           }
-//         }else{
-//           res.status(400).json({
-//             message: "user does not exist"
-//           })
-//           return ;
-//         }
-//       }
-//       else{
-//       res.status(400).json({
-//           message: verification
-//       })
-//         return ;
-//     }
-//   }catch(err: any){
-//     res.status(400).json({
-//       message: "Catch block",
-//       error: err?.message
-//     })
-//     return ;
-//   }
-// }
-// export async function resetPassword(req: Request, res: Response){
-//   const { oldPassword, newPassword, repeatPassword } = req.body
-// }
