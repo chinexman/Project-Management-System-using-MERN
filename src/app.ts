@@ -7,6 +7,7 @@ import passport from "passport";
 import cookieSession from "cookie-session";
 import flash from "connect-flash";
 import mainUsersRouter from "./routers/users_router";
+import mainProjectRouter from './routers/project_router'
 const app = express();
 
 // view engine setup
@@ -55,6 +56,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 /acc-activation/:token 
 */
 app.use("/users", mainUsersRouter);
+app.use("/users", mainProjectRouter);
 
 //app.use(sendMail)
 // catch 404 and forward to error handler
