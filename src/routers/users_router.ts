@@ -11,6 +11,11 @@ import {
   viewProfile,
   updateProfile,
 } from "../controllers/users_controller";
+import {
+  createInvite,
+  verifyCreateInvite,
+  createProject,
+} from "../controllers/projectController";
 import passport from "passport";
 import { Router, Request, Response, NextFunction } from "express";
 import { authorization } from "../authentication/Auth";

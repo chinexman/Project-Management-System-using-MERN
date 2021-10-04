@@ -10,6 +10,8 @@ import mainUsersRouter from "./routers/users_router";
 import Tasks from "./routers/tasks_router";
 import multer from "multer";
 
+import mainProjectRouter from "./routers/project_router";
+import mainTeamRouter from "./routers/teams_router";
 const app = express();
 const storage = multer.memoryStorage();
 const upload = multer({ storage }).single("file");
@@ -62,6 +64,9 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 */
 app.use("/users", mainUsersRouter);
 app.use("/tasks", Tasks);
+app.use("/users/projects", mainProjectRouter);
+app.use("/users/teams", mainTeamRouter);
+
 //app.use(sendMail)
 // catch 404 and forward to error handler
 app.use(function (_req, _res, next) {

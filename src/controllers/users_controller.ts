@@ -7,7 +7,10 @@ import bcrypt from "bcrypt";
 import UserModel from "../models/user";
 import sendMail from "../utils/nodemailer";
 import Joi from "joi";
+import Team from "../models/teamModel";
+import { teamType } from "../models/teamModel";
 const _ = require("lodash");
+
 const secret: string = process.env.JWT_SECRETKEY as string;
 export async function createUser(req: Request, res: Response) {
   try {
