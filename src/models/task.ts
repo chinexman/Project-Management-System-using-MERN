@@ -32,6 +32,7 @@ const taskSchema = new mongoose.Schema(
       require: true,
     },
     comments: [{ type: mongoose.SchemaTypes.ObjectId, ref: "comment" }],
+
     dueDate: {
       type: mongoose.SchemaTypes.Date,
       require: true,

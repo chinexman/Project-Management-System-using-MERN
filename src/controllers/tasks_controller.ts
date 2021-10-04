@@ -13,9 +13,9 @@ export async function deleteTask(req: Request, res: Response) {
   const user = req.user as typeof req.user & { _id: string };
   const task_id = req.params.id;
   if (
-    !taskModel.exists({
+    !(await taskModel.exists({
       _id: task_id,
-    })
+    }))
   ) {
     return res.status(404).json({
       message: "Task does not exist!",
@@ -23,10 +23,10 @@ export async function deleteTask(req: Request, res: Response) {
   }
 
   if (
-    !taskModel.exists({
+    !(await taskModel.exists({
       _id: task_id,
       admin: user._id,
-    })
+    }))
   ) {
     return res.status(403).json({
       message: "You are not authorized to delete this task.",
