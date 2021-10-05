@@ -10,6 +10,7 @@ export interface Task {
   comments: String;
   dueTime: Date;
 }
+
 const taskSchema = new mongoose.Schema(
   {
     title: {
@@ -26,7 +27,7 @@ const taskSchema = new mongoose.Schema(
       require: true,
       default: "Backlog",
     },
-    admin: {
+    owner: {
       type: mongoose.SchemaTypes.ObjectId,
       ref: "user",
       require: true,

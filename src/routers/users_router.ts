@@ -10,6 +10,7 @@ import {
   forgetPassword,
   viewProfile,
   updateProfile,
+  createInviteUser,
 } from "../controllers/users_controller";
 import passport from "passport";
 import { Router, Request, Response, NextFunction } from "express";
@@ -84,6 +85,7 @@ router.post("/password/changepassword", authorization, changePassword);
 router.post("/password/forgetPassword", forgetPassword);
 router.get("/password/resetPassword/:token", verifyResetPassword);
 router.post("/password/resetPassword/:token", resetPassword);
+router.post("/inviteUser/:token", createInviteUser);
 
 //googlesso, fbsso, profile, changepassword,
 export default router;

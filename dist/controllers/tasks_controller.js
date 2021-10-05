@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getTasksByStatus = exports.uploadFileCloudinary = exports.createTask = exports.deleteTask = exports.getTasks = void 0;
+exports.updateTask = exports.getTasksByStatus = exports.uploadFileCloudinary = exports.createTask = exports.deleteTask = exports.getTasks = void 0;
 const task_1 = __importDefault(require("../models/task"));
 const task_2 = __importDefault(require("../models/task"));
 const cloudinary_1 = require("../utils/cloudinary");
@@ -46,19 +46,18 @@ async function deleteTask(req, res) {
 exports.deleteTask = deleteTask;
 async function createTask(req, res) {
     const { title, description, status, assignee, comments, dueDate } = req.body;
-    const user = req.user;
     const getTask = await task_2.default.findOne({
         title: title,
         description: description,
     });
     if (getTask) {
-        return res.status(409).json({
+        return res.status(400).json({
             msg: "Task with the title already exists for that particular user",
         });
     }
     const task = new task_2.default({
         ...req.body,
-        owner: user._id,
+        owner: req.user._id,
         assignee,
     });
     try {
@@ -107,10 +106,38 @@ async function getTasksByStatus(req, res) {
         if (getTask.length < 1) {
             return res.status(404).json({ msg: `${req.params.status} cleared` });
         }
-        res.status(200).json({ msg: getTask });
+        res.status(200).json({ tasks: getTask });
     }
     catch (err) {
         res.status(400).send(err);
     }
 }
 exports.getTasksByStatus = getTasksByStatus;
+async function updateTask(req, res) {
+    const taskId = req.params.task;
+    console.log(taskId);
+    const { title, description, status, assignee, comments, dueDate } = req.body;
+    const getTask = await task_2.default.findOne({
+        _id: taskId,
+        owner: req.user._id,
+    });
+    console.log(getTask);
+    if (!getTask) {
+        return res.status(404).json({
+            msg: "Task with the title does not exists for that particular user",
+        });
+    }
+    let updatedTask = await task_2.default.findOneAndUpdate({ owner: req.user._id }, {
+        title,
+        description,
+        status,
+        assignee,
+        comments,
+        dueDate,
+    }, { new: true });
+    res.status(201).json({
+        status: "success",
+        data: updatedTask,
+    });
+}
+exports.updateTask = updateTask;

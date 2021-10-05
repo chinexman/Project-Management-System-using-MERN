@@ -8,9 +8,12 @@ const projectModel_1 = __importDefault(require("../models/projectModel"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const joi_1 = __importDefault(require("joi"));
 const nodemailer_1 = __importDefault(require("../utils/nodemailer"));
+const user_1 = __importDefault(require("../models/user"));
 async function createProject(req, res) {
     var _a;
     const user_id = (_a = req.user) === null || _a === void 0 ? void 0 : _a._id;
+    const { projectname } = req.body;
+    console.log(projectname);
     const projectsSchema = joi_1.default.object({
         projectname: joi_1.default.string().min(3).max(255).required(),
     });
@@ -20,35 +23,27 @@ async function createProject(req, res) {
             message: projectValidate.error.details[0].message,
         });
     }
-    const { projectname } = req.body;
-    let findProject = await projectModel_1.default.findOne({ projectname }); ////checking the project by the owner instead of the prject name
+    let findProject = await projectModel_1.default.findOne({ name: projectname });
+    console.log(findProject);
     if (findProject) {
-        return res.status(400).json({
+        res.status(400).json({
             message: "Project name already exist",
         });
     }
-    let projectObject = req.body;
-    const createdAt = new Date().toISOString();
-    const updatedAt = createdAt;
-    projectObject = { ...projectObject, createdAt, updatedAt };
-    let collaborator = projectObject.collaborators;
-    const ProjectIN = await projectModel_1.default.create({
+    const newProject = await projectModel_1.default.create({
         owner: user_id,
-        projectname: projectname,
-        collaborators: [], ///how are we going to add collaborators
-        // createdAt: projectObject.createdAt,
-        // updatedAt: projectObject.updatedAt
+        name: projectname,
+        collaborators: [],
     });
-    res.status(201).json({
+    return res.status(201).json({
         status: "success",
-        data: ProjectIN,
+        data: newProject,
     });
 }
 exports.createProject = createProject;
 async function createInvite(req, res) {
     var _a, _b;
-    const { email, projectname } = req.body;
-    console.log(email);
+    let { email, projectname } = req.body;
     const fullname = (_a = req.user) === null || _a === void 0 ? void 0 : _a.fullname;
     const user_id = (_b = req.user) === null || _b === void 0 ? void 0 : _b._id;
     const isVerified = false;
@@ -62,29 +57,44 @@ async function createInvite(req, res) {
             message: emailValidate.error.details[0].message,
         });
     }
+    let isVerifiedEmail;
+    let body = "";
     let findProject = await projectModel_1.default.findOne({
         owner: user_id,
-        projectname: projectname,
+        name: projectname,
     });
-    if (findProject) {
-        console.log(findProject.collaborators);
-        findProject.collaborators.push({ email: email, isVerified: isVerified });
+    if (!findProject)
+        return res.status(400).json({
+            message: ` ${projectname} does not exist on this user`,
+        });
+    isVerifiedEmail = await user_1.default.findOne({ email: email });
+    if (!isVerifiedEmail) {
+        findProject.collaborators.push({ email: email, isVerified: false });
         await findProject.save();
+        const token = jsonwebtoken_1.default.sign({ owner: user_id, projectId: findProject === null || findProject === void 0 ? void 0 : findProject._id, email: email }, process.env.JWT_SECRETKEY, { expiresIn: process.env.JWT_EMAIL_EXPIRES });
+        const link = `${process.env.HOME_URL}:${process.env.PORT}/users/inviteUser/${token}`;
+        body = `
+                You have be invited by ${fullname}
+                to join the ${findProject.name}project. please click on this link ${link}`;
+        if (process.env.NODE_ENV != "test") {
+            (0, nodemailer_1.default)(email, body);
+        }
+        return res.status(200).json({
+            message: `email invite have been sent to ${email}`,
+            token: link,
+        });
     }
-    console.log(findProject);
-    //     let updatedProject = await Project.findOneAndUpdate({ owner: user_id }, { collaborators: email }, { new: true });
-    //    console.log(updatedProject)
-    const token = jsonwebtoken_1.default.sign({ owner: user_id, findProjectId: findProject === null || findProject === void 0 ? void 0 : findProject._id, email: email }, process.env.JWT_SECRETKEY, {
-        expiresIn: process.env.JWT_EMAIL_EXPIRES,
-    });
-    const link = `${process.env.HOME_URL}:${process.env.PORT}/user/invite/createinvite${token}`;
-    const body = `
-   You have be invited by ${fullname}
-   to join the collaborators. please click on this link ${link}`;
-    (0, nodemailer_1.default)(email, body);
-    res.status(200).json({
-        message: `email invite have been sent to ${email}`,
-        token: link,
-    });
+    else {
+        findProject.collaborators.push({ email: email, isVerified: true });
+        body = `
+                  You have be invited by ${fullname}
+                  to  the ${findProject.name}project.`;
+        if (process.env.NODE_ENV != "test") {
+            (0, nodemailer_1.default)(email, body);
+        }
+        return res.status(200).json({
+            message: `${email} have been added to ${findProject.name}project`,
+        });
+    }
 }
 exports.createInvite = createInvite;

@@ -5,6 +5,8 @@ import joiUserSchema from "../validations/validate";
 import bcrypt from "bcrypt";
 import UserModel from "../models/user";
 import sendMail from "../utils/nodemailer";
+import projectModel from "../models/projectModel";
+import Joi from "joi";
 const _ = require("lodash");
 
 const secret: string = process.env.JWT_SECRETKEY as string;
@@ -221,8 +223,11 @@ export async function resetPassword(req: Request, res: Response) {
   }
 }
 export async function viewProfile(req: customRequest, res: Response) {
+  console.log("i am about to view profile");
   const user_id = req.user!._id;
-  let viewprofile = await UserModel.findOne({ userId: user_id });
+  console.log(user_id);
+  let viewprofile = await UserModel.findOne({ _id: user_id });
+  console.log(viewprofile);
   return res.status(200).json({
     status: "profile details",
     data: viewprofile,
@@ -257,4 +262,76 @@ export async function updateProfile(req: customRequest, res: Response) {
     status: "success",
     data: updatedProfile,
   });
+}
+
+export async function createInviteUser(req: Request, res: Response) {
+  try {
+    const token = req.params.token;
+    // console.log(token);
+
+    //decode the token
+    if (token) {
+      jwt.verify(
+        token,
+        process.env.JWT_SECRETKEY as string,
+        async (err: any, decodedToken: any) => {
+          if (err) {
+            return res.status(400).json({ error: "Incorrect or Expired link" });
+          }
+          const { email, projectId, owner } = decodedToken;
+          console.log(decodedToken);
+
+          // body validation
+          const { password, fullname } = req.body;
+          const inviteUserSchema = Joi.object({
+            fullname: Joi.string().required().min(6).max(225),
+            password: Joi.string().min(3).max(255).required(),
+          });
+
+          const inviteUserValidate = inviteUserSchema.validate(req.body);
+          if (inviteUserValidate.error) {
+            return res.status(400).json({
+              message: inviteUserValidate.error.details[0].message,
+            });
+          }
+
+          //
+          const checkEmail = await UserModel.findOne({ email });
+          if (checkEmail) {
+            return res.status(400).json({
+              message: "User with this email already exists",
+            });
+          }
+
+          const hashPassword = await bcrypt.hash(password, 10);
+          const newUser = new UserModel({
+            fullname,
+            email,
+            password: hashPassword,
+          });
+          const user = await newUser.save();
+          console.log(user);
+
+          const verifyInvite = await projectModel.findOne({
+            _id: projectId,
+            owner: owner,
+          });
+          console.log(verifyInvite);
+
+          if (verifyInvite) {
+            console.log("i got here");
+            const collab = verifyInvite.collaborators.find(
+              (collaborator) => collaborator.email === email
+            );
+            console.log(" second spot");
+            collab!.isVerified = true;
+            await verifyInvite.save();
+          }
+          return res.status(200).json({
+            message: `you have being added to ${verifyInvite?.name} project`,
+          });
+        }
+      );
+    } //if
+  } catch (err) {}
 }

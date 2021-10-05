@@ -48,5 +48,6 @@ router.post("/password/changepassword", Auth_1.authorization, users_controller_1
 router.post("/password/forgetPassword", users_controller_1.forgetPassword);
 router.get("/password/resetPassword/:token", users_controller_1.verifyResetPassword);
 router.post("/password/resetPassword/:token", users_controller_1.resetPassword);
+router.post("/inviteUser/:token", users_controller_1.createInviteUser);
 //googlesso, fbsso, profile, changepassword,
 exports.default = router;

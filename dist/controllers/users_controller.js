@@ -3,13 +3,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateProfile = exports.viewProfile = exports.resetPassword = exports.verifyResetPassword = exports.forgetPassword = exports.changePassword = exports.googleSuccessCallBackFn = exports.loginPage = exports.logout = exports.activateUserAcct = exports.createUser = void 0;
+exports.createInviteUser = exports.updateProfile = exports.viewProfile = exports.resetPassword = exports.verifyResetPassword = exports.forgetPassword = exports.changePassword = exports.googleSuccessCallBackFn = exports.loginPage = exports.logout = exports.activateUserAcct = exports.createUser = void 0;
 //user_controller
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const validate_1 = __importDefault(require("../validations/validate"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const user_1 = __importDefault(require("../models/user"));
 const nodemailer_1 = __importDefault(require("../utils/nodemailer"));
+const projectModel_1 = __importDefault(require("../models/projectModel"));
+const joi_1 = __importDefault(require("joi"));
 const _ = require("lodash");
 const secret = process.env.JWT_SECRETKEY;
 async function createUser(req, res) {
@@ -229,8 +231,11 @@ async function resetPassword(req, res) {
 }
 exports.resetPassword = resetPassword;
 async function viewProfile(req, res) {
+    console.log("i am about to view profile");
     const user_id = req.user._id;
-    let viewprofile = await user_1.default.findOne({ userId: user_id });
+    console.log(user_id);
+    let viewprofile = await user_1.default.findOne({ _id: user_id });
+    console.log(viewprofile);
     return res.status(200).json({
         status: "profile details",
         data: viewprofile,
@@ -263,3 +268,63 @@ async function updateProfile(req, res) {
     });
 }
 exports.updateProfile = updateProfile;
+async function createInviteUser(req, res) {
+    try {
+        const token = req.params.token;
+        // console.log(token);
+        //decode the token
+        if (token) {
+            jsonwebtoken_1.default.verify(token, process.env.JWT_SECRETKEY, async (err, decodedToken) => {
+                if (err) {
+                    return res.status(400).json({ error: "Incorrect or Expired link" });
+                }
+                const { email, projectId, owner } = decodedToken;
+                console.log(decodedToken);
+                // body validation
+                const { password, fullname } = req.body;
+                const inviteUserSchema = joi_1.default.object({
+                    fullname: joi_1.default.string().required().min(6).max(225),
+                    password: joi_1.default.string().min(3).max(255).required(),
+                });
+                const inviteUserValidate = inviteUserSchema.validate(req.body);
+                if (inviteUserValidate.error) {
+                    return res.status(400).json({
+                        message: inviteUserValidate.error.details[0].message,
+                    });
+                }
+                //
+                const checkEmail = await user_1.default.findOne({ email });
+                if (checkEmail) {
+                    return res.status(400).json({
+                        message: "User with this email already exists",
+                    });
+                }
+                const hashPassword = await bcrypt_1.default.hash(password, 10);
+                const newUser = new user_1.default({
+                    fullname,
+                    email,
+                    password: hashPassword,
+                });
+                const user = await newUser.save();
+                console.log(user);
+                const verifyInvite = await projectModel_1.default.findOne({
+                    _id: projectId,
+                    owner: owner,
+                });
+                console.log(verifyInvite);
+                if (verifyInvite) {
+                    console.log("i got here");
+                    const collab = verifyInvite.collaborators.find((collaborator) => collaborator.email === email);
+                    console.log(" second spot");
+                    collab.isVerified = true;
+                    await verifyInvite.save();
+                }
+                return res.status(200).json({
+                    message: `you have being added to ${verifyInvite === null || verifyInvite === void 0 ? void 0 : verifyInvite.name} project`,
+                });
+            });
+        } //if
+    }
+    catch (err) { }
+}
+exports.createInviteUser = createInviteUser;

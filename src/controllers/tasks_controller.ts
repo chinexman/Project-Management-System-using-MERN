@@ -1,8 +1,13 @@
 import taskModel from "../models/task";
 import Task from "../models/task";
 import { cloudinaryUpload } from "../utils/cloudinary";
-import { Request, Response } from "express";
 import fileModel from "../models/file";
+import { Request, Response } from "express";
+
+interface userInterface extends Request {
+  // user: User;
+  user?: { _id?: string; email?: string; fullname?: string };
+}
 
 export async function getTasks(req: Request, res: Response) {
   const user = req.user as typeof req.user & { _id: string };
@@ -46,22 +51,21 @@ export async function deleteTask(req: Request, res: Response) {
   });
 }
 
-export async function createTask(req: Request, res: Response) {
+export async function createTask(req: userInterface, res: Response) {
   const { title, description, status, assignee, comments, dueDate } = req.body;
-  const user = req.user as typeof req.user & { _id: string };
   const getTask = await Task.findOne({
     title: title,
     description: description,
   });
 
   if (getTask) {
-    return res.status(409).json({
+    return res.status(400).json({
       msg: "Task with the title already exists for that particular user",
     });
   }
   const task = new Task({
     ...req.body,
-    owner: user._id,
+    owner: req.user!._id,
     assignee,
   });
   try {
@@ -112,8 +116,41 @@ export async function getTasksByStatus(req: Request, res: Response) {
     if (getTask.length < 1) {
       return res.status(404).json({ msg: `${req.params.status} cleared` });
     }
-    res.status(200).json({ msg: getTask });
+    res.status(200).json({ tasks: getTask });
   } catch (err) {
     res.status(400).send(err);
   }
+}
+
+export async function updateTask(req: userInterface, res: Response) {
+  const taskId = req.params.task;
+  console.log(taskId);
+  const { title, description, status, assignee, comments, dueDate } = req.body;
+  const getTask = await Task.findOne({
+    _id: taskId,
+    owner: req.user!._id,
+  });
+  console.log(getTask);
+  if (!getTask) {
+    return res.status(404).json({
+      msg: "Task with the title does not exists for that particular user",
+    });
+  }
+
+  let updatedTask = await Task.findOneAndUpdate(
+    { owner: req.user!._id },
+    {
+      title,
+      description,
+      status,
+      assignee,
+      comments,
+      dueDate,
+    },
+    { new: true }
+  );
+  res.status(201).json({
+    status: "success",
+    data: updatedTask,
+  });
 }
