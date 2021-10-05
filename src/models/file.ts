@@ -3,7 +3,10 @@ import mongoose from "mongoose";
 const fileSystem = new mongoose.Schema(
   {
     name: {
-      type: [String],
+      type: String,
+    },
+    url: {
+      type: String,
     },
   },
   { timestamps: true }

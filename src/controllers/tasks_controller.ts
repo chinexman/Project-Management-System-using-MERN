@@ -2,6 +2,7 @@ import taskModel from "../models/task";
 import Task from "../models/task";
 import { cloudinaryUpload } from "../utils/cloudinary";
 import { Request, Response } from "express";
+import fileModel from "../models/file";
 
 export async function getTasks(req: Request, res: Response) {
   const user = req.user as typeof req.user & { _id: string };
@@ -54,7 +55,7 @@ export async function createTask(req: Request, res: Response) {
   });
 
   if (getTask) {
-    return res.status(400).json({
+    return res.status(409).json({
       msg: "Task with the title already exists for that particular user",
     });
   }
@@ -73,45 +74,34 @@ export async function createTask(req: Request, res: Response) {
   }
 }
 
-export async function getAllTasks(req: Request, res: Response) {
-  try {
-    const getTasks = await Task.find({});
-    console.log(getTasks);
-    if (getTasks.length < 1) {
-      return res.status(404).json({ msg: "No task created yet" });
-    }
-    res.status(200).json({ msg: getTasks });
-  } catch (err) {
-    res.status(400).send(err);
-  }
-}
-
 export async function uploadFileCloudinary(req: Request, res: Response) {
+  const task = await Task.findById({ _id: req.params.taskid });
+  if (!task) {
+    return res.status(404).json({ msg: "No task id found" });
+  }
   const file = req.file;
   if (!req.file) {
-    return res.status(400).json({
-      msg: "no file was uploaded.",
-    });
+    return res.status(400).json({ msg: "no file was uploaded." });
   }
-
   const response = await cloudinaryUpload(
     file?.originalname as string,
     file?.buffer as Buffer
   );
   if (!response) {
-    return res.status(500).json({
-      msg: "Unable to upload file. please try again.",
-    });
+    return res
+      .status(500)
+      .json({ msg: "Unable to upload file. please try again." });
   }
-
   //data to keep
   const file_secure_url = response.secure_url;
-
   //done with processing.
-  res.json({
-    msg: "file uploaded successfully.",
-    fileUrl: file_secure_url,
+  const newUpload = await fileModel.create({
+    name: file?.originalname,
+    url: file_secure_url,
   });
+  task.fileUploads.push(newUpload._id);
+  task.save();
+  res.status(200).json({ msg: "file uploaded successfully." });
 }
 
 export async function getTasksByStatus(req: Request, res: Response) {

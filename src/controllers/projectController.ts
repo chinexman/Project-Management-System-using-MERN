@@ -89,7 +89,7 @@ async function createInvite(req: customRequest, res: Response) {
     }
   );
 
-  const link = `http://localhost:3000/user/invite/createinvite${token}`;
+  const link = `${process.env.HOME_URL}:${process.env.PORT}/user/invite/createinvite${token}`;
 
   const body = `
    You have be invited by ${fullname}

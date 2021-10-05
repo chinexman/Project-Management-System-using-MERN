@@ -1,10 +1,10 @@
 "use strict";
-//user_controller
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.authInvite = exports.updateProfile = exports.viewProfile = exports.resetPassword = exports.verifyResetPassword = exports.forgetPassword = exports.changePassword = exports.googleSuccessCallBackFn = exports.loginPage = exports.logout = exports.activateUserAcct = exports.createUser = void 0;
+exports.updateProfile = exports.viewProfile = exports.resetPassword = exports.verifyResetPassword = exports.forgetPassword = exports.changePassword = exports.googleSuccessCallBackFn = exports.loginPage = exports.logout = exports.activateUserAcct = exports.createUser = void 0;
+//user_controller
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const validate_1 = __importDefault(require("../validations/validate"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
@@ -25,7 +25,7 @@ async function createUser(req, res) {
         }
         const token = jsonwebtoken_1.default.sign({ fullname, email, password }, process.env.JWT_SECRETKEY, { expiresIn: process.env.JWT_EMAIL_EXPIRES });
         email = email;
-        const body = `            <h2>            Thank you for successfully signing up, click <a href="${process.env.HOME_URL}:${process.env.PORT}/users/acct-activation/${token}">here</a> to activate your account            </h2>            `;
+        const body = `<h2>Thank you for successfully signing up, click <a href="${process.env.HOME_URL}:${process.env.PORT}/users/acct-activation/${token}">here</a> to activate your account</h2>  `;
         if (process.env.NODE_ENV != "test") {
             (0, nodemailer_1.default)(email, body);
         }
@@ -42,7 +42,6 @@ exports.createUser = createUser;
 async function activateUserAcct(req, res) {
     try {
         const token = req.params.token;
-        console.log(token);
         if (token) {
             jsonwebtoken_1.default.verify(token, process.env.JWT_SECRETKEY, async (err, decodedToken) => {
                 if (err) {
@@ -86,12 +85,10 @@ function logout(req, res) {
 exports.logout = logout;
 //fake home page for google
 function loginPage(req, res) {
-    console.log(req.user);
     res.render("loginPage");
 }
 exports.loginPage = loginPage;
 function googleSuccessCallBackFn(req, res) {
-    console.log("googleSuccessCB:", req.user);
     res.redirect("/users/welcome");
 }
 exports.googleSuccessCallBackFn = googleSuccessCallBackFn;
@@ -125,7 +122,6 @@ async function changePassword(req, res) {
             });
             return;
         }
-        return res.json(req.body);
     }
     catch (err) {
         // console.log(err)
@@ -143,9 +139,8 @@ async function forgetPassword(req, res) {
         if (user) {
             const token = jsonwebtoken_1.default.sign({ id: user._id }, secret, { expiresIn: "30mins" });
             const link = `${process.env.HOME_URL}:${process.env.PORT}/users/password/resetPassword/${token}`;
-            // console.log(link)      // console.log(token)      //the variables for the nodemailer
             const body = `        Dear ${user.fullname},        <p>Follow this <a href=${link}> link </a> to change your password. The link would expire in 30 mins.</P>              `;
-            (0, nodemailer_1.default)(email, body); ///adding the title variable to the nodemailer
+            (0, nodemailer_1.default)(email, body);
             res.status(200).json({
                 message: "Link sent to your mail.",
                 link: link,
@@ -168,14 +163,15 @@ async function forgetPassword(req, res) {
 exports.forgetPassword = forgetPassword;
 async function verifyResetPassword(req, res) {
     let { token } = req.params;
-    console.log(token, "token-verify");
     const verification = (await jsonwebtoken_1.default.verify(token, secret)); ///verification  console.log(verification, "verification");
     const id = verification.id;
     const isValidId = await user_1.default.findOne({ _id: id });
     try {
         if (isValidId) {
-            //line missing?      token = jwt.sign({ id: id }, secret, { expiresIn: "1d" });
-            res.render("reset-password", { title: "Reset-Password", token: token });
+            return res.render("reset-password", {
+                title: "Reset-Password",
+                token: token,
+            });
         }
     }
     catch (err) {
@@ -189,7 +185,7 @@ async function resetPassword(req, res) {
     const { token } = req.params;
     console.log(token, "token-reset");
     try {
-        const verification = (await jsonwebtoken_1.default.verify(token, secret)); ///verification    console.log(verification, "verification-reset");
+        const verification = (await jsonwebtoken_1.default.verify(token, secret));
         const id = verification.id;
         if (verification) {
             const user = await user_1.default.findOne({ _id: id });
@@ -227,7 +223,6 @@ async function resetPassword(req, res) {
     catch (err) {
         res.status(400).json({
             message: "This is the catch block message",
-            // message: "Catch block",      error: err.message,
         });
         return;
     }
@@ -268,5 +263,3 @@ async function updateProfile(req, res) {
     });
 }
 exports.updateProfile = updateProfile;
-async function authInvite(req, res) { }
-exports.authInvite = authInvite;

@@ -1,5 +1,15 @@
 import mongoose from "mongoose";
 
+export interface Task {
+  title: String;
+  description: String;
+  status: String;
+  owner: String;
+  assignee: String;
+  fileUploads: [String];
+  comments: String;
+  dueTime: Date;
+}
 const taskSchema = new mongoose.Schema(
   {
     title: {
@@ -26,13 +36,18 @@ const taskSchema = new mongoose.Schema(
       ref: "user",
       require: true,
     },
-    fileUpload: {
-      type: mongoose.SchemaTypes.ObjectId,
-      ref: "file",
-      require: true,
-    },
-    comments: [{ type: mongoose.SchemaTypes.ObjectId, ref: "comment" }],
-
+    fileUploads: [
+      {
+        type: mongoose.SchemaTypes.ObjectId,
+        ref: "file",
+      },
+    ],
+    comments: [
+      {
+        type: mongoose.SchemaTypes.ObjectId,
+        ref: "comment",
+      },
+    ],
     dueDate: {
       type: mongoose.SchemaTypes.Date,
       require: true,
@@ -40,6 +55,7 @@ const taskSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-const taskModel = mongoose.model("task", taskSchema);
+
+const taskModel = mongoose.model<Task>("task", taskSchema);
 
 export default taskModel;

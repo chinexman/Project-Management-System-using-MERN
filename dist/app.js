@@ -61,8 +61,8 @@ app.use((req, res, next) => {
 */
 app.use("/users", users_router_1.default);
 app.use("/tasks", tasks_router_1.default);
-app.use("/users/projects", project_router_1.default);
-app.use("/users/teams", teams_router_1.default);
+app.use("/projects", project_router_1.default);
+app.use("/teams", teams_router_1.default);
 //app.use(sendMail)
 // catch 404 and forward to error handler
 app.use(function (_req, _res, next) {

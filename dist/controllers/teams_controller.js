@@ -3,11 +3,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateTeamDetails = exports.getALLTeamMembers = exports.addMembersToTeam = exports.createTeam = void 0;
+exports.updateTeamDetails = exports.addMemberToTeam = exports.createTeam = void 0;
 const joi_1 = __importDefault(require("joi"));
 const teamModel_1 = __importDefault(require("../models/teamModel"));
 const projectModel_1 = __importDefault(require("../models/projectModel"));
-///jah'swill////////////////////////////////////
 async function createTeam(req, res) {
     var _a;
     const { projectId } = req.params;
@@ -53,35 +52,40 @@ async function createTeam(req, res) {
 }
 exports.createTeam = createTeam;
 //owner adding members to a team
-async function addMembersToTeam(req, res) {
+async function addMemberToTeam(req, res) {
     const { newMemberID } = req.body;
     const teamId = req.params.id;
     const user_id = req.user._id;
-    const teamObj = await teamModel_1.default.findOne({ _id: teamId, createdBy: user_id });
-    if (!teamObj) {
+    const teamExist = await teamModel_1.default.exists({ _id: teamId });
+    if (!teamExist) {
+        return res.status(404).json({
+            msg: "Team does not exist.",
+        });
+    }
+    const team = await teamModel_1.default.findOne({ _id: teamId, createdBy: user_id });
+    if (team !== null) {
+        const alreadyMember = team.members.includes(newMemberID);
+        if (alreadyMember) {
+            return res.status(400).json({
+                status: "failed",
+                message: "Member already exists in the team",
+            });
+        }
+        team.members.push(newMemberID);
+        const updatedteam = await teamModel_1.default.findByIdAndUpdate({ _id: teamId }, { members: team.members }, { new: true });
+        return res.status(201).json({
+            status: "success",
+            data: updatedteam,
+        });
+    }
+    else {
         return res.status(404).json({
             status: "failed",
-            message: "Team does not exist",
+            message: "You don't have access to add members to this team.",
         });
     }
-    const alreadyMember = teamObj.members.includes(newMemberID);
-    if (alreadyMember) {
-        return res.status(400).json({
-            status: "failed",
-            message: "Member already exists in the team",
-        });
-    }
-    teamObj.members.push(newMemberID);
-    const updatedteam = await teamModel_1.default.findByIdAndUpdate({ _id: teamId }, { members: teamObj.members }, { new: true });
-    res.status(201).json({
-        status: "success",
-        data: updatedteam,
-    });
 }
-exports.addMembersToTeam = addMembersToTeam;
-/////get all team members
-async function getALLTeamMembers(req, res) { }
-exports.getALLTeamMembers = getALLTeamMembers;
+exports.addMemberToTeam = addMemberToTeam;
 //update team details
 async function updateTeamDetails(req, res) {
     const user_id = req.user._id;

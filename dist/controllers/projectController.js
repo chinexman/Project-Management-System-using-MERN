@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.verifyCreateInvite = exports.createInvite = exports.updateProject = exports.createProject = void 0;
+exports.createInvite = exports.createProject = void 0;
 const projectModel_1 = __importDefault(require("../models/projectModel"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const joi_1 = __importDefault(require("joi"));
@@ -77,7 +77,7 @@ async function createInvite(req, res) {
     const token = jsonwebtoken_1.default.sign({ owner: user_id, findProjectId: findProject === null || findProject === void 0 ? void 0 : findProject._id, email: email }, process.env.JWT_SECRETKEY, {
         expiresIn: process.env.JWT_EMAIL_EXPIRES,
     });
-    const link = `http://localhost:3000/user/invite/createinvite${token}`;
+    const link = `${process.env.HOME_URL}:${process.env.PORT}/user/invite/createinvite${token}`;
     const body = `
    You have be invited by ${fullname}
    to join the collaborators. please click on this link ${link}`;
@@ -88,7 +88,3 @@ async function createInvite(req, res) {
     });
 }
 exports.createInvite = createInvite;
-async function updateProject(req, res) { }
-exports.updateProject = updateProject;
-async function verifyCreateInvite(req, res) { }
-exports.verifyCreateInvite = verifyCreateInvite;
