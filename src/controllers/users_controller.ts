@@ -11,7 +11,6 @@ const _ = require("lodash");
 
 const secret: string = process.env.JWT_SECRETKEY as string;
 
-
 export async function createUser(req: Request, res: Response) {
   try {
     const validation = joiUserSchema.validate(req.body);
@@ -55,7 +54,6 @@ export async function activateUserAcct(req: Request, res: Response) {
             return;
           }
           const { fullname, email, password } = decodedToken;
-          console.log(decodedToken);
           const checkEmail = await UserModel.findOne({ email });
           if (checkEmail)
             return res
@@ -103,7 +101,6 @@ export async function changePassword(req: customRequest, res: Response) {
   const id = req.user._id;
   try {
     const validUser = await bcrypt.compare(oldPassword, req.user.password);
-    // console.log(validUser, "validUser")
     if (validUser) {
       if (newPassword === repeatPassword) {
         const newPasswordUpdate = await bcrypt.hash(newPassword, 12);
@@ -112,7 +109,6 @@ export async function changePassword(req: customRequest, res: Response) {
           { password: newPasswordUpdate },
           { new: true }
         );
-        // console.log(newUserInfo, "newUserInfo")
         res.status(200).json({
           newUserInfo,
         });
@@ -130,7 +126,7 @@ export async function changePassword(req: customRequest, res: Response) {
       return;
     }
   } catch (err: any) {
-    // console.log(err)
+    console.log(err);
     res.status(400).json({
       error: err,
     });
@@ -165,7 +161,7 @@ export async function forgetPassword(req: Request, res: Response) {
 }
 export async function verifyResetPassword(req: Request, res: Response) {
   let { token } = req.params;
-  const verification = (await jwt.verify(token, secret)) as JwtPayload; ///verification  console.log(verification, "verification");
+  const verification = (await jwt.verify(token, secret)) as JwtPayload; ///verification
   const id = verification.id;
   const isValidId = await UserModel.findOne({ _id: id });
   try {
@@ -183,7 +179,6 @@ export async function verifyResetPassword(req: Request, res: Response) {
 }
 export async function resetPassword(req: Request, res: Response) {
   const { token } = req.params;
-  console.log(token, "token-reset");
   try {
     const verification = (await jwt.verify(token, secret)) as JwtPayload;
     const id = verification.id;
@@ -228,11 +223,8 @@ export async function resetPassword(req: Request, res: Response) {
   }
 }
 export async function viewProfile(req: customRequest, res: Response) {
-  console.log("i am about to view profile");
   const user_id = req.user!._id;
-  console.log(user_id);
   let viewprofile = await UserModel.findOne({ _id: user_id });
-  console.log(viewprofile);
   return res.status(200).json({
     status: "profile details",
     data: viewprofile,
@@ -242,9 +234,7 @@ export async function viewProfile(req: customRequest, res: Response) {
 export async function updateProfile(req: customRequest, res: Response) {
   const user_id = req.user!._id;
   const { fullname, gender, role, location, about, profileImage } = req.body;
-  console.log("update profile: ", req.user);
   let findProfile = await UserModel.findOne({ userId: user_id });
-  console.log("profile Found:", findProfile);
   if (!findProfile) {
     return res.status(404).json({
       status: "failed",
@@ -272,8 +262,6 @@ export async function updateProfile(req: customRequest, res: Response) {
 export async function createInviteUser(req: Request, res: Response) {
   try {
     const token = req.params.token;
-    // console.log(token);
-
     //decode the token
     if (token) {
       jwt.verify(
@@ -284,8 +272,6 @@ export async function createInviteUser(req: Request, res: Response) {
             return res.status(400).json({ error: "Incorrect or Expired link" });
           }
           const { email, projectId, owner } = decodedToken;
-          console.log(decodedToken);
-
           // body validation
           const { password, fullname } = req.body;
           const inviteUserSchema = Joi.object({
@@ -315,20 +301,16 @@ export async function createInviteUser(req: Request, res: Response) {
             password: hashPassword,
           });
           const user = await newUser.save();
-          console.log(user);
 
           const verifyInvite = await projectModel.findOne({
             _id: projectId,
             owner: owner,
           });
-          console.log(verifyInvite);
 
           if (verifyInvite) {
-            console.log("i got here");
             const collab = verifyInvite.collaborators.find(
               (collaborator) => collaborator.email === email
             );
-            console.log(" second spot");
             collab!.isVerified = true;
             await verifyInvite.save();
           }
@@ -340,7 +322,7 @@ export async function createInviteUser(req: Request, res: Response) {
     } //if
   } catch (err) {
     res.status(500).json({
-      msg:"Unable to create account, try again later."
-    })
+      msg: "Unable to create account, try again later.",
+    });
   }
 }

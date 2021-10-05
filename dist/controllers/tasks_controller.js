@@ -102,7 +102,6 @@ async function getTasksByStatus(req, res) {
     //  const taskStatus = await Task.findById({ status: req.params.status });
     try {
         const getTask = await task_2.default.find({ status: req.params.status });
-        console.log(getTask);
         if (getTask.length < 1) {
             return res.status(404).json({ msg: `${req.params.status} cleared` });
         }
@@ -115,13 +114,11 @@ async function getTasksByStatus(req, res) {
 exports.getTasksByStatus = getTasksByStatus;
 async function updateTask(req, res) {
     const taskId = req.params.task;
-    console.log(taskId);
     const { title, description, status, assignee, comments, dueDate } = req.body;
     const getTask = await task_2.default.findOne({
         _id: taskId,
         owner: req.user._id,
     });
-    console.log(getTask);
     if (!getTask) {
         return res.status(404).json({
             msg: "Task with the title does not exists for that particular user",

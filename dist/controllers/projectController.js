@@ -14,7 +14,6 @@ async function createProject(req, res) {
     var _a;
     const user_id = (_a = req.user) === null || _a === void 0 ? void 0 : _a._id;
     const { projectname } = req.body;
-    console.log(projectname);
     const projectsSchema = joi_1.default.object({
         projectname: joi_1.default.string().min(3).max(255).required(),
     });
@@ -25,7 +24,6 @@ async function createProject(req, res) {
         });
     }
     let findProject = await projectModel_2.default.findOne({ name: projectname });
-    console.log(findProject);
     if (findProject) {
         res.status(400).json({
             message: "Project name already exist",

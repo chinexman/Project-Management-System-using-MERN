@@ -51,7 +51,6 @@ async function activateUserAcct(req, res) {
                     return;
                 }
                 const { fullname, email, password } = decodedToken;
-                console.log(decodedToken);
                 const checkEmail = await user_1.default.findOne({ email });
                 if (checkEmail)
                     return res
@@ -100,12 +99,10 @@ async function changePassword(req, res) {
     const id = req.user._id;
     try {
         const validUser = await bcrypt_1.default.compare(oldPassword, req.user.password);
-        // console.log(validUser, "validUser")
         if (validUser) {
             if (newPassword === repeatPassword) {
                 const newPasswordUpdate = await bcrypt_1.default.hash(newPassword, 12);
                 const newUserInfo = await user_1.default.findByIdAndUpdate({ _id: id }, { password: newPasswordUpdate }, { new: true });
-                // console.log(newUserInfo, "newUserInfo")
                 res.status(200).json({
                     newUserInfo,
                 });
@@ -126,7 +123,7 @@ async function changePassword(req, res) {
         }
     }
     catch (err) {
-        // console.log(err)
+        console.log(err);
         res.status(400).json({
             error: err,
         });
@@ -165,7 +162,7 @@ async function forgetPassword(req, res) {
 exports.forgetPassword = forgetPassword;
 async function verifyResetPassword(req, res) {
     let { token } = req.params;
-    const verification = (await jsonwebtoken_1.default.verify(token, secret)); ///verification  console.log(verification, "verification");
+    const verification = (await jsonwebtoken_1.default.verify(token, secret)); ///verification
     const id = verification.id;
     const isValidId = await user_1.default.findOne({ _id: id });
     try {
@@ -185,7 +182,6 @@ async function verifyResetPassword(req, res) {
 exports.verifyResetPassword = verifyResetPassword;
 async function resetPassword(req, res) {
     const { token } = req.params;
-    console.log(token, "token-reset");
     try {
         const verification = (await jsonwebtoken_1.default.verify(token, secret));
         const id = verification.id;
@@ -231,11 +227,8 @@ async function resetPassword(req, res) {
 }
 exports.resetPassword = resetPassword;
 async function viewProfile(req, res) {
-    console.log("i am about to view profile");
     const user_id = req.user._id;
-    console.log(user_id);
     let viewprofile = await user_1.default.findOne({ _id: user_id });
-    console.log(viewprofile);
     return res.status(200).json({
         status: "profile details",
         data: viewprofile,
@@ -245,9 +238,7 @@ exports.viewProfile = viewProfile;
 async function updateProfile(req, res) {
     const user_id = req.user._id;
     const { fullname, gender, role, location, about, profileImage } = req.body;
-    console.log("update profile: ", req.user);
     let findProfile = await user_1.default.findOne({ userId: user_id });
-    console.log("profile Found:", findProfile);
     if (!findProfile) {
         return res.status(404).json({
             status: "failed",
@@ -271,7 +262,6 @@ exports.updateProfile = updateProfile;
 async function createInviteUser(req, res) {
     try {
         const token = req.params.token;
-        // console.log(token);
         //decode the token
         if (token) {
             jsonwebtoken_1.default.verify(token, process.env.JWT_SECRETKEY, async (err, decodedToken) => {
@@ -279,7 +269,6 @@ async function createInviteUser(req, res) {
                     return res.status(400).json({ error: "Incorrect or Expired link" });
                 }
                 const { email, projectId, owner } = decodedToken;
-                console.log(decodedToken);
                 // body validation
                 const { password, fullname } = req.body;
                 const inviteUserSchema = joi_1.default.object({
@@ -306,16 +295,12 @@ async function createInviteUser(req, res) {
                     password: hashPassword,
                 });
                 const user = await newUser.save();
-                console.log(user);
                 const verifyInvite = await projectModel_1.default.findOne({
                     _id: projectId,
                     owner: owner,
                 });
-                console.log(verifyInvite);
                 if (verifyInvite) {
-                    console.log("i got here");
                     const collab = verifyInvite.collaborators.find((collaborator) => collaborator.email === email);
-                    console.log(" second spot");
                     collab.isVerified = true;
                     await verifyInvite.save();
                 }
@@ -327,7 +312,7 @@ async function createInviteUser(req, res) {
     }
     catch (err) {
         res.status(500).json({
-            msg: "Unable to create account, try again later."
+            msg: "Unable to create account, try again later.",
         });
     }
 }

@@ -24,7 +24,6 @@ async function createTeam(req, res) {
                 abortEarly: false, ///essence of this line
             });
             if (inputValidation.error) {
-                console.log("validation error");
                 res.status(400).json({
                     message: "Invalid input, check and try again",
                     error: inputValidation.error.details[0].message,
@@ -57,7 +56,6 @@ async function addMemberToTeam(req, res) {
     const teamId = req.params.teamId;
     const user_id = req.user._id;
     const teamExist = await teamModel_1.default.exists({ _id: teamId });
-    console.log("exist:", teamExist, "teamId:", teamId);
     if (!teamExist) {
         return res.status(404).json({
             msg: "Team does not exist.",

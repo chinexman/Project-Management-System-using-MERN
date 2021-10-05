@@ -13,7 +13,6 @@ async function createProject(req: customRequest, res: Response) {
   const user_id = req.user?._id;
 
   const { projectname } = req.body;
-  console.log(projectname);
   const projectsSchema = joi.object({
     projectname: joi.string().min(3).max(255).required(),
   });
@@ -27,7 +26,6 @@ async function createProject(req: customRequest, res: Response) {
   }
 
   let findProject = await projectModel.findOne({ name: projectname });
-  console.log(findProject);
   if (findProject) {
     res.status(400).json({
       message: "Project name already exist",
