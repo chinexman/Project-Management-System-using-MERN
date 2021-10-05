@@ -12,7 +12,6 @@ const router = Router();
 
 router.post("/createTeam/:projectId", authorization, createTeam);
 router.put("/updateTeamDetails/:id", authorization, updateTeamDetails);
-router.post("/createTeam/:projectId", authorization, createTeam);
 router.post("/addTeamMembers/:teamId", authorization, addMemberToTeam);
 router.get("/getAllTeamMembers/:teamId", authorization, getAllTeamMembers);
 router.get("/leaveTeam/:teamId", authorization, leaveTeam);

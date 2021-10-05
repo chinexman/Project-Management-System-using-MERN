@@ -46,22 +46,34 @@ async function updateProject(req, res) {
     var _a;
     //extract details
     const user_id = (_a = req.user) === null || _a === void 0 ? void 0 : _a._id;
+    const projectId = req.params.projectId;
     const { projectname } = req.body;
     //validating
     const projectSchema = joi_1.default.object({
-        projectname: joi_1.default.string().min(3).max(255).required()
+        projectname: joi_1.default.string().min(3).max(255).required(),
     });
-    //error messages 
+    //error messages
     const projectUpdate = projectSchema.validate(req.body);
     if (projectUpdate.error) {
         return res.status(400).json({
-            message: projectUpdate.error.details[0].message
+            message: projectUpdate.error.details[0].message,
+        });
+    }
+    const project = await projectModel_1.default.findById(projectId);
+    if (!project) {
+        return res.status(404).json({
+            msg: "Project does not exist.",
+        });
+    }
+    if (project.owner !== user_id) {
+        return res.status(403).json({
+            msg: "You are not authorized to update this project.",
         });
     }
     //accessing database
-    let updateProject = await projectModel_1.default.findByIdAndUpdate(user_id, { projectname: projectname }, { new: true });
+    let updateProject = await projectModel_1.default.findOneAndUpdate({ _id: projectId }, { name: projectname }, { new: true });
     res.status(200).json({
-        "updatedProject": updateProject
+        updatedProject: updateProject,
     });
 }
 exports.updateProject = updateProject;
@@ -73,20 +85,23 @@ async function createInvite(req, res) {
     const isVerified = false;
     const emailSchema = joi_1.default.object({
         email: joi_1.default.string().required().min(6).max(225).email(),
-        projectname: joi_1.default.string().min(3).max(255).required()
+        projectname: joi_1.default.string().min(3).max(255).required(),
     });
     const emailValidate = emailSchema.validate(req.body);
     if (emailValidate.error) {
         return res.status(400).json({
-            message: emailValidate.error.details[0].message
+            message: emailValidate.error.details[0].message,
         });
     }
     let isVerifiedEmail;
     let body = "";
-    let findProject = await projectModel_2.default.findOne({ owner: user_id, name: projectname });
+    let findProject = await projectModel_2.default.findOne({
+        owner: user_id,
+        name: projectname,
+    });
     if (!findProject)
         return res.status(400).json({
-            message: ` ${projectname} does not exist on this user`
+            message: ` ${projectname} does not exist on this user`,
         });
     isVerifiedEmail = await user_1.default.findOne({ email: email });
     if (!isVerifiedEmail) {
@@ -102,7 +117,7 @@ async function createInvite(req, res) {
         }
         return res.status(200).json({
             message: `email invite have been sent to ${email}`,
-            token: link
+            token: link,
         });
     }
     else {
@@ -119,15 +134,17 @@ async function createInvite(req, res) {
     }
 }
 exports.createInvite = createInvite;
-// Logic to get all prjects 
+// Logic to get all prjects
 async function getAllProject(req, res) {
     var _a, _b;
     //extract details
     const user_id = (_a = req.user) === null || _a === void 0 ? void 0 : _a._id;
-    const projects = await projectModel_1.default.find({ $or: [{ owner: user_id }, { "collaborators.email": (_b = req.user) === null || _b === void 0 ? void 0 : _b.email }] });
+    const projects = await projectModel_1.default.find({
+        $or: [{ owner: user_id }, { "collaborators.email": (_b = req.user) === null || _b === void 0 ? void 0 : _b.email }],
+    });
     if (projects.length === 0) {
         res.status(404).json({
-            msg: 'There are no projects available.'
+            msg: "There are no projects available.",
         });
     }
     else {

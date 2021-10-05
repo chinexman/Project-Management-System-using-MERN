@@ -53,17 +53,16 @@ export async function createTeam(req: customRequest, res: Response) {
 //owner adding members to a team
 export async function addMemberToTeam(req: customRequest, res: Response) {
   const { newMemberID } = req.body;
-  const teamId = req.params.id;
+  const teamId = req.params.teamId;
   const user_id = req.user!._id;
   const teamExist = await Team.exists({ _id: teamId });
+  console.log("exist:", teamExist, "teamId:", teamId);
   if (!teamExist) {
     return res.status(404).json({
       msg: "Team does not exist.",
     });
   }
-
   const team = await Team.findOne({ _id: teamId, createdBy: user_id });
-
   if (team !== null) {
     const alreadyMember = team.members.includes(newMemberID);
     if (alreadyMember) {
