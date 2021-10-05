@@ -13,6 +13,11 @@ const cookie_session_1 = __importDefault(require("cookie-session"));
 const connect_flash_1 = __importDefault(require("connect-flash"));
 const users_router_1 = __importDefault(require("./routers/users_router"));
 const project_router_1 = __importDefault(require("./routers/project_router"));
+const tasks_router_1 = __importDefault(require("./routers/tasks.router"));
+const multer_1 = __importDefault(require("multer"));
+const app = (0, express_1.default)();
+const storage = multer_1.default.memoryStorage();
+const upload = (0, multer_1.default)({ storage }).single("file");
 const app = (0, express_1.default)();
 // view engine setup
 app.set("views", path_1.default.resolve(path_1.default.join(__dirname, "../", "views")));
@@ -55,6 +60,7 @@ app.use((req, res, next) => {
 */
 app.use("/users", users_router_1.default);
 app.use("/users", project_router_1.default);
+app.use("/tasks", tasks_router_1.default);
 //app.use(sendMail)
 // catch 404 and forward to error handler
 app.use(function (_req, _res, next) {

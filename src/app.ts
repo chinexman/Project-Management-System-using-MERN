@@ -8,7 +8,16 @@ import cookieSession from "cookie-session";
 import flash from "connect-flash";
 import mainUsersRouter from "./routers/users_router";
 import mainProjectRouter from './routers/project_router'
+import Tasks from "./routers/tasks.router";
+import multer from "multer";
+
 const app = express();
+const storage = multer.memoryStorage();
+const upload = multer({ storage }).single("file");
+
+
+
+
 
 // view engine setup
 app.set("views", path.resolve(path.join(__dirname, "../", "views")));
@@ -28,36 +37,37 @@ app.use(
       process.env.COOKIE_SESSION_KEY2 as string,
     ],
   })
-);
-
-app.use(passport.initialize());
-app.use(passport.session());
-
-//Connect flash
-app.use(flash());
-//GLobal Vars
-app.use((req: Request, res: Response, next: NextFunction) => {
-  res.locals.success_msg = req.flash("sucess_msg");
-  res.locals.error_msg = req.flash("error_msg");
-  next();
-});
-
-/*  ROUTES
-/welcome
-../login
-../logout
-../loginfail
-../google
-../google/redirect
-../auth/facebook
-../auth/facebook/callback
-../loginPage
-../signup
-/acc-activation/:token 
-*/
-app.use("/users", mainUsersRouter);
-app.use("/users", mainProjectRouter);
-
+  );
+  
+  app.use(passport.initialize());
+  app.use(passport.session());
+  
+  //Connect flash
+  app.use(flash());
+  //GLobal Vars
+  app.use((req: Request, res: Response, next: NextFunction) => {
+    res.locals.success_msg = req.flash("sucess_msg");
+    res.locals.error_msg = req.flash("error_msg");
+    next();
+  });
+  
+  /*  ROUTES
+  /welcome
+  ../login
+  ../logout
+  ../loginfail
+  ../google
+  ../google/redirect
+  ../auth/facebook
+  ../auth/facebook/callback
+  ../loginPage
+  ../signup
+  /acc-activation/:token 
+  */
+ app.use("/users", mainUsersRouter);
+ app.use("/users", mainProjectRouter);
+ app.use("/tasks", Tasks);
+ 
 //app.use(sendMail)
 // catch 404 and forward to error handler
 app.use(function (_req, _res, next) {
