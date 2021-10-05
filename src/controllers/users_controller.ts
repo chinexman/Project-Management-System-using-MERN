@@ -5,9 +5,7 @@ import joiUserSchema from "../validations/validate";
 import bcrypt from "bcrypt";
 import UserModel from "../models/user";
 import sendMail from "../utils/nodemailer";
-import Joi from "joi";
 const _ = require("lodash");
-import taskModel from "../models/task";
 
 const secret: string = process.env.JWT_SECRETKEY as string;
 export async function createUser(req: Request, res: Response) {
@@ -27,7 +25,7 @@ export async function createUser(req: Request, res: Response) {
       { expiresIn: process.env.JWT_EMAIL_EXPIRES as string }
     );
     email = email;
-    const body = `            <h2>            Thank you for successfully signing up, click <a href="${process.env.HOME_URL}:${process.env.PORT}/users/acct-activation/${token}">here</a> to activate your account            </h2>            `;
+    const body = `<h2>Thank you for successfully signing up, click <a href="${process.env.HOME_URL}:${process.env.PORT}/users/acct-activation/${token}">here</a> to activate your account</h2>  `;
     if (process.env.NODE_ENV != "test") {
       sendMail(email, body);
     }
@@ -42,7 +40,6 @@ export async function createUser(req: Request, res: Response) {
 export async function activateUserAcct(req: Request, res: Response) {
   try {
     const token = req.params.token;
-    console.log(token);
     if (token) {
       jwt.verify(
         token,
@@ -87,11 +84,9 @@ export function logout(req: Request, res: Response) {
 }
 //fake home page for google
 export function loginPage(req: Request, res: Response) {
-  console.log(req.user);
   res.render("loginPage");
 }
 export function googleSuccessCallBackFn(req: Request, res: Response) {
-  console.log("googleSuccessCB:", req.user);
   res.redirect("/users/welcome");
 }
 type customRequest = { user?: any } & Request;
@@ -127,7 +122,6 @@ export async function changePassword(req: customRequest, res: Response) {
       });
       return;
     }
-    return res.json(req.body);
   } catch (err: any) {
     // console.log(err)
     res.status(400).json({
@@ -143,9 +137,8 @@ export async function forgetPassword(req: Request, res: Response) {
     if (user) {
       const token = jwt.sign({ id: user._id }, secret, { expiresIn: "30mins" });
       const link = `${process.env.HOME_URL}:${process.env.PORT}/users/password/resetPassword/${token}`;
-      // console.log(link)      // console.log(token)      //the variables for the nodemailer
       const body = `        Dear ${user.fullname},        <p>Follow this <a href=${link}> link </a> to change your password. The link would expire in 30 mins.</P>              `;
-      sendMail(email, body); ///adding the title variable to the nodemailer
+      sendMail(email, body);
       res.status(200).json({
         message: "Link sent to your mail.",
         link: link,
@@ -165,14 +158,15 @@ export async function forgetPassword(req: Request, res: Response) {
 }
 export async function verifyResetPassword(req: Request, res: Response) {
   let { token } = req.params;
-  console.log(token, "token-verify");
   const verification = (await jwt.verify(token, secret)) as JwtPayload; ///verification  console.log(verification, "verification");
   const id = verification.id;
   const isValidId = await UserModel.findOne({ _id: id });
   try {
     if (isValidId) {
-      //line missing?      token = jwt.sign({ id: id }, secret, { expiresIn: "1d" });
-      res.render("reset-password", { title: "Reset-Password", token: token });
+      return res.render("reset-password", {
+        title: "Reset-Password",
+        token: token,
+      });
     }
   } catch (err) {
     res.json({
@@ -184,7 +178,7 @@ export async function resetPassword(req: Request, res: Response) {
   const { token } = req.params;
   console.log(token, "token-reset");
   try {
-    const verification = (await jwt.verify(token, secret)) as JwtPayload; ///verification    console.log(verification, "verification-reset");
+    const verification = (await jwt.verify(token, secret)) as JwtPayload;
     const id = verification.id;
     if (verification) {
       const user = await UserModel.findOne({ _id: id });
@@ -222,7 +216,6 @@ export async function resetPassword(req: Request, res: Response) {
   } catch (err: any) {
     res.status(400).json({
       message: "This is the catch block message",
-      // message: "Catch block",      error: err.message,
     });
     return;
   }
@@ -265,4 +258,3 @@ export async function updateProfile(req: customRequest, res: Response) {
     data: updatedProfile,
   });
 }
-export async function authInvite(req: customRequest, res: Response) {}

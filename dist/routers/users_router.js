@@ -6,9 +6,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const users_controller_1 = require("../controllers/users_controller");
 const passport_1 = __importDefault(require("passport"));
 const express_1 = require("express");
-require("../configFiles/passportConfig");
 const Auth_1 = require("../authentication/Auth");
-require("../authentication/googleAuth");
+require("../authentication/passportStrategies");
 const router = (0, express_1.Router)();
 // Welcome Page
 router.get("/welcome", Auth_1.authorization, (req, res) => {
@@ -43,7 +42,6 @@ router.get("/auth/facebook/callback", passport_1.default.authenticate("facebook"
 router.get("/loginPage", users_controller_1.loginPage);
 router.post("/signup", users_controller_1.createUser);
 router.get("/profile", Auth_1.authorization, users_controller_1.viewProfile);
-router.post("/profile", Auth_1.authorization, users_controller_1.createProfile);
 router.put("/profile", Auth_1.authorization, users_controller_1.updateProfile);
 router.get("/acct-activation/:token", users_controller_1.activateUserAcct);
 router.post("/password/changepassword", Auth_1.authorization, users_controller_1.changePassword);

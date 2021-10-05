@@ -1,10 +1,16 @@
 import mongoose from "mongoose";
-interface User {
+export interface User {
+  _id?: string;
   fullname?: string;
   email?: string;
   password?: string;
   facebookId?: string;
   googleId?: string;
+  gender?: string;
+  role?: string;
+  location?: string;
+  about?: string;
+  profileImage?: string;
 }
 const userSchema = new mongoose.Schema({
   fullname: {
