@@ -1,6 +1,6 @@
 //user_controller
 import jwt, { JwtPayload } from "jsonwebtoken";
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import joiUserSchema from "../validations/validate";
 import bcrypt from "bcrypt";
 import UserModel from "../models/user";
@@ -10,6 +10,8 @@ import Joi from "joi";
 const _ = require("lodash");
 
 const secret: string = process.env.JWT_SECRETKEY as string;
+
+
 export async function createUser(req: Request, res: Response) {
   try {
     const validation = joiUserSchema.validate(req.body);
@@ -39,6 +41,7 @@ export async function createUser(req: Request, res: Response) {
     res.status(400).send(`${err}`);
   }
 }
+
 export async function activateUserAcct(req: Request, res: Response) {
   try {
     const token = req.params.token;
@@ -78,6 +81,7 @@ export async function activateUserAcct(req: Request, res: Response) {
     res.status(400).json({ msg: "Something went wrong.." });
   }
 }
+
 export function logout(req: Request, res: Response) {
   req.logOut();
   res.json({
@@ -88,6 +92,7 @@ export function logout(req: Request, res: Response) {
 export function loginPage(req: Request, res: Response) {
   res.render("loginPage");
 }
+
 export function googleSuccessCallBackFn(req: Request, res: Response) {
   res.redirect("/users/welcome");
 }
@@ -333,5 +338,9 @@ export async function createInviteUser(req: Request, res: Response) {
         }
       );
     } //if
-  } catch (err) {}
+  } catch (err) {
+    res.status(500).json({
+      msg:"Unable to create account, try again later."
+    })
+  }
 }

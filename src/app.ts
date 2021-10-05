@@ -50,17 +50,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 });
 
 /*  ROUTES
-/welcome
-../login
-../logout
-../loginfail
-../google
-../google/redirect
-../auth/facebook
-../auth/facebook/callback
-../loginPage
-../signup
-/acc-activation/:token 
+
 */
 app.use("/users", mainUsersRouter);
 app.use("/tasks", tasksRouter);
