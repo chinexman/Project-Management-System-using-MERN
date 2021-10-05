@@ -1,6 +1,6 @@
 
 
-import express, { Response, Request } from 'express';
+import express, { Response, Request, NextFunction } from 'express';
 import Project from '../models/projectModel';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import joi from 'joi';
@@ -111,11 +111,67 @@ async function createInvite(req: customRequest, res: Response) {
 
 }
 
-async function updateProject(req: customRequest, res: Response) {
+// /logic to update project
+// const user_id = req.user?._id;
 
+//     const { projectname } = req.body;
+//     console.log(projectname);
+//     const projectsSchema = joi.object({
+//         projectname: joi.string().min(3).max(255).required()
+
+//     })
+
+//     const projectValidate = projectsSchema.validate(req.body);
+
+//     if (projectValidate.error) {
+//         return res.status(400).json({
+//             message: projectValidate.error.details[0].message
+//         })
+//     }
+
+//     let findProject = await Project.findOne({ projectname: projectname })
+//     console.log(findProject);
+//     if (findProject) {
+//         res.status(400).json({
+//             message: "Project name already exist"
+//         })
+//     }
+
+//     const ProjectIN = await Project.create({
+//         owner: user_id,
+//         projectname: projectname,
+//         collaborators: [],
+
+//     });
+
+//    return  res.status(201).json({
+//         status: "success",
+//         data: ProjectIN
+////
+async function updateProject(req: customRequest, res: Response) {
+    //extract details
+    const user_id = req.user?._id;
+    const { projectname } = req.body;
+//validating
+    const projectSchema = joi.object({
+        projectname: joi.string().min(3).max(255).required()
+    })
+//error messages 
+    const projectUpdate = projectSchema.validate(req.body);
+    if (projectUpdate.error) {
+        return res.status(400).json({
+            message: projectUpdate.error.details[0].message
+        })
+    }
+//accessing database
+        let updateProject = await Project.findByIdAndUpdate(user_id, {projectname: projectname}, {new:true} )
+    console.log(updateProject);
+   res.send(updateProject);
+     
 }
 
 async function verifyCreateInvite(req: customRequest, res: Response) {
+
     try {
         const token = req.params.token;
         console.log(token);
@@ -145,12 +201,30 @@ async function verifyCreateInvite(req: customRequest, res: Response) {
     } catch (err) { }
 
 }
+  
+  // Logic to get all prjects 
+  async function getAllProject (req: customRequest, res: Response, next: NextFunction) {
+     //extract details
+     const user_id = req.user?._id  
+    try {
+      const projects = await Project.find({user_id});
+      if (projects.length === 0) {
+        res.status(404);
+        throw new Error('There are no projects available ');
+      } else {
+        res.json(projects);
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
 export {
     createProject,
     updateProject,
     createInvite,
-    verifyCreateInvite
+    verifyCreateInvite,
+    getAllProject
 }
 
 
