@@ -104,7 +104,7 @@ export async function uploadFileCloudinary(req: Request, res: Response) {
     url: file_secure_url,
   });
   task.fileUploads.push(newUpload._id);
-  task.save();
+  await task.save();
   res.status(200).json({ msg: "file uploaded successfully." });
 }
 
