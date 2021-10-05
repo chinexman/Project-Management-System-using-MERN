@@ -63,7 +63,7 @@ async function updateProject(req, res) {
             msg: "Project does not exist.",
         });
     }
-    if (project.owner !== user_id) {
+    if (project.owner !== (user_id === null || user_id === void 0 ? void 0 : user_id.toString())) {
         return res.status(403).json({
             msg: "You are not authorized to update this project.",
         });

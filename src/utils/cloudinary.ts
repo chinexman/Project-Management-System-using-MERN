@@ -23,7 +23,3 @@ export async function cloudinaryUpload(filename: string, buffer: Buffer) {
     });
   return apiResponse;
 }
-
-// cloudinaryV2.uploader.upload("my_image.jpg", function (error, result) {
-//   console.log(result, error);
-// });

@@ -15,7 +15,7 @@ const taskSchema = new mongoose.Schema(
   {
     title: {
       type: String,
-      require: true,
+      required: true,
     },
     description: {
       type: String,
@@ -24,18 +24,18 @@ const taskSchema = new mongoose.Schema(
     status: {
       type: String,
       enum: ["Backlog", "todo", "done"],
-      require: true,
+      required: true,
       default: "Backlog",
     },
     owner: {
       type: mongoose.SchemaTypes.ObjectId,
       ref: "user",
-      require: true,
+      required: true,
     },
     assignee: {
       type: mongoose.SchemaTypes.ObjectId,
       ref: "user",
-      require: true,
+      required: true,
     },
     fileUploads: [
       {
@@ -51,7 +51,7 @@ const taskSchema = new mongoose.Schema(
     ],
     dueDate: {
       type: mongoose.SchemaTypes.Date,
-      require: true,
+      required: true,
     },
   },
   { timestamps: true }

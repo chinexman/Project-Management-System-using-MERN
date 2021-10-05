@@ -7,7 +7,7 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const taskSchema = new mongoose_1.default.Schema({
     title: {
         type: String,
-        require: true,
+        required: true,
     },
     description: {
         type: String,
@@ -16,18 +16,18 @@ const taskSchema = new mongoose_1.default.Schema({
     status: {
         type: String,
         enum: ["Backlog", "todo", "done"],
-        require: true,
+        required: true,
         default: "Backlog",
     },
     owner: {
         type: mongoose_1.default.SchemaTypes.ObjectId,
         ref: "user",
-        require: true,
+        required: true,
     },
     assignee: {
         type: mongoose_1.default.SchemaTypes.ObjectId,
         ref: "user",
-        require: true,
+        required: true,
     },
     fileUploads: [
         {
@@ -43,7 +43,7 @@ const taskSchema = new mongoose_1.default.Schema({
     ],
     dueDate: {
         type: mongoose_1.default.SchemaTypes.Date,
-        require: true,
+        required: true,
     },
 }, { timestamps: true });
 const taskModel = mongoose_1.default.model("task", taskSchema);

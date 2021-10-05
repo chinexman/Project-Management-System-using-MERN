@@ -67,7 +67,7 @@ async function updateProject(req: customRequest, res: Response) {
     });
   }
 
-  if (project.owner !== user_id) {
+  if (project.owner !== user_id?.toString()) {
     return res.status(403).json({
       msg: "You are not authorized to update this project.",
     });

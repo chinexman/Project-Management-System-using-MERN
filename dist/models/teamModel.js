@@ -7,20 +7,20 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const teamModel = new mongoose_1.default.Schema({
     teamName: {
         type: String,
-        require: true,
+        required: true,
     },
     about: {
         type: String,
-        require: true,
+        required: true,
     },
     members: [{ type: mongoose_1.default.SchemaTypes.ObjectId }],
     projectId: {
         type: String,
-        require: true,
+        required: true,
     },
     createdBy: {
         type: String,
-        require: true,
+        required: true,
     },
 }, { timestamps: true });
 const Team = mongoose_1.default.model("Team", teamModel);

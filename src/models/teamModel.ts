@@ -18,20 +18,20 @@ const teamModel = new mongoose.Schema(
   {
     teamName: {
       type: String,
-      require: true,
+      required: true,
     },
     about: {
       type: String,
-      require: true,
+      required: true,
     },
     members: [{ type: mongoose.SchemaTypes.ObjectId }], //cool
     projectId: {
       type: String,
-      require: true,
+      required: true,
     },
     createdBy: {
       type: String,
-      require: true,
+      required: true,
     },
   },
   { timestamps: true }
