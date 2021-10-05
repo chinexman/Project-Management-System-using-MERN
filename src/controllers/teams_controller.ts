@@ -2,8 +2,6 @@ import express, { Request, Response } from "express";
 import Joi from "joi";
 import Team from "../models/teamModel";
 import Project from "../models/projectModel";
-import UserModel from "../models/user";
-import { User } from "../models/user";
 
 type customRequest = Request & {
   user?: { _id?: string; email?: string; fullname?: string };
@@ -75,6 +73,7 @@ export async function addMemberToTeam(req: customRequest, res: Response) {
       });
     }
     team.members.push(newMemberID);
+
     const updatedteam = await Team.findByIdAndUpdate(
       { _id: teamId },
       { members: team.members },
@@ -120,4 +119,71 @@ export async function updateTeamDetails(req: customRequest, res: Response) {
     status: "success",
     data: updatedTeam,
   });
+}
+
+//get all team members
+export async function getAllTeamMembers(req: customRequest, res: Response) {
+  const { teamId } = req.params;
+
+  try {
+    const team = await Team.findOne({ _id: teamId });
+
+    if (team) {
+      var { members } = team; //use of var
+      return res.status(200).json({
+        message: "successful",
+        memebers: members,
+        team: team,
+      });
+    }
+
+    return res.status(400).json({
+      Error: "The team you request does not exist.",
+    });
+  } catch (err: any) {
+    return res.status(400).json({
+      error: err.message,
+    });
+  }
+}
+
+//leave a team
+export async function leaveTeam(req: customRequest, res: Response) {
+  const { teamId } = req.params;
+  const id = req.user?._id;
+  try {
+    const team = await Team.findOne({ _id: teamId });
+    if (team) {
+      const { members, teamName } = team;
+      const user = members.filter((val) => val.toString() == id?.toString()); //the USE OF loose equality
+      if (user.length == 0) {
+        return res.status(400).json({
+          message: `Sorry, you are not a member of team ${teamName}`,
+        });
+      }
+
+      const updatedMembers = members.filter((val) => {
+        return val.toString() !== id?.toString();
+      });
+
+      const updatedteam = await Team.findByIdAndUpdate(
+        { _id: teamId },
+        { members: updatedMembers },
+        { new: true }
+      );
+      return res.status(200).json({
+        message: `Successful removal from team ${teamName}`,
+        updatedMembers: updatedMembers,
+        updatedteam: updatedteam,
+      });
+    } else {
+      return res.status(200).json({
+        message: `Team doesn't exists`,
+      });
+    }
+  } catch (error: any) {
+    return res.status(400).json({
+      message: error.message,
+    });
+  }
 }

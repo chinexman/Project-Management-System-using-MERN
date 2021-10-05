@@ -1,7 +1,9 @@
 import { Router } from "express";
 import {
-  addMemberToTeam,
   createTeam,
+  getAllTeamMembers,
+  leaveTeam,
+  addMemberToTeam,
   updateTeamDetails,
 } from "../controllers/teams_controller";
 import { authorization } from "../authentication/Auth";
@@ -9,7 +11,10 @@ import { authorization } from "../authentication/Auth";
 const router = Router();
 
 router.post("/createTeam/:projectId", authorization, createTeam);
-router.patch("/updateTeamDetails/:id", authorization, updateTeamDetails);
-router.post("/addTeamMembers/:id", authorization, addMemberToTeam);
+router.put("/updateTeamDetails/:id", authorization, updateTeamDetails);
+router.post("/createTeam/:projectId", authorization, createTeam);
+router.post("/addTeamMembers/:teamId", authorization, addMemberToTeam);
+router.get("/getAllTeamMembers/:teamId", authorization, getAllTeamMembers);
+router.get("/leaveTeam/:teamId", authorization, leaveTeam);
 
 export default router;
