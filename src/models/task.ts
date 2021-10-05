@@ -27,10 +27,12 @@ const taskSchema = new mongoose.Schema(
       require: true,
       ref: "user",
     },
-    fileUpload: {
-      type: mongoose.SchemaTypes.ObjectId,
-      ref: "file",
-    },
+    fileUpload: [
+      {
+        type: mongoose.SchemaTypes.ObjectId,
+        ref: "file",
+      },
+    ],
     comments: [
       {
         type: mongoose.SchemaTypes.ObjectId,
