@@ -9,4 +9,5 @@ router.delete("/:id", Auth_1.authorization, tasks_controller_1.deleteTask);
 router.post("/create", Auth_1.authorization, tasks_controller_1.createTask);
 router.get("/getTasks/:status", Auth_1.authorization, tasks_controller_1.getTasksByStatus);
 router.post("/upload/:taskid", Auth_1.authorization, tasks_controller_1.uploadFileCloudinary);
+router.put("/update/:task", Auth_1.authorization, tasks_controller_1.updateTask);
 exports.default = router;
