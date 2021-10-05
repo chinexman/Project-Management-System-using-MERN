@@ -18,7 +18,6 @@ const multer_1 = __importDefault(require("multer"));
 const app = (0, express_1.default)();
 const storage = multer_1.default.memoryStorage();
 const upload = (0, multer_1.default)({ storage }).single("file");
-const app = (0, express_1.default)();
 // view engine setup
 app.set("views", path_1.default.resolve(path_1.default.join(__dirname, "../", "views")));
 app.use(express_1.default.static(path_1.default.resolve(path_1.default.join(__dirname, "../", "public"))));

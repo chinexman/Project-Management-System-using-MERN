@@ -6,10 +6,14 @@ import fileModel from "../models/file";
 
 import { Request, Response, NextFunction } from "express";
 interface userInterface extends Request {
-  user: User;
+  // user: User;
+  user?: { _id?: string, email?: string, fullname?: string },
+
+
 }
 
 export async function createTask(req: userInterface, res: Response) {
+
   const { title, description, status, assignee, comments, dueDate } = req.body;
   const getTask = await Task.findOne({
     title: title,
@@ -23,7 +27,7 @@ export async function createTask(req: userInterface, res: Response) {
   }
   const task = new Task({
     ...req.body,
-    owner: req.user._id,
+    owner: req.user!._id,
     assignee,
   });
   try {
@@ -70,7 +74,7 @@ export async function updateTask(req:userInterface,res:Response){
   const { title, description, status, assignee, comments, dueDate } = req.body;
   const getTask = await Task.findOne({
     _id: taskId,
-    owner: req.user._id,
+    owner: req.user!._id,
   });
   console.log(getTask)
   if (!getTask) {
@@ -80,7 +84,7 @@ export async function updateTask(req:userInterface,res:Response){
   }
 
   let updatedTask = await Task.findOneAndUpdate(
-    { owner: req.user._id },
+    { owner: req.user!._id },
     {
       title,
       description,
