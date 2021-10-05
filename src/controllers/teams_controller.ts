@@ -74,9 +74,15 @@ export async function addMembersToTeam(req: customRequest, res: Response) {
     });
   }
   teamObj.members.push(newMemberID);
+  const updatedteam = await Team.findByIdAndUpdate(
+    { _id: teamId },
+    { members: teamObj.members },
+    { new: true }
+  );
+
   res.status(201).json({
     status: "success",
-    data: teamObj,
+    data: updatedteam,
   });
 }
 
@@ -86,10 +92,10 @@ export async function getALLTeamMembers(req: customRequest, res: Response) {}
 //update team details
 export async function updateTeamDetails(req: customRequest, res: Response) {
   const user_id = req.user!._id;
-  const project_id = req.params.projectId;
+  const project_id = req.params.id;
   const { teamName, about } = req.body;
   let findTeam = await Team.findOne({
-    projectId: project_id,
+    _id: project_id,
     createdBy: user_id,
   });
   if (!findTeam) {
@@ -99,7 +105,7 @@ export async function updateTeamDetails(req: customRequest, res: Response) {
     });
   }
   let updatedTeam = await Team.findOneAndUpdate(
-    { projectId: req.params.projectId },
+    { _id: req.params.id },
     {
       teamName: teamName,
       about: about,

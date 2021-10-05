@@ -5,7 +5,7 @@ import { authorization } from "../authentication/Auth";
 const router = express.Router();
 
 router.post("/createTeam/:projectId", authorization, createTeam);
-router.patch("/updateTeamDetails/:projectId", authorization, updateTeamDetails )
+router.patch("/updateTeamDetails/:id", authorization, updateTeamDetails )
 router.post("/addTeamMembers/:id", authorization, addMembersToTeam);
 
 export default router;
