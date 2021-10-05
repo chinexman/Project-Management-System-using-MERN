@@ -4,7 +4,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importDefault(require("mongoose"));
-//const commentSchema  = require('./comment')
 const taskSchema = new mongoose_1.default.Schema({
     title: {
         type: String,
@@ -30,7 +29,7 @@ const taskSchema = new mongoose_1.default.Schema({
         require: true,
         ref: "user",
     },
-    fileUpload: [
+    fileUploads: [
         {
             type: mongoose_1.default.SchemaTypes.ObjectId,
             ref: "file",

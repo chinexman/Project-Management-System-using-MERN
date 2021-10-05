@@ -1,6 +1,16 @@
 import mongoose from "mongoose";
 //const commentSchema  = require('./comment')
 
+export interface Task {
+  title: String;
+  description: String;
+  status: String;
+  owner: String;
+  assignee: String;
+  fileUploads: [String];
+  comments: String;
+  dueTime: Date;
+}
 const taskSchema = new mongoose.Schema(
   {
     title: {
@@ -27,7 +37,7 @@ const taskSchema = new mongoose.Schema(
       require: true,
       ref: "user",
     },
-    fileUpload: [
+    fileUploads: [
       {
         type: mongoose.SchemaTypes.ObjectId,
         ref: "file",
@@ -49,6 +59,6 @@ const taskSchema = new mongoose.Schema(
 
 //new Date("5/10/2021").toISOString()
 
-const taskModel = mongoose.model("task", taskSchema);
+const taskModel = mongoose.model<Task>("task", taskSchema);
 
 export default taskModel;

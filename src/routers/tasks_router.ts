@@ -8,8 +8,6 @@ const {
 const router = Router();
 
 router.post("/create", authorization, createTask);
-// router.delete("/delete/:id", authorization, deleteTask);
-// router.get("/getTasks", authorization, getAllTasks);
-router.post("/upload", authorization, uploadFileCloudinary);
+router.post("/upload/:taskid", authorization, uploadFileCloudinary);
 
 export default router;

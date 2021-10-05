@@ -17,7 +17,7 @@ export async function createTask(req: userInterface, res: Response) {
   });
 
   if (getTask) {
-    return res.status(400).json({
+    return res.status(409).json({
       msg: "Task with the title already exists for that particular user",
     });
   }
@@ -37,6 +37,10 @@ export async function createTask(req: userInterface, res: Response) {
 }
 
 export async function uploadFileCloudinary(req: Request, res: Response) {
+  const task = await Task.findById({ _id: req.params.taskid });
+  if (!task) {
+    return res.status(404).json({ msg: "No task id found" });
+  }
   const file = req.file;
   if (!req.file) {
     return res.status(400).json({ msg: "no file was uploaded." });
@@ -53,12 +57,12 @@ export async function uploadFileCloudinary(req: Request, res: Response) {
   //data to keep
   const file_secure_url = response.secure_url;
   //done with processing.
-  const newUpload = new fileModel({
+  const newUpload = await fileModel.create({
     name: file?.originalname,
     url: file_secure_url,
   });
-  await newUpload.save();
-  res
-    .status(200)
-    .json({ msg: "file uploaded successfully.", fileUrl: file_secure_url });
+  task.fileUploads.push(newUpload._id);
+  task.save();
+
+  res.status(200).json({ msg: "file uploaded successfully." });
 }
