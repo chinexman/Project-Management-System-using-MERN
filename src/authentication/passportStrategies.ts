@@ -74,6 +74,7 @@ interface User {
 
 passport.use(
   new localStrategy(
+    { usernameField: "email" },
     async (email: string, password: string, done: Function) => {
       //Vetting a user
       try {
@@ -98,6 +99,7 @@ passport.use(
     }
   )
 );
+
 passport.serializeUser((user: User, done) => {
   done(null, user._id);
 });
