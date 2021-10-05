@@ -12,8 +12,13 @@ const passport_1 = __importDefault(require("passport"));
 const cookie_session_1 = __importDefault(require("cookie-session"));
 const connect_flash_1 = __importDefault(require("connect-flash"));
 const users_router_1 = __importDefault(require("./routers/users_router"));
+const tasks_router_1 = __importDefault(require("./routers/tasks_router"));
 const project_router_1 = __importDefault(require("./routers/project_router"));
+const teams_router_1 = __importDefault(require("./routers/teams_router"));
+const multer_1 = __importDefault(require("multer"));
 const app = (0, express_1.default)();
+const storage = multer_1.default.memoryStorage();
+const upload = (0, multer_1.default)({ storage }).single("file");
 // view engine setup
 app.set("views", path_1.default.resolve(path_1.default.join(__dirname, "../", "views")));
 app.use(express_1.default.static(path_1.default.resolve(path_1.default.join(__dirname, "../", "public"))));
@@ -22,6 +27,7 @@ app.use((0, morgan_1.default)("dev"));
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: false }));
 app.use((0, cookie_parser_1.default)());
+app.use(upload);
 app.use((0, cookie_session_1.default)({
     maxAge: 3 * 60 * 1000,
     secret: process.env.JWT_SECRETKEY,
@@ -54,7 +60,9 @@ app.use((req, res, next) => {
 /acc-activation/:token
 */
 app.use("/users", users_router_1.default);
-app.use("/users", project_router_1.default);
+app.use("/tasks", tasks_router_1.default);
+app.use("/projects", project_router_1.default);
+app.use("/teams", teams_router_1.default);
 //app.use(sendMail)
 // catch 404 and forward to error handler
 app.use(function (_req, _res, next) {

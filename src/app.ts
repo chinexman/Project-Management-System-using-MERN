@@ -7,8 +7,14 @@ import passport from "passport";
 import cookieSession from "cookie-session";
 import flash from "connect-flash";
 import mainUsersRouter from "./routers/users_router";
-import mainProjectRouter from './routers/project_router'
+import tasksRouter from "./routers/tasks_router";
+import mainProjectRouter from "./routers/project_router";
+import mainTeamRouter from "./routers/teams_router";
+import multer from "multer";
+
 const app = express();
+const storage = multer.memoryStorage();
+const upload = multer({ storage }).single("file");
 
 // view engine setup
 app.set("views", path.resolve(path.join(__dirname, "../", "views")));
@@ -18,6 +24,7 @@ app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+app.use(upload);
 
 app.use(
   cookieSession({
@@ -43,20 +50,12 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 });
 
 /*  ROUTES
-/welcome
-../login
-../logout
-../loginfail
-../google
-../google/redirect
-../auth/facebook
-../auth/facebook/callback
-../loginPage
-../signup
-/acc-activation/:token 
+
 */
 app.use("/users", mainUsersRouter);
-app.use("/users", mainProjectRouter);
+app.use("/tasks", tasksRouter);
+app.use("/projects", mainProjectRouter);
+app.use("/teams", mainTeamRouter);
 
 //app.use(sendMail)
 // catch 404 and forward to error handler

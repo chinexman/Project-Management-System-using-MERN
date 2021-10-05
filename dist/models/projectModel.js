@@ -6,17 +6,17 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importDefault(require("mongoose"));
 const projectsSchema = new mongoose_1.default.Schema({
     owner: {
-        type: String
-    },
-    projectname: {
         type: String,
         required: true,
-        unique: true
     },
-    collaborators: [{ email: String, isVerified: Boolean }]
-    // collaborators:[{type:mongoose.schemaTypes.ObjectId, ref:"collaborator"}]
+    name: {
+        type: String,
+        required: true,
+        unique: true,
+    },
+    collaborators: [{ email: String, isVerified: Boolean }],
 }, {
-    timestamps: true
+    timestamps: true,
 });
-const Project = mongoose_1.default.model('projects', projectsSchema);
+const Project = mongoose_1.default.model("projects", projectsSchema);
 exports.default = Project;
