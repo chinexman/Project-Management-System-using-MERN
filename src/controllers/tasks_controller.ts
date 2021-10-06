@@ -33,7 +33,7 @@ export async function deleteTask(req: Request, res: Response) {
   if (
     !(await taskModel.exists({
       _id: task_id,
-      admin: user._id,
+      owner: user._id,
     }))
   ) {
     return res.status(403).json({
@@ -42,7 +42,7 @@ export async function deleteTask(req: Request, res: Response) {
   }
   const deletedTask = await taskModel.findOneAndDelete({
     _id: task_id,
-    admin: user._id,
+    owner: user._id,
   });
 
   res.status(200).json({
