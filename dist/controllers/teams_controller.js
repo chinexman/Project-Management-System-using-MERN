@@ -36,8 +36,8 @@ async function createTeam(req, res) {
                 createdBy: ownerId,
                 projectId,
             });
-            return res.json({
-                messsage: "Team crated successfully",
+            return res.status(201).json({
+                message: "Team created successfully",
                 teamCreated: newTeam,
                 membersStatus: "No members added",
             });
@@ -72,7 +72,7 @@ async function addMemberToTeam(req, res) {
         }
         team.members.push(newMemberID);
         const updatedteam = await teamModel_1.default.findByIdAndUpdate({ _id: teamId }, { members: team.members }, { new: true });
-        return res.status(201).json({
+        return res.status(200).json({
             status: "success",
             data: updatedteam,
         });
@@ -119,7 +119,7 @@ async function getAllTeamMembers(req, res) {
             var { members } = team; //use of var
             return res.status(200).json({
                 message: "successful",
-                memebers: members,
+                members: members,
                 team: team,
             });
         }

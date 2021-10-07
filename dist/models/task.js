@@ -15,9 +15,9 @@ const taskSchema = new mongoose_1.default.Schema({
     },
     status: {
         type: String,
-        enum: ["Backlog", "todo", "done"],
+        enum: ["backlog", "todo", "done"],
         required: true,
-        default: "Backlog",
+        default: "backlog",
     },
     owner: {
         type: mongoose_1.default.SchemaTypes.ObjectId,

@@ -6,7 +6,6 @@ function authorization(req, res, next) {
         res.json({ msg: "You're not logged in, please login." });
     }
     else {
-        console.log("authorization: ", req.user);
         next();
     }
 }

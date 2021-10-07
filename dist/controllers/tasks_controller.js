@@ -28,7 +28,7 @@ async function deleteTask(req, res) {
     }
     if (!(await task_1.default.exists({
         _id: task_id,
-        admin: user._id,
+        owner: user._id,
     }))) {
         return res.status(403).json({
             message: "You are not authorized to delete this task.",
@@ -36,7 +36,7 @@ async function deleteTask(req, res) {
     }
     const deletedTask = await task_1.default.findOneAndDelete({
         _id: task_id,
-        admin: user._id,
+        owner: user._id,
     });
     res.status(200).json({
         message: "Deleted successfully",
