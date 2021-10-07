@@ -10,7 +10,7 @@ import { authorization } from "../authentication/Auth";
 const router = Router();
 
 router.post("/invite", authorization, createInvite);
-router.post("/project", authorization, createProject);
+router.post("/create", authorization, createProject);
 router.put("/updateproject/:projectId", authorization, updateProject);
 router.get("/getproject", authorization, getAllProject);
 

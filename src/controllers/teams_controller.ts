@@ -36,8 +36,8 @@ export async function createTeam(req: customRequest, res: Response) {
         createdBy: ownerId,
         projectId,
       });
-      return res.json({
-        messsage: "Team crated successfully",
+      return res.status(201).json({
+        message: "Team created successfully",
         teamCreated: newTeam,
         membersStatus: "No members added",
       });
@@ -77,7 +77,7 @@ export async function addMemberToTeam(req: customRequest, res: Response) {
       { new: true }
     );
 
-    return res.status(201).json({
+    return res.status(200).json({
       status: "success",
       data: updatedteam,
     });
@@ -129,7 +129,7 @@ export async function getAllTeamMembers(req: customRequest, res: Response) {
       var { members } = team; //use of var
       return res.status(200).json({
         message: "successful",
-        memebers: members,
+        members: members,
         team: team,
       });
     }

@@ -88,7 +88,6 @@ async function createInvite(req: customRequest, res: Response) {
   let { email, projectname } = req.body;
   const fullname = req.user?.fullname;
   const user_id = req.user?._id;
-  const isVerified: boolean = false;
   const emailSchema = joi.object({
     email: joi.string().required().min(6).max(225).email(),
     projectname: joi.string().min(3).max(255).required(),
@@ -153,7 +152,7 @@ async function createInvite(req: customRequest, res: Response) {
       sendMail(email, body);
     }
     return res.status(200).json({
-      message: `${email} have been added to ${findProject.name}project`,
+      message: `${email} have been added to ${findProject.name} project`,
     });
   }
 }
@@ -162,7 +161,7 @@ async function getAllProject(req: customRequest, res: Response) {
   //extract details
   const user_id = req.user?._id;
   const projects = await Project.find({
-    $or: [{ owner: user_id }, { "collaborators.email": req.user?.email }],
+    $or: [{ owner: user_id }, { "$collaborators.email": req.user?.email }],
   });
   if (projects.length === 0) {
     res.status(404).json({

@@ -76,11 +76,10 @@ async function updateProject(req, res) {
 }
 exports.updateProject = updateProject;
 async function createInvite(req, res) {
-    var _a, _b;
+    var _a, _b, _c;
     let { email, projectname } = req.body;
     const fullname = (_a = req.user) === null || _a === void 0 ? void 0 : _a.fullname;
     const user_id = (_b = req.user) === null || _b === void 0 ? void 0 : _b._id;
-    const isVerified = false;
     const emailSchema = joi_1.default.object({
         email: joi_1.default.string().required().min(6).max(225).email(),
         projectname: joi_1.default.string().min(3).max(255).required(),
@@ -101,6 +100,11 @@ async function createInvite(req, res) {
         return res.status(400).json({
             message: ` ${projectname} does not exist on this user`,
         });
+    if (email === ((_c = req.user) === null || _c === void 0 ? void 0 : _c.email)) {
+        return res.status(400).json({
+            message: "You cannot invite yourself.",
+        });
+    }
     isVerifiedEmail = await user_1.default.findOne({ email: email });
     if (!isVerifiedEmail) {
         findProject.collaborators.push({ email: email, isVerified: false });
@@ -127,7 +131,7 @@ async function createInvite(req, res) {
             (0, nodemailer_1.default)(email, body);
         }
         return res.status(200).json({
-            message: `${email} have been added to ${findProject.name}project`,
+            message: `${email} have been added to ${findProject.name} project`,
         });
     }
 }
@@ -138,7 +142,7 @@ async function getAllProject(req, res) {
     //extract details
     const user_id = (_a = req.user) === null || _a === void 0 ? void 0 : _a._id;
     const projects = await projectModel_1.default.find({
-        $or: [{ owner: user_id }, { "collaborators.email": (_b = req.user) === null || _b === void 0 ? void 0 : _b.email }],
+        $or: [{ owner: user_id }, { "$collaborators.email": (_b = req.user) === null || _b === void 0 ? void 0 : _b.email }],
     });
     if (projects.length === 0) {
         res.status(404).json({

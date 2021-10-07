@@ -128,6 +128,7 @@ export async function updateTask(req: userInterface, res: Response) {
     _id: taskId,
     owner: req.user!._id,
   });
+
   if (!getTask) {
     return res.status(404).json({
       msg: "Task with the title does not exists for that particular user",

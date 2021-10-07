@@ -8,7 +8,7 @@ export interface Task {
   assignee: String;
   fileUploads: [String];
   comments: String;
-  dueTime: Date;
+  dueDate: Date;
 }
 
 const taskSchema = new mongoose.Schema(
@@ -23,9 +23,9 @@ const taskSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["Backlog", "todo", "done"],
+      enum: ["backlog", "todo", "done"],
       required: true,
-      default: "Backlog",
+      default: "backlog",
     },
     owner: {
       type: mongoose.SchemaTypes.ObjectId,

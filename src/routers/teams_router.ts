@@ -10,10 +10,10 @@ import { authorization } from "../authentication/Auth";
 
 const router = Router();
 
-router.post("/createTeam/:projectId", authorization, createTeam);
+router.post("/create/:projectId", authorization, createTeam);
 router.put("/updateTeamDetails/:id", authorization, updateTeamDetails);
-router.post("/addTeamMembers/:teamId", authorization, addMemberToTeam);
+router.post("/addmember/:teamId", authorization, addMemberToTeam);
 router.get("/getAllTeamMembers/:teamId", authorization, getAllTeamMembers);
-router.get("/leaveTeam/:teamId", authorization, leaveTeam);
+router.get("/leave/:teamId", authorization, leaveTeam);
 
 export default router;
