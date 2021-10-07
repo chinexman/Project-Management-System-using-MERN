@@ -112,6 +112,12 @@ async function createInvite(req: customRequest, res: Response) {
       message: ` ${projectname} does not exist on this user`,
     });
 
+  if (email === req.user?.email) {
+    return res.status(400).json({
+      message: "You cannot invite yourself.",
+    });
+  }
+
   isVerifiedEmail = await UserModel.findOne({ email: email });
   if (!isVerifiedEmail) {
     findProject.collaborators.push({ email: email, isVerified: false });
