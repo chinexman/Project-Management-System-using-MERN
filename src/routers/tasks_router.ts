@@ -7,12 +7,14 @@ import {
   getTasksByStatus,
   getTasks,
   updateTask,
+  addComment,
 } from "../controllers/tasks_controller";
 
 const router = Router();
 
 router.get("/", authorization, getTasks);
 router.delete("/:id", authorization, deleteTask);
+router.post("/:id/comment", addComment);
 router.post("/create", authorization, createTask);
 router.get("/getTasks/:status", authorization, getTasksByStatus);
 router.post("/upload/:taskid", authorization, uploadFileCloudinary);
