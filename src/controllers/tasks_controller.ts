@@ -3,10 +3,41 @@ import Task from "../models/task";
 import { cloudinaryUpload } from "../utils/cloudinary";
 import fileModel from "../models/file";
 import { Request, Response } from "express";
+import Joi from "joi";
+import commentModel from "../models/comments";
 
 interface userInterface extends Request {
   // user: User;
   user?: { _id?: string; email?: string; fullname?: string };
+}
+export async function addComment(req: Request, res: Response) {
+  const commentSchemaJoi = Joi.object({
+    commenter: Joi.string().required(),
+    body: Joi.string().required(),
+  });
+
+  const validationResult = commentSchemaJoi.validate(req.body);
+  //check for errors
+  if (validationResult.error) {
+    return res.status(400).json({
+      msg: validationResult.error.details[0].message,
+    });
+  }
+  const user = req.user;
+  const task = await taskModel.findById(req.params.id);
+  if (!task) {
+    return res.status(404).json({
+      msg: "You can't add comment to this task. Task does not exist.",
+    });
+  }
+  const newComment = await commentModel.create(req.body);
+  //add comment to task
+  task.comments.push(newComment._id);
+  task.save();
+  return res.status(200).json({
+    msg: "comment added successfully",
+    task: task,
+  });
 }
 
 export async function getTasks(req: Request, res: Response) {
@@ -52,7 +83,23 @@ export async function deleteTask(req: Request, res: Response) {
 }
 
 export async function createTask(req: userInterface, res: Response) {
-  const { title, description, status, assignee, comments, dueDate } = req.body;
+  const taskSchemaJoi = Joi.object({
+    title: Joi.string().required(),
+    description: Joi.string().required(),
+    status: Joi.string(),
+    assignee: Joi.string().required(),
+    dueDate: Joi.string().required(),
+  });
+
+  const validationResult = taskSchemaJoi.validate(req.body);
+  //check for errors
+  if (validationResult.error) {
+    return res.status(400).json({
+      msg: validationResult.error.details[0].message,
+    });
+  }
+
+  const { title, description, status, assignee, dueDate } = req.body;
   const getTask = await Task.findOne({
     title: title,
     description: description,
@@ -66,7 +113,6 @@ export async function createTask(req: userInterface, res: Response) {
   const task = new Task({
     ...req.body,
     owner: req.user!._id,
-    assignee,
   });
   try {
     await task.save();
@@ -123,7 +169,23 @@ export async function getTasksByStatus(req: Request, res: Response) {
 
 export async function updateTask(req: userInterface, res: Response) {
   const taskId = req.params.task;
-  const { title, description, status, assignee, comments, dueDate } = req.body;
+  const taskSchemaJoi = Joi.object({
+    title: Joi.string(),
+    description: Joi.string(),
+    status: Joi.string(),
+    assignee: Joi.string(),
+    createdAt: Joi.string(),
+    dueDate: Joi.string(),
+  });
+
+  const validationResult = taskSchemaJoi.validate(req.body);
+  //check for errors
+  if (validationResult.error) {
+    return res.status(400).json({
+      msg: validationResult.error.details[0].message,
+    });
+  }
+  const { title, description, status, assignee, dueDate, createdAt } = req.body;
   const getTask = await Task.findOne({
     _id: taskId,
     owner: req.user!._id,
@@ -138,15 +200,16 @@ export async function updateTask(req: userInterface, res: Response) {
   let updatedTask = await Task.findOneAndUpdate(
     { owner: req.user!._id },
     {
-      title,
-      description,
-      status,
-      assignee,
-      comments,
-      dueDate,
+      title: title ? title : getTask.title,
+      description: description ? description : getTask.description,
+      status: status ? status : getTask.status,
+      assignee: assignee ? assignee : getTask.status,
+      dueDate: dueDate ? new Date(dueDate) : getTask.dueDate,
+      createdAt: createdAt ? new Date(createdAt) : getTask.createdAt,
     },
     { new: true }
   );
+
   res.status(201).json({
     status: "success",
     data: updatedTask,

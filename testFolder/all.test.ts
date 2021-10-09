@@ -67,8 +67,6 @@ const user2Reg = {
 const sweepTheFloorTask = {
   title: "Sweep the floor",
   description: "Kayode don't forget to sweep the floor of your room.",
-  owner: "this field will be updated before adding to database",
-  assignee: "This field will be updated before adding to database",
   dueDate: "10/26/2021",
 };
 
@@ -230,8 +228,8 @@ describe("TASK TEST", () => {
         description: " description",
         status: "status",
         assignee: user3Db._id,
-        createdAt: Date.now(),
-        dueDate: new Date("11/13/2021"),
+        createdAt: new Date("11/13/2021"),
+        dueDate: new Date("11/16/2021"),
       })
       .expect(201)
       .expect((res) => {

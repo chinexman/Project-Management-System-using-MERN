@@ -7,8 +7,9 @@ export interface Task {
   owner: String;
   assignee: String;
   fileUploads: [String];
-  comments: String;
+  comments: [String];
   dueDate: Date;
+  createdAt: Date;
 }
 
 const taskSchema = new mongoose.Schema(
