@@ -36,12 +36,12 @@ jobs:
         GOOGLE_CLIENT_ID :     ${{ secrets.GOOGLE_CLIENT_ID }}
         GOOGLE_CLIENT_SECRET :  ${{ secrets.GOOGLE_CLIENT_SECRET}}
         HOME_URL :   ${{ secrets.HOME_URL }}
-        FACEBOOK_CLIENT_ID : ${{ FACEBOOK_CLIENT_ID }}
-        FACEBOOK_CLIENT_SECRET :   ${{ FACEBOOK_CLIENT_SECRET }}
-        FACEBOOK_CALLBACK_URL :  ${{ FACEBOOK_CALLBACK_URL }}
-        CLOUDINARY_CLOUDNAME  :  ${{ CLOUDINARY_CLOUDNAME }}
-        CLOUDINARY_APIKEY :  ${{ CLOUDINARY_APIKEY }}
-        CLOUDINARY_APISECRET :  ${{ CLOUDINARY_APISECRET }}
+        FACEBOOK_CLIENT_ID : ${{ secrets.FACEBOOK_CLIENT_ID }}
+        FACEBOOK_CLIENT_SECRET :   ${{ secrets.FACEBOOK_CLIENT_SECRET }}
+        FACEBOOK_CALLBACK_URL :  ${{ secrets.FACEBOOK_CALLBACK_URL }}
+        CLOUDINARY_CLOUDNAME  :  ${{ secrets.CLOUDINARY_CLOUDNAME }}
+        CLOUDINARY_APIKEY :  ${{ secrets.CLOUDINARY_APIKEY }}
+        CLOUDINARY_APISECRET :  ${{ secrets.CLOUDINARY_APISECRET }}
         
     - run: yarn install --frozen-lockfile
     #start test
