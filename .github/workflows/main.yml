@@ -27,4 +27,5 @@ jobs:
         base_email: ${{ BASE_EMAIL }}
         
     - run: yarn install --frozen-lockfile
+    #start test
     - run: yarn test
