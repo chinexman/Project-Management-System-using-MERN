@@ -23,8 +23,25 @@ jobs:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
       env:
-        database_url: ${{ DATABASE_URL }}
-        base_email: ${{ BASE_EMAIL }}
+        DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        BASE_EMAIL: ${{ secrets.BASE_EMAIL }}
+        BASE_PASS:  ${{ secrets.BASE_PASS }}
+        NODE_ENV : ${{ secrets.NODE_ENV }}
+        PORT  :     ${{ secrets.PORT }}
+        JWT_SECRETKEY :  ${{ secrets.JWT_SECRETKEY }}
+        JWT_EMAIL_EXPIRES :    ${{ secrets.JWT_EMAIL_EXPIRES }}
+        JWT_SIGNIN_EXPIRES :    ${{secrets.JWT_SIGNIN_EXPIRES }}
+        COOKIE_SESSION_KEY1 :  ${{ secrets.COOKIE_SESSION_KEY1 }}
+        COOKIE_SESSION_KEY2 :  ${{ secrets.COOKIE_SESSION_KEY2 }}
+        GOOGLE_CLIENT_ID :     ${{ secrets.GOOGLE_CLIENT_ID }}
+        GOOGLE_CLIENT_SECRET :  ${{ secrets.GOOGLE_CLIENT_SECRET}}
+        HOME_URL :   ${{ secrets.HOME_URL }}
+        FACEBOOK_CLIENT_ID : ${{ FACEBOOK_CLIENT_ID }}
+        FACEBOOK_CLIENT_SECRET :   ${{ FACEBOOK_CLIENT_SECRET }}
+        FACEBOOK_CALLBACK_URL :  ${{ FACEBOOK_CALLBACK_URL }}
+        CLOUDINARY_CLOUDNAME  :  ${{ CLOUDINARY_CLOUDNAME }}
+        CLOUDINARY_APIKEY :  ${{ CLOUDINARY_APIKEY }}
+        CLOUDINARY_APISECRET :  ${{ CLOUDINARY_APISECRET }}
         
     - run: yarn install --frozen-lockfile
     #start test
