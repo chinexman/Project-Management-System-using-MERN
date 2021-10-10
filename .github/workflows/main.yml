@@ -23,24 +23,24 @@ jobs:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
       env:
-        DATABASE_URL= ${{ DATABASE_URL }}
-        BASE_EMAIL= ${{ BASE_EMAIL }}
-        BASE_PASS=  ${{ BASE_PASS }}
-        NODE_ENV = ${{ NODE_ENV }}
-        PORT=     ${{ PORT }}
-        JWT_SECRETKEY=  ${{ JWT_SECRETKEY }}
-        JWT_EMAIL_EXPIRES=    ${{ JWT_EMAIL_EXPIRES }}
-        JWT_SIGNIN_EXPIRES=    ${{JWT_SIGNIN_EXPIRES }}
-        COOKIE_SESSION_KEY1=  ${{ COOKIE_SESSION_KEY1 }}
-        COOKIE_SESSION_KEY2=   ${{ COOKIE_SESSION_KEY2 }}
-        GOOGLE_CLIENT_ID=     ${{ GOOGLE_CLIENT_ID }}
-        GOOGLE_CLIENT_SECRET=  ${{ GOOGLE_CLIENT_SECRET}}
-        HOME_URL=   ${{ HOME_URL }}
-        FACEBOOK_CLIENT_ID= ${{ FACEBOOK_CLIENT_ID }}
-        FACEBOOK_CLIENT_SECRET=   ${{ FACEBOOK_CLIENT_SECRET }}
-        FACEBOOK_CALLBACK_URL=  ${{ FACEBOOK_CALLBACK_URL }}
-        CLOUDINARY_CLOUDNAME =  ${{ CLOUDINARY_CLOUDNAME }}
-        CLOUDINARY_APIKEY=  ${{ CLOUDINARY_APIKEY }}
-        CLOUDINARY_APISECRET =  ${{ CLOUDINARY_APISECRET }}
+        DATABASE_URL: ${{ DATABASE_URL }}
+        BASE_EMAIL: ${{ BASE_EMAIL }}
+        BASE_PASS:  ${{ BASE_PASS }}
+        NODE_ENV : ${{ NODE_ENV }}
+        PORT  :     ${{ PORT }}
+        JWT_SECRETKEY :  ${{ JWT_SECRETKEY }}
+        JWT_EMAIL_EXPIRES :    ${{ JWT_EMAIL_EXPIRES }}
+        JWT_SIGNIN_EXPIRES :    ${{JWT_SIGNIN_EXPIRES }}
+        COOKIE_SESSION_KEY1 :  ${{ COOKIE_SESSION_KEY1 }}
+        COOKIE_SESSION_KEY2 :  ${{ COOKIE_SESSION_KEY2 }}
+        GOOGLE_CLIENT_ID :     ${{ GOOGLE_CLIENT_ID }}
+        GOOGLE_CLIENT_SECRET :  ${{ GOOGLE_CLIENT_SECRET}}
+        HOME_URL :   ${{ HOME_URL }}
+        FACEBOOK_CLIENT_ID : ${{ FACEBOOK_CLIENT_ID }}
+        FACEBOOK_CLIENT_SECRET :   ${{ FACEBOOK_CLIENT_SECRET }}
+        FACEBOOK_CALLBACK_URL :  ${{ FACEBOOK_CALLBACK_URL }}
+        CLOUDINARY_CLOUDNAME  :  ${{ CLOUDINARY_CLOUDNAME }}
+        CLOUDINARY_APIKEY :  ${{ CLOUDINARY_APIKEY }}
+        CLOUDINARY_APISECRET :  ${{ CLOUDINARY_APISECRET }}
     - run: yarn install --frozen-lockfile
-    - run: npm test
+    - run: yarn test
