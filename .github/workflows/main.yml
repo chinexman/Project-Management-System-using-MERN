@@ -27,7 +27,7 @@ jobs:
           echo NODE_ENV = ${{ secrets.NODE_ENV }} >> .env
           echo PORT= ${{ secrets.PORT }} >> .env
           echo JWT_SECRETKEY = ${{ secrets.JWT_SECRETKEY }} >> .env
-          echo JWT_EMAIL_EXPIRES :    ${{ secrets.JWT_EMAIL_EXPIRES }} >> .env
+          echo JWT_EMAIL_EXPIRES=    ${{ secrets.JWT_EMAIL_EXPIRES }} >> .env
           echo JWT_EMAIL_EXPIRES =    ${{ secrets.JWT_EMAIL_EXPIRES }} >> .env
           echo JWT_SIGNIN_EXPIRES =    ${{secrets.JWT_SIGNIN_EXPIRES }} >> .env
           echo COOKIE_SESSION_KEY1 =  ${{ secrets.COOKIE_SESSION_KEY1 }} >> .env
