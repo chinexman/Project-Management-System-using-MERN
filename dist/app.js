@@ -8,17 +8,17 @@ const express_1 = __importDefault(require("express"));
 const path_1 = __importDefault(require("path"));
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const morgan_1 = __importDefault(require("morgan"));
-// import profileRouter from "./w1-profile/routes/profile";
 const passport_1 = __importDefault(require("passport"));
-// import homeRouter from "./wk1_sso_fb/routes/home";
 const cookie_session_1 = __importDefault(require("cookie-session"));
-// import googleRouter from "./w1_googleAuth/routes/index";
 const connect_flash_1 = __importDefault(require("connect-flash"));
-// import passwordRouter from "./w1_resetPassword_Auth/routes/passwordchange";
-// import usersRouter from "./wk1-signup/routes/users";
 const users_router_1 = __importDefault(require("./routers/users_router"));
-// import loginRoute from "./w1-Login/route";
+const tasks_router_1 = __importDefault(require("./routers/tasks_router"));
+const project_router_1 = __importDefault(require("./routers/project_router"));
+const teams_router_1 = __importDefault(require("./routers/teams_router"));
+const multer_1 = __importDefault(require("multer"));
 const app = (0, express_1.default)();
+const storage = multer_1.default.memoryStorage();
+const upload = (0, multer_1.default)({ storage }).single("file");
 // view engine setup
 app.set("views", path_1.default.resolve(path_1.default.join(__dirname, "../", "views")));
 app.use(express_1.default.static(path_1.default.resolve(path_1.default.join(__dirname, "../", "public"))));
@@ -27,6 +27,7 @@ app.use((0, morgan_1.default)("dev"));
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: false }));
 app.use((0, cookie_parser_1.default)());
+app.use(upload);
 app.use((0, cookie_session_1.default)({
     maxAge: 3 * 60 * 1000,
     secret: process.env.JWT_SECRETKEY,
@@ -45,28 +46,13 @@ app.use((req, res, next) => {
     res.locals.error_msg = req.flash("error_msg");
     next();
 });
-// combination area
 /*  ROUTES
-/welcome
-../login
-../logout
-../loginfail
-../google
-../google/redirect
-../auth/facebook
-../auth/facebook/callback
-../loginPage
-../signup
-/acc-activation/:token
+
 */
 app.use("/users", users_router_1.default);
-// app.use("/user", usersRouter); //user sign up
-// app.use("/user", loginRoute); // user login
-// app.use("/user", googleRouter); // google signin
-// app.use("/", homeRouter); //fb sso
-// app.use("/user", passwordRouter); // password reset
-// app.use("/user", profileRouter); // user profile
-// app.use("/w1-profiles/users", userProfileRouter);
+app.use("/tasks", tasks_router_1.default);
+app.use("/projects", project_router_1.default);
+app.use("/teams", teams_router_1.default);
 //app.use(sendMail)
 // catch 404 and forward to error handler
 app.use(function (_req, _res, next) {

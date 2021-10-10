@@ -1,13 +1,16 @@
 //user_controller
 import jwt, { JwtPayload } from "jsonwebtoken";
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import joiUserSchema from "../validations/validate";
 import bcrypt from "bcrypt";
 import UserModel from "../models/user";
 import sendMail from "../utils/nodemailer";
+import projectModel from "../models/projectModel";
 import Joi from "joi";
 const _ = require("lodash");
+
 const secret: string = process.env.JWT_SECRETKEY as string;
+
 export async function createUser(req: Request, res: Response) {
   try {
     const validation = joiUserSchema.validate(req.body);
@@ -25,7 +28,7 @@ export async function createUser(req: Request, res: Response) {
       { expiresIn: process.env.JWT_EMAIL_EXPIRES as string }
     );
     email = email;
-    const body = `            <h2>            Thank you for successfully signing up, click <a href="${process.env.HOME_URL}:${process.env.PORT}/users/acct-activation/${token}">here</a> to activate your account            </h2>            `;
+    const body = `<h2>Thank you for successfully signing up, click <a href="${process.env.HOME_URL}:${process.env.PORT}/users/acct-activation/${token}">here</a> to activate your account</h2>  `;
     if (process.env.NODE_ENV != "test") {
       sendMail(email, body);
     }
@@ -37,10 +40,10 @@ export async function createUser(req: Request, res: Response) {
     res.status(400).send(`${err}`);
   }
 }
+
 export async function activateUserAcct(req: Request, res: Response) {
   try {
     const token = req.params.token;
-    console.log(token);
     if (token) {
       jwt.verify(
         token,
@@ -51,7 +54,6 @@ export async function activateUserAcct(req: Request, res: Response) {
             return;
           }
           const { fullname, email, password } = decodedToken;
-          console.log(decodedToken);
           const checkEmail = await UserModel.findOne({ email });
           if (checkEmail)
             return res
@@ -77,6 +79,7 @@ export async function activateUserAcct(req: Request, res: Response) {
     res.status(400).json({ msg: "Something went wrong.." });
   }
 }
+
 export function logout(req: Request, res: Response) {
   req.logOut();
   res.json({
@@ -85,11 +88,10 @@ export function logout(req: Request, res: Response) {
 }
 //fake home page for google
 export function loginPage(req: Request, res: Response) {
-  console.log(req.user);
   res.render("loginPage");
 }
+
 export function googleSuccessCallBackFn(req: Request, res: Response) {
-  console.log("googleSuccessCB:", req.user);
   res.redirect("/users/welcome");
 }
 type customRequest = { user?: any } & Request;
@@ -99,7 +101,6 @@ export async function changePassword(req: customRequest, res: Response) {
   const id = req.user._id;
   try {
     const validUser = await bcrypt.compare(oldPassword, req.user.password);
-    // console.log(validUser, "validUser")
     if (validUser) {
       if (newPassword === repeatPassword) {
         const newPasswordUpdate = await bcrypt.hash(newPassword, 12);
@@ -108,7 +109,6 @@ export async function changePassword(req: customRequest, res: Response) {
           { password: newPasswordUpdate },
           { new: true }
         );
-        // console.log(newUserInfo, "newUserInfo")
         res.status(200).json({
           newUserInfo,
         });
@@ -125,9 +125,8 @@ export async function changePassword(req: customRequest, res: Response) {
       });
       return;
     }
-    return res.json(req.body);
   } catch (err: any) {
-    // console.log(err)
+    console.log(err);
     res.status(400).json({
       error: err,
     });
@@ -141,9 +140,8 @@ export async function forgetPassword(req: Request, res: Response) {
     if (user) {
       const token = jwt.sign({ id: user._id }, secret, { expiresIn: "30mins" });
       const link = `${process.env.HOME_URL}:${process.env.PORT}/users/password/resetPassword/${token}`;
-      // console.log(link)      // console.log(token)      //the variables for the nodemailer
       const body = `        Dear ${user.fullname},        <p>Follow this <a href=${link}> link </a> to change your password. The link would expire in 30 mins.</P>              `;
-      sendMail(email, body); ///adding the title variable to the nodemailer
+      sendMail(email, body);
       res.status(200).json({
         message: "Link sent to your mail.",
         link: link,
@@ -163,14 +161,15 @@ export async function forgetPassword(req: Request, res: Response) {
 }
 export async function verifyResetPassword(req: Request, res: Response) {
   let { token } = req.params;
-  console.log(token, "token-verify");
-  const verification = (await jwt.verify(token, secret)) as JwtPayload; ///verification  console.log(verification, "verification");
+  const verification = (await jwt.verify(token, secret)) as JwtPayload; ///verification
   const id = verification.id;
   const isValidId = await UserModel.findOne({ _id: id });
   try {
     if (isValidId) {
-      //line missing?      token = jwt.sign({ id: id }, secret, { expiresIn: "1d" });
-      res.render("reset-password", { title: "Reset-Password", token: token });
+      return res.render("reset-password", {
+        title: "Reset-Password",
+        token: token,
+      });
     }
   } catch (err) {
     res.json({
@@ -180,9 +179,8 @@ export async function verifyResetPassword(req: Request, res: Response) {
 }
 export async function resetPassword(req: Request, res: Response) {
   const { token } = req.params;
-  console.log(token, "token-reset");
   try {
-    const verification = (await jwt.verify(token, secret)) as JwtPayload; ///verification    console.log(verification, "verification-reset");
+    const verification = (await jwt.verify(token, secret)) as JwtPayload;
     const id = verification.id;
     if (verification) {
       const user = await UserModel.findOne({ _id: id });
@@ -220,14 +218,13 @@ export async function resetPassword(req: Request, res: Response) {
   } catch (err: any) {
     res.status(400).json({
       message: "This is the catch block message",
-      // message: "Catch block",      error: err.message,
     });
     return;
   }
 }
 export async function viewProfile(req: customRequest, res: Response) {
   const user_id = req.user!._id;
-  let viewprofile = await UserModel.findOne({ userId: user_id });
+  let viewprofile = await UserModel.findOne({ _id: user_id });
   return res.status(200).json({
     status: "profile details",
     data: viewprofile,
@@ -237,9 +234,7 @@ export async function viewProfile(req: customRequest, res: Response) {
 export async function updateProfile(req: customRequest, res: Response) {
   const user_id = req.user!._id;
   const { fullname, gender, role, location, about, profileImage } = req.body;
-  console.log("update profile: ", req.user);
   let findProfile = await UserModel.findOne({ userId: user_id });
-  console.log("profile Found:", findProfile);
   if (!findProfile) {
     return res.status(404).json({
       status: "failed",
@@ -263,4 +258,71 @@ export async function updateProfile(req: customRequest, res: Response) {
     data: updatedProfile,
   });
 }
-export async function authInvite(req: customRequest, res: Response) {}
+
+export async function createInviteUser(req: Request, res: Response) {
+  try {
+    const token = req.params.token;
+    //decode the token
+    if (token) {
+      jwt.verify(
+        token,
+        process.env.JWT_SECRETKEY as string,
+        async (err: any, decodedToken: any) => {
+          if (err) {
+            return res.status(400).json({ error: "Incorrect or Expired link" });
+          }
+          const { email, projectId, owner } = decodedToken;
+          // body validation
+          const { password, fullname } = req.body;
+          const inviteUserSchema = Joi.object({
+            fullname: Joi.string().required().min(6).max(225),
+            password: Joi.string().min(3).max(255).required(),
+          });
+
+          const inviteUserValidate = inviteUserSchema.validate(req.body);
+          if (inviteUserValidate.error) {
+            return res.status(400).json({
+              message: inviteUserValidate.error.details[0].message,
+            });
+          }
+
+          //
+          const checkEmail = await UserModel.findOne({ email });
+          if (checkEmail) {
+            return res.status(400).json({
+              message: "User with this email already exists",
+            });
+          }
+
+          const hashPassword = await bcrypt.hash(password, 10);
+          const newUser = new UserModel({
+            fullname,
+            email,
+            password: hashPassword,
+          });
+          const user = await newUser.save();
+
+          const verifyInvite = await projectModel.findOne({
+            _id: projectId,
+            owner: owner,
+          });
+
+          if (verifyInvite) {
+            const collab = verifyInvite.collaborators.find(
+              (collaborator) => collaborator.email === email
+            );
+            collab!.isVerified = true;
+            await verifyInvite.save();
+          }
+          return res.status(200).json({
+            message: `you have being added to ${verifyInvite?.name} project`,
+          });
+        }
+      );
+    } //if
+  } catch (err) {
+    res.status(500).json({
+      msg: "Unable to create account, try again later.",
+    });
+  }
+}
