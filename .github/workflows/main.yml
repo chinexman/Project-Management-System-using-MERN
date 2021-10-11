@@ -57,4 +57,5 @@ jobs:
       run: |
         git fetch --all --unshallow
         git checkout main
+        git log
         git push heroku HEAD:main -f
