@@ -46,7 +46,13 @@ jobs:
       uses: actions/setup-node@v2
       with:
         node-version: ${{ matrix.node-version }}
-
     - run: yarn install --frozen-lockfile
     #start test
     - run: yarn test
+    - name: Add remote origin
+      if: github.ref = "refs/heads/main" && job.status=="success"
+      run: |
+        git remote add heroku https://heroku:${{secrets.HEROKU_API_KEY}}@git.heroku.com/${{secrets.HEROKU_APP_NAME}}.git
+    - name: Deploy to heroku
+      run: |
+        git push heroku main
