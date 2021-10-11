@@ -49,6 +49,7 @@ jobs:
     - run: yarn install --frozen-lockfile
     #start test
     - run: yarn test
+    - run: yarn tsc
 
 
   deploy:
