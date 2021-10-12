@@ -8,6 +8,7 @@ const task_1 = __importDefault(require("../models/task"));
 const task_2 = __importDefault(require("../models/task"));
 const cloudinary_1 = require("../utils/cloudinary");
 const file_1 = __importDefault(require("../models/file"));
+const joi_1 = __importDefault(require("joi"));
 async function getTasks(req, res) {
     const user = req.user;
     const user_tasks = await task_1.default.find({ assignee: user._id });
@@ -45,7 +46,21 @@ async function deleteTask(req, res) {
 }
 exports.deleteTask = deleteTask;
 async function createTask(req, res) {
-    const { title, description, status, assignee, comments, dueDate } = req.body;
+    const taskSchemaJoi = joi_1.default.object({
+        title: joi_1.default.string().required(),
+        description: joi_1.default.string().required(),
+        status: joi_1.default.string(),
+        assignee: joi_1.default.string().required(),
+        dueDate: joi_1.default.string().required(),
+    });
+    const validationResult = taskSchemaJoi.validate(req.body);
+    //check for errors
+    if (validationResult.error) {
+        return res.status(400).json({
+            msg: validationResult.error.details[0].message,
+        });
+    }
+    const { title, description, status, assignee, dueDate } = req.body;
     const getTask = await task_2.default.findOne({
         title: title,
         description: description,
@@ -58,7 +73,6 @@ async function createTask(req, res) {
     const task = new task_2.default({
         ...req.body,
         owner: req.user._id,
-        assignee,
     });
     try {
         await task.save();
@@ -114,7 +128,22 @@ async function getTasksByStatus(req, res) {
 exports.getTasksByStatus = getTasksByStatus;
 async function updateTask(req, res) {
     const taskId = req.params.task;
-    const { title, description, status, assignee, comments, dueDate } = req.body;
+    const taskSchemaJoi = joi_1.default.object({
+        title: joi_1.default.string(),
+        description: joi_1.default.string(),
+        status: joi_1.default.string(),
+        assignee: joi_1.default.string(),
+        createdAt: joi_1.default.string(),
+        dueDate: joi_1.default.string(),
+    });
+    const validationResult = taskSchemaJoi.validate(req.body);
+    //check for errors
+    if (validationResult.error) {
+        return res.status(400).json({
+            msg: validationResult.error.details[0].message,
+        });
+    }
+    const { title, description, status, assignee, dueDate, createdAt } = req.body;
     const getTask = await task_2.default.findOne({
         _id: taskId,
         owner: req.user._id,
@@ -125,12 +154,12 @@ async function updateTask(req, res) {
         });
     }
     let updatedTask = await task_2.default.findOneAndUpdate({ owner: req.user._id }, {
-        title,
-        description,
-        status,
-        assignee,
-        comments,
-        dueDate,
+        title: title ? title : getTask.title,
+        description: description ? description : getTask.description,
+        status: status ? status : getTask.status,
+        assignee: assignee ? assignee : getTask.status,
+        dueDate: dueDate ? new Date(dueDate) : getTask.dueDate,
+        createdAt: createdAt ? new Date(createdAt) : getTask.createdAt,
     }, { new: true });
     res.status(201).json({
         status: "success",

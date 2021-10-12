@@ -4,41 +4,15 @@ import { cloudinaryUpload } from "../utils/cloudinary";
 import fileModel from "../models/file";
 import { Request, Response } from "express";
 import Joi from "joi";
-import commentModel from "../models/comments";
 
 interface userInterface extends Request {
   // user: User;
   user?: { _id?: string; email?: string; fullname?: string };
 }
-export async function addComment(req: Request, res: Response) {
-  const commentSchemaJoi = Joi.object({
-    commenter: Joi.string().required(),
-    body: Joi.string().required(),
-  });
+type customRequest = Request & {
+  user?: { _id?: string; email?: string; fullname?: string };
+};
 
-  const validationResult = commentSchemaJoi.validate(req.body);
-  //check for errors
-  if (validationResult.error) {
-    return res.status(400).json({
-      msg: validationResult.error.details[0].message,
-    });
-  }
-  const user = req.user;
-  const task = await taskModel.findById(req.params.id);
-  if (!task) {
-    return res.status(404).json({
-      msg: "You can't add comment to this task. Task does not exist.",
-    });
-  }
-  const newComment = await commentModel.create(req.body);
-  //add comment to task
-  task.comments.push(newComment._id);
-  task.save();
-  return res.status(200).json({
-    msg: "comment added successfully",
-    task: task,
-  });
-}
 
 export async function getTasks(req: Request, res: Response) {
   const user = req.user as typeof req.user & { _id: string };
@@ -215,3 +189,5 @@ export async function updateTask(req: userInterface, res: Response) {
     data: updatedTask,
   });
 }
+
+
