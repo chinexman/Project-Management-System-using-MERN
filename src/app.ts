@@ -52,6 +52,9 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 /*  ROUTES
 
 */
+app.get("/", (req: express.Request, res: express.Response) => {
+  res.render("loginPage");
+});
 app.use("/users", mainUsersRouter);
 app.use("/tasks", tasksRouter);
 app.use("/projects", mainProjectRouter);
