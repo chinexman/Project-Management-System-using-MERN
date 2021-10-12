@@ -6,7 +6,7 @@
     "start": "node ./bin/www",
     "dev": "nodemon ./bin/www",
     "test": "jest",
-    "build": "tsc"
+    "heroku-postbuild": "tsc"
   },
   "dependencies": {
     "cloudinary": "^1.27.0",
