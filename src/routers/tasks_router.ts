@@ -8,6 +8,8 @@ import {
   getTasks,
   updateTask,
   addComment,
+  getActivity,
+  getYesterdayActivity,
 } from "../controllers/tasks_controller";
 
 const router = Router();
@@ -19,5 +21,7 @@ router.post("/create", authorization, createTask);
 router.get("/getTasks/:status", authorization, getTasksByStatus);
 router.post("/upload/:taskid", authorization, uploadFileCloudinary);
 router.put("/update/:task", authorization, updateTask);
+router.get("/activity/:id", authorization, getActivity);
+router.get("/activities/:id", authorization, getYesterdayActivity);
 
 export default router;

@@ -1,10 +1,12 @@
+import activityModel from "../models/activity";
 import taskModel from "../models/task";
 import Task from "../models/task";
 import { cloudinaryUpload } from "../utils/cloudinary";
 import fileModel from "../models/file";
-import { Request, Response } from "express";
+import express, { Request, Response } from "express";
 import Joi from "joi";
 import commentModel from "../models/comments";
+import UserModel from "../models/user";
 
 interface userInterface extends Request {
   // user: User;
@@ -116,7 +118,17 @@ export async function createTask(req: userInterface, res: Response) {
   });
   try {
     await task.save();
+
     //TODO: Create an activity everytime a task is created or being assigned.
+    const assigner = req.user?.fullname;
+    const assigneeUser = await UserModel.findById(assignee);
+
+    await activityModel.create({
+      message: `${assigner} assigned ${
+        assigneeUser!.fullname
+      } to perform Task: ${task.title}`,
+    });
+
     /**
      * const newActivity =  activityModel.create({
      * msg:`${req.user.fullname assigned ${req.body.assignee.fullname} to perform TASK: ${task.title}`
@@ -218,7 +230,13 @@ export async function updateTask(req: userInterface, res: Response) {
   );
 
   //TODO: only create activity when there is a change in assignee
+
   if (getTask.assignee.toString() !== assignee) {
+    await activityModel.create({
+      message: `${req.user?.fullname} assigned ${req.body.assignee.fullname} to perform 
+      Task: ${getTask.title}`,
+    });
+
     //create activity
   }
 
@@ -226,4 +244,52 @@ export async function updateTask(req: userInterface, res: Response) {
     status: "success",
     data: updatedTask,
   });
+}
+
+export async function getActivity(req: express.Request, res: express.Response) {
+  const todayDate = new Date();
+
+  const activities = await activityModel.find({});
+  const today = activities.filter((activity) => {
+    const checkStr =
+      activity.createdAt.toString().split(" ")[1] +
+      activity.createdAt.toString().split(" ")[2];
+    const checkToday =
+      todayDate.toString().split(" ")[1] + todayDate.toString().split(" ")[2];
+    if (checkStr === checkToday) {
+      return true;
+    }
+  });
+
+  res.json({
+    todaysActivities: today,
+  });
+}
+export async function getYesterdayActivity(
+  req: express.Request,
+  res: express.Response
+) {
+  const currentDate = new Date();
+  try {
+    const getAllActivity = await activityModel.find({});
+    console.log(getAllActivity);
+    if (getAllActivity.length === 0) return res.send("No activity created");
+
+    const getActivity = getAllActivity.filter((activity) => {
+      const currentActMon = activity.createdAt.toString().split(" ")[1];
+      const currActDate = parseInt(activity.createdAt.toString().split(" ")[2]);
+      const getDate = currentActMon + " " + currActDate;
+
+      const getCurrMonth = currentDate.toString().split(" ")[1];
+      const getCurrDate = parseInt(currentDate.toString().split(" ")[2]) - 1;
+      const yesterdayDate = getCurrMonth + " " + getCurrDate;
+
+      if (getDate === yesterdayDate) {
+        return true;
+      }
+    });
+    res.send(getActivity);
+  } catch (err: any) {
+    res.status(500).send(err.message);
+  }
 }
