@@ -36,10 +36,13 @@ passport_1.default.use(new FacebookStrategy({
     }
     return done(null, currentUser);
 }));
+const callbackURL = process.env.NODE_ENV == "production"
+    ? `${process.env.HOME_URL}/users/google/redirect/`
+    : `${process.env.HOME_URL}:${process.env.PORT}/users/google/redirect`;
 passport_1.default.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: `${process.env.HOME_URL}:${process.env.PORT}/users/google/redirect`,
+    callbackURL,
 }, async function (accessToken, refreshToken, profile, done) {
     const currentUser = await user_1.default
         .findOne({ googleId: profile.id })
