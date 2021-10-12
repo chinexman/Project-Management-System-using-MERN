@@ -41,12 +41,17 @@ passport.use(
   )
 );
 
+const callbackURL =
+  process.env.NODE_ENV == "production"
+    ? `${process.env.HOME_URL}/users/google/redirect/`
+    : `${process.env.HOME_URL}:${process.env.PORT}/users/google/redirect`;
+
 passport.use(
   new GoogleStrategy(
     {
       clientID: process.env.GOOGLE_CLIENT_ID as string,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
-      callbackURL: `${process.env.HOME_URL}:${process.env.PORT}/users/google/redirect`,
+      callbackURL,
     },
     async function (accessToken, refreshToken, profile, done) {
       const currentUser = await userModel
