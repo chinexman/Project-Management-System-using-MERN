@@ -17,6 +17,13 @@ const app = express();
 const storage = multer.memoryStorage();
 const upload = multer({ storage }).single("file");
 
+const corsOptions = {
+  //allow requests from the client
+  origin: [process.env.FRONTEND_URL as string],
+  credentials: true,
+  exposedHeaders: ["set-cookie"],
+};
+
 // view engine setup
 app.set("views", path.resolve(path.join(__dirname, "../", "views")));
 app.use(express.static(path.resolve(path.join(__dirname, "../", "public"))));
@@ -24,7 +31,7 @@ app.set("view engine", "ejs");
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(cookieParser());
 app.use(upload);
 
