@@ -43,7 +43,7 @@ router.get(
   "/loginfail",
   function (req: Request, res: Response, next: NextFunction) {
     let msg = req.flash("error")[0];
-    res.json({
+    res.status(403).json({
       msg,
     });
   }
