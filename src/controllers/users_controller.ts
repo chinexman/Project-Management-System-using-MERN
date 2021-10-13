@@ -28,7 +28,12 @@ export async function createUser(req: Request, res: Response) {
       { expiresIn: process.env.JWT_EMAIL_EXPIRES as string }
     );
     email = email;
-    const body = `<h2>Thank you for successfully signing up, click <a href="${process.env.HOME_URL}:${process.env.PORT}/users/acct-activation/${token}">here</a> to activate your account</h2>  `;
+    const isDeployed = process.env.NODE_ENV === "production";
+    const body = `<h2>Thank you for successfully signing up, click <a href="${
+      process.env.HOME_URL
+    }${
+      isDeployed ? "" : ":" + process.env.PORT
+    }/users/acct-activation/${token}">here</a> to activate your account</h2>  `;
     if (process.env.NODE_ENV != "test") {
       sendMail(email, body);
     }
@@ -139,7 +144,10 @@ export async function forgetPassword(req: Request, res: Response) {
     const user = await UserModel.findOne({ email: email });
     if (user) {
       const token = jwt.sign({ id: user._id }, secret, { expiresIn: "30mins" });
-      const link = `${process.env.HOME_URL}:${process.env.PORT}/users/password/resetPassword/${token}`;
+      const isDeployed = process.env.NODE_ENV === "production";
+      const link = `${process.env.HOME_URL}${
+        isDeployed ? "" : ":" + process.env.PORT
+      }/users/password/resetPassword/${token}`;
       const body = `        Dear ${user.fullname},        <p>Follow this <a href=${link}> link </a> to change your password. The link would expire in 30 mins.</P>              `;
       sendMail(email, body);
       res.status(200).json({
