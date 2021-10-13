@@ -11,6 +11,7 @@ import tasksRouter from "./routers/tasks_router";
 import mainProjectRouter from "./routers/project_router";
 import mainTeamRouter from "./routers/teams_router";
 import multer from "multer";
+import cors from "cors";
 
 const app = express();
 const storage = multer.memoryStorage();
@@ -23,6 +24,7 @@ app.set("view engine", "ejs");
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use(cors());
 app.use(cookieParser());
 app.use(upload);
 
