@@ -44,7 +44,7 @@ router.get(
   function (req: Request, res: Response, next: NextFunction) {
     let msg = req.flash("error")[0];
     res.status(403).json({
-      msg,
+      msg: "Invalid login details",
     });
   }
 );
