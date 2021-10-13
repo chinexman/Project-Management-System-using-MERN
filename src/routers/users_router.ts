@@ -24,7 +24,7 @@ interface customUser {
 }
 
 // Welcome Page
-router.get("/welcome", authorization, (req, res) => {
+router.get("/welcome", (req, res) => {
   const user = req.user as customUser;
   res.json({ msg: `welcome ${user.fullname}` });
 });
@@ -44,7 +44,7 @@ router.get(
   function (req: Request, res: Response, next: NextFunction) {
     let msg = req.flash("error")[0];
     res.status(403).json({
-      msg: "Invalid login details",
+      msg,
     });
   }
 );
