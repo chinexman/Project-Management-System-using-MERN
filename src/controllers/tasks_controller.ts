@@ -126,7 +126,7 @@ export async function createTask(req: userInterface, res: Response) {
     await activityModel.create({
       message: `${assigner} assigned ${
         assigneeUser!.fullname
-      } to perform Task: ${task.title}`,
+      } to perform Task: ${task.title} task`,
     });
 
     /**
@@ -249,8 +249,9 @@ export async function updateTask(req: userInterface, res: Response) {
 export async function getActivity(req: express.Request, res: express.Response) {
   const todayDate = new Date();
 
-  const activities = await activityModel.find({});
-  const today = activities.filter((activity) => {
+  const allActivities = await activityModel.find({});
+
+  const activities = allActivities.filter((activity) => {
     const checkStr =
       activity.createdAt.toString().split(" ")[1] +
       activity.createdAt.toString().split(" ")[2];
@@ -261,8 +262,43 @@ export async function getActivity(req: express.Request, res: express.Response) {
     }
   });
 
+  // //determine whether to return today's or yesterday's activity.
+
+  // const timeline = req.params.timeline;
+
+  // const date = new Date();
+  // const year = date.getFullYear();
+  // const month = date.getMonth();
+  // const day = timeline == "yesterday" ? date.getDay() - 1 : date.getDay();
+  // const startDate = new Date(year, month, day);
+  // const endDate = new Date(year, month, day + 1);
+
+  // const activities = await activityModel.find({ createdAt: startDate });
+
+  if (activities.length === 0) {
+    return res.json({ activities });
+  }
+
+  // const id = req.params.id;
+  // const activity = await activityModel.findById(id);
+  // const checkStr =
+  //   activity.createdAt.toString().split(" ")[1] +
+  //   activity.createdAt.toString().split(" ")[2];
+  // console.log(typeof Date.now());
+  // console.log(typeof activity.createdAt.toString());
+  // console.log(activity.createdAt.toString());
+  // const date = activity.createdAt.toString().split(" ");
+  // res.send({
+  //   activityDate: activity.createdAt,
+  //   stringDate: activity.createdAt.toString(),
+  //   splittedDate: date,
+  //   todayDate,
+  //   stringToday: todayDate.toString(),
+  //   checkStr,
+  // });
+
   res.json({
-    todaysActivities: today,
+    activities,
   });
 }
 export async function getYesterdayActivity(
@@ -272,8 +308,6 @@ export async function getYesterdayActivity(
   const currentDate = new Date();
   try {
     const getAllActivity = await activityModel.find({});
-    console.log(getAllActivity);
-    if (getAllActivity.length === 0) return res.send("No activity created");
 
     const getActivity = getAllActivity.filter((activity) => {
       const currentActMon = activity.createdAt.toString().split(" ")[1];
@@ -288,8 +322,29 @@ export async function getYesterdayActivity(
         return true;
       }
     });
+    if (getActivity.length === 0) {
+      return res.json({ msg: "No activity created previously" });
+    }
     res.send(getActivity);
   } catch (err: any) {
     res.status(500).send(err.message);
   }
+
+  // const getId = req.params.id;
+  // const activities = await activityModel.findById(getId);
+  // console.log(activities);
+  // const getMonth = activities
+  //   .filter((a: any) => {
+  //     const b = a;
+  //   })
+  //   .createdAt.toString()
+  //   .split(" ")[1];
+  // const getDate = parseInt(activities.createdAt.toString().split(" ")[2]) - 1;
+
+  // const previousDate = getMonth + " " + getDate;
+  // console.log(previousDate);
+  // console.log(getMonth);
+  // console.log(typeof getMonth);
+  // console.log(getDate);
+  // console.log(typeof getDate);
 }

@@ -15,6 +15,7 @@ const users_router_1 = __importDefault(require("./routers/users_router"));
 const tasks_router_1 = __importDefault(require("./routers/tasks_router"));
 const project_router_1 = __importDefault(require("./routers/project_router"));
 const teams_router_1 = __importDefault(require("./routers/teams_router"));
+const comment_router_1 = __importDefault(require("./routers/comment_router"));
 const multer_1 = __importDefault(require("multer"));
 const app = (0, express_1.default)();
 const storage = multer_1.default.memoryStorage();
@@ -53,6 +54,7 @@ app.use("/users", users_router_1.default);
 app.use("/tasks", tasks_router_1.default);
 app.use("/projects", project_router_1.default);
 app.use("/teams", teams_router_1.default);
+app.use("/comments", comment_router_1.default);
 //app.use(sendMail)
 // catch 404 and forward to error handler
 app.use(function (_req, _res, next) {

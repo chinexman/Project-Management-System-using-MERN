@@ -14,6 +14,7 @@ import userModel from "../src/models/user";
 import taskModel from "../src/models/task";
 import teamModel from "../src/models/teamModel";
 import projectModel from "../src/models/projectModel";
+import activityModel from "../src/models/activity";
 import bcrypt from "bcrypt";
 import { response } from "express";
 
@@ -637,6 +638,45 @@ describe("PROJECT TEST", () => {
       .expect(200)
       .expect((res) => {
         expect(res.body.updatedProject.name).toBe(newProjectName);
+      });
+  });
+
+  test("user should be able to create an activity", async () => {
+    /*steps
+    1. owner should have signed up
+    2. owner should have logged in
+    3. there should be an assignee in the db
+    4. owner can create task
+    4. owner can create activity
+    */
+    const user1Db = await userModel.create(user1Reg);
+    const user2Db = await userModel.create(user2Reg);
+
+    //owner login
+    await request
+      .post("/users/login")
+      .send(user1Login)
+      .expect(302)
+      .expect((res) => {
+        expect(res.text).toBe(loginSuccessText);
+      });
+    //create task successfully
+    await request
+      .post("/tasks/create")
+      .send({
+        ...sweepTheFloorTask,
+        assignee: user2Db._id,
+      })
+      .expect(201)
+      .expect((response) => {
+        expect(response.body.msg).toBe("Task created successfully");
+      });
+
+    await request
+      .get("/tasks/activity")
+      .expect(200)
+      .expect((response) => {
+        expect(response.body.activities.length).toBe(1);
       });
   });
 });
