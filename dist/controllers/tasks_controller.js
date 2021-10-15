@@ -3,12 +3,42 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateTask = exports.getTasksByStatus = exports.uploadFileCloudinary = exports.createTask = exports.deleteTask = exports.getTasks = void 0;
+exports.getAllFilesByTask = exports.updateTask = exports.getTasksByStatus = exports.uploadFileCloudinary = exports.createTask = exports.deleteTask = exports.getTasks = exports.addComment = void 0;
 const task_1 = __importDefault(require("../models/task"));
 const task_2 = __importDefault(require("../models/task"));
 const cloudinary_1 = require("../utils/cloudinary");
 const file_1 = __importDefault(require("../models/file"));
 const joi_1 = __importDefault(require("joi"));
+const comments_1 = __importDefault(require("../models/comments"));
+async function addComment(req, res) {
+    const commentSchemaJoi = joi_1.default.object({
+        commenter: joi_1.default.string().required(),
+        body: joi_1.default.string().required(),
+    });
+    const validationResult = commentSchemaJoi.validate(req.body);
+    //check for errors
+    if (validationResult.error) {
+        return res.status(400).json({
+            msg: validationResult.error.details[0].message,
+        });
+    }
+    const user = req.user;
+    const task = await task_1.default.findById(req.params.id);
+    if (!task) {
+        return res.status(404).json({
+            msg: "You can't add comment to this task. Task does not exist.",
+        });
+    }
+    const newComment = await comments_1.default.create(req.body);
+    //add comment to task
+    task.comments.push(newComment._id);
+    task.save();
+    return res.status(200).json({
+        msg: 'comment added successfully',
+        task: task,
+    });
+}
+exports.addComment = addComment;
 async function getTasks(req, res) {
     const user = req.user;
     const user_tasks = await task_1.default.find({ assignee: user._id });
@@ -24,7 +54,7 @@ async function deleteTask(req, res) {
         _id: task_id,
     }))) {
         return res.status(404).json({
-            message: "Task does not exist!",
+            message: 'Task does not exist!',
         });
     }
     if (!(await task_1.default.exists({
@@ -32,7 +62,7 @@ async function deleteTask(req, res) {
         owner: user._id,
     }))) {
         return res.status(403).json({
-            message: "You are not authorized to delete this task.",
+            message: 'You are not authorized to delete this task.',
         });
     }
     const deletedTask = await task_1.default.findOneAndDelete({
@@ -40,7 +70,7 @@ async function deleteTask(req, res) {
         owner: user._id,
     });
     res.status(200).json({
-        message: "Deleted successfully",
+        message: 'Deleted successfully',
         deletedTask,
     });
 }
@@ -67,7 +97,7 @@ async function createTask(req, res) {
     });
     if (getTask) {
         return res.status(400).json({
-            msg: "Task with the title already exists for that particular user",
+            msg: 'Task with the title already exists for that particular user',
         });
     }
     const task = new task_2.default({
@@ -84,7 +114,7 @@ async function createTask(req, res) {
          */
         return res
             .status(201)
-            .json({ msg: "Task created successfully", Task: task });
+            .json({ msg: 'Task created successfully', Task: task });
     }
     catch (err) {
         res.status(400).send(err);
@@ -94,17 +124,17 @@ exports.createTask = createTask;
 async function uploadFileCloudinary(req, res) {
     const task = await task_2.default.findById({ _id: req.params.taskid });
     if (!task) {
-        return res.status(404).json({ msg: "No task id found" });
+        return res.status(404).json({ msg: 'No task id found' });
     }
-    const file = req.file;
+    const file = req.file; //
     if (!req.file) {
-        return res.status(400).json({ msg: "no file was uploaded." });
+        return res.status(400).json({ msg: 'no file was uploaded.' });
     }
     const response = await (0, cloudinary_1.cloudinaryUpload)(file === null || file === void 0 ? void 0 : file.originalname, file === null || file === void 0 ? void 0 : file.buffer);
     if (!response) {
         return res
             .status(500)
-            .json({ msg: "Unable to upload file. please try again." });
+            .json({ msg: 'Unable to upload file. please try again.' });
     }
     //data to keep
     const file_secure_url = response.secure_url;
@@ -115,7 +145,7 @@ async function uploadFileCloudinary(req, res) {
     });
     task.fileUploads.push(newUpload._id);
     await task.save();
-    res.status(200).json({ msg: "file uploaded successfully." });
+    res.status(200).json({ msg: 'file uploaded successfully.' });
 }
 exports.uploadFileCloudinary = uploadFileCloudinary;
 async function getTasksByStatus(req, res) {
@@ -156,7 +186,7 @@ async function updateTask(req, res) {
     });
     if (!getTask) {
         return res.status(404).json({
-            msg: "Task with the title does not exists for that particular user",
+            msg: 'Task with the title does not exists for that particular user',
         });
     }
     let updatedTask = await task_2.default.findOneAndUpdate({ owner: req.user._id }, {
@@ -172,8 +202,38 @@ async function updateTask(req, res) {
         //create activity
     }
     res.status(201).json({
-        status: "success",
+        status: 'success',
         data: updatedTask,
     });
 }
 exports.updateTask = updateTask;
+async function getAllFilesByTask(req, res) {
+    const { taskId } = req.params;
+    const taskExist = await task_1.default.exists({ _id: taskId });
+    try {
+        if (!taskExist) {
+            return res.status(404).json({
+                msg: 'Task with the title does not exists for that particular user',
+            });
+        }
+        const requestedTask = await task_1.default.findOne({ _id: taskId });
+        const fileUploads = requestedTask === null || requestedTask === void 0 ? void 0 : requestedTask.fileUploads;
+        console.log(fileUploads);
+        const filesUrl = fileUploads === null || fileUploads === void 0 ? void 0 : fileUploads.map(async (file) => {
+            console.log(file, 'fileId');
+            const fileObj = await file_1.default.findById(file);
+            console.log(fileObj, 'file');
+            return fileObj.url;
+        });
+        console.log(filesUrl, 'file check');
+        const arrrayOfUrls = await Promise.all(filesUrl); ///awaited the array of promises to get  the URL's
+        return res.status(201).json({
+            status: 'success',
+            data: arrrayOfUrls,
+        });
+    }
+    catch (err) {
+        res.status(400).send(err);
+    }
+}
+exports.getAllFilesByTask = getAllFilesByTask;

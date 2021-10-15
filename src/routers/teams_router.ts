@@ -1,19 +1,21 @@
-import { Router } from "express";
+import { Router } from 'express'
 import {
   createTeam,
   getAllTeamMembers,
   leaveTeam,
   addMemberToTeam,
   updateTeamDetails,
-} from "../controllers/teams_controller";
-import { authorization } from "../authentication/Auth";
+  getUserDetails,
+} from '../controllers/teams_controller'
+import { authorization } from '../authentication/Auth'
 
-const router = Router();
+const router = Router()
 
-router.post("/create/:projectId", authorization, createTeam);
-router.put("/updateTeamDetails/:id", authorization, updateTeamDetails);
-router.post("/addmember/:teamId", authorization, addMemberToTeam);
-router.get("/getAllTeamMembers/:teamId", authorization, getAllTeamMembers);
-router.get("/leave/:teamId", authorization, leaveTeam);
+router.post('/create/:projectId', authorization, createTeam)
+router.put('/updateTeamDetails/:id', authorization, updateTeamDetails)
+router.post('/addmember/:teamId', authorization, addMemberToTeam)
+router.get('/getAllTeamMembers/:teamId', authorization, getAllTeamMembers)
+router.get('/leave/:teamId', authorization, leaveTeam)
+router.get('/getUserDetails/:teamId', authorization, getUserDetails)
 
-export default router;
+export default router
