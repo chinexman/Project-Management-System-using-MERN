@@ -115,9 +115,6 @@ export async function createTask(req: userInterface, res: Response) {
     owner: req.user!._id,
   })
   try {
-<<<<<<< HEAD
-    await task.save()
-=======
     await task.save();
     //TODO: Create an activity everytime a task is created or being assigned.
     /**
@@ -125,7 +122,6 @@ export async function createTask(req: userInterface, res: Response) {
      * msg:`${req.user.fullname assigned ${req.body.assignee.fullname} to perform TASK: ${task.title}`
      * }) created activityfor task function and create activity for comment function
      */
->>>>>>> 510ceca7bc307ccfa500ddbfc3a5aa1fb9e66ef6
     return res
       .status(201)
       .json({ msg: 'Task created successfully', Task: task })
@@ -158,18 +154,11 @@ export async function uploadFileCloudinary(req: Request, res: Response) {
   const newUpload = await fileModel.create({
     name: file?.originalname,
     url: file_secure_url,
-<<<<<<< HEAD
-  })
-  task.fileUploads.push(newUpload._id)
-  await task.save()
-  res.status(200).json({ msg: 'file uploaded successfully.' })
-=======
   });
   task.fileUploads.push(newUpload._id);
   await task.save();
 
   res.status(200).json({ msg: "file uploaded successfully." });
->>>>>>> 510ceca7bc307ccfa500ddbfc3a5aa1fb9e66ef6
 }
 
 export async function getTasksByStatus(req: Request, res: Response) {
