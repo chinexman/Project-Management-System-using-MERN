@@ -85,22 +85,18 @@ passport.use(
       try {
         let user = await userModel.findOne({ email: email });
         if (!user) {
-          console.log("user not found: email does not exist.");
           return done(null, false, {
             message: " This email  does not exit ",
           });
         }
-        console.log("checking password...");
         const passwordMatch = bcrypt.compareSync(
           password,
           user.password as string
         );
 
         if (!passwordMatch) {
-          console.log("password does not match.");
           return done(null, false, { message: "User password is incorrect" });
         } else {
-          console.log("password match. returning user:", user);
           return done(null, user);
         }
       } catch (err) {
