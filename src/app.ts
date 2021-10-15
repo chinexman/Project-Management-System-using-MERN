@@ -3,7 +3,7 @@ import express, { Request, Response, NextFunction } from "express";
 import path from "path";
 import cookieParser from "cookie-parser";
 import logger from "morgan";
-import passport from "passport";
+// import passport from "passport";
 import cookieSession from "cookie-session";
 import flash from "connect-flash";
 import mainUsersRouter from "./routers/users_router";
@@ -12,6 +12,7 @@ import mainProjectRouter from "./routers/project_router";
 import mainTeamRouter from "./routers/teams_router";
 import multer from "multer";
 import cors from "cors";
+import passport from "./authentication/passportStrategies";
 
 const app = express();
 const storage = multer.memoryStorage();

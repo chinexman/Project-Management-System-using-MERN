@@ -7,7 +7,8 @@ import UserModel from "../models/user";
 import sendMail from "../utils/nodemailer";
 import projectModel from "../models/projectModel";
 import Joi from "joi";
-const _ = require("lodash");
+import { generateJwtToken } from "../utils/generateToken";
+import { UserInterface } from "../interfaces/interface";
 
 const secret: string = process.env.JWT_SECRETKEY as string;
 
@@ -96,8 +97,14 @@ export function loginPage(req: Request, res: Response) {
   res.render("loginPage");
 }
 
-export function googleSuccessCallBackFn(req: Request, res: Response) {
-  res.redirect("/users/welcome");
+export function ssoCallback(req: Request, res: Response) {
+  const user = req.user as UserInterface;
+  const token = generateJwtToken(user);
+  res.cookie("token", token, { httpOnly: true });
+  res.status(200).json({
+    msg: `welcome ${user.fullname}`,
+    token,
+  });
 }
 type customRequest = { user?: any } & Request;
 export async function changePassword(req: customRequest, res: Response) {
