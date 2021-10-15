@@ -675,6 +675,15 @@ describe('Get all info of all members of a team', () => {
     const user1Db = await userModel.create(user1Reg) ///A ram=ndom user
     const user2Db = await userModel.create(user2Reg) ///The team member whose info is requested
 
+    //login user
+    const response = await request
+      .post('/users/login')
+      .send(user1Login)
+      .expect(200) //In the code ... controller
+    // .expect((res) => {
+    //   expect(res.text).toBe(loginSuccessText)
+    // })
+
     //creating a project
     const projectA = await projectModel.create({
       name: 'project 1',
@@ -713,17 +722,9 @@ describe('Get all info of all members of a team', () => {
 
     //all requests
 
-    //login user
-    await request
-      .post('/users/login')
-      .send(user1Login)
-      .expect(302) //In the code ... controller
-      .expect((res) => {
-        expect(res.text).toBe(loginSuccessText)
-      })
-
     await request
       .get(`/teams/getUserDetails/${teamId}`)
+      .set('token', response.body.token)
       .expect(200)
       .expect((res) => {
         expect(res.body).toHaveProperty('message')

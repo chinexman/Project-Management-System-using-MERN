@@ -217,67 +217,6 @@ export async function leaveTeam(req: customRequest, res: Response) {
   }
 }
 
-/////Get details of a user/////// for aparticullar team member
-// export async function getUserDetails(req: customRequest, res: Response) {
-//   const { teamId } = req.params
-//   const teamExists = await Team.findOne({ _id: teamId })
-//   try {
-//     if (!teamExists) {
-//       return res.status(400).json({
-//         message: "Team doesn't exists",
-//       })
-//     }
-//     const { userId } = req.body
-
-//     const userDetailsSchema = Joi.object({
-//       userId: Joi.string().trim().required(),
-//     })
-//     const inputValidation = await userDetailsSchema.validate(req.body, {
-//       abortEarly: false, ///essence of this line
-//     })
-//     if (inputValidation.error) {
-//       return res.status(400).json({
-//         message: 'Invalid input',
-//         error: inputValidation.error.details[0].message,
-//       })
-//     }
-
-//     const userInfo = await UserModel.findOne({ _id: userId })
-
-//     if (!userInfo) {
-//       return res.status(400).json({
-//         message: "User doesn't exists",
-//       })
-//     }
-//     const { fullname, role, location } = userInfo
-//     ///get all the task that the user is attached to
-//     let assignedTasks = await taskModel.find({ assignee: userId })
-//     let closedTasks = await taskModel.find({ assignee: userId, status: 'done' })
-
-//     let numberOfAssignedTasks = assignedTasks.length
-//     let numberOfClosedtasks = closedTasks.length
-//     let numberOfOpenedtasks = numberOfAssignedTasks - numberOfClosedtasks
-
-//     const userDetails = {
-//       fullname,
-//       role,
-//       location,
-//       numberOfClosedtasks: numberOfClosedtasks,
-//       numberOfOpenedtasks: numberOfOpenedtasks,
-//     }
-
-//     return res.status(200).json({
-//       message: 'success',
-//       userDetails: userDetails,
-//     })
-//   } catch (error) {
-//     return res.status(500).json({
-//       message: 'Failed',
-//       error: error,
-//     })
-//   }
-// }
-
 ///get information for all teammabers
 export async function getUserDetails(req: customRequest, res: Response) {
   const { teamId } = req.params
