@@ -667,13 +667,14 @@ describe("COMMENT TEST", ()=>{
     const user2 = await userModel.create(user2Reg);
 
     //login user
-    await request
+    const response = await request
       .post("/users/login")
       .send(user1Login)
-      .expect(302)
-      .expect((res) => {
-        expect(res.text).toBe(loginSuccessText);
-      });
+      .expect(200)
+      // .expect(302)
+      // .expect((res) => {
+      //   expect(res.text).toBe(loginSuccessText);
+      // });
   
 
 
@@ -687,6 +688,7 @@ describe("COMMENT TEST", ()=>{
 
     await request
     .post(`/comments/comment/${taskDb._id}`)
+    .set("token", response.body.token)
     .send({comment:"nice work"})
     .expect(200)
     .expect((res)=>{
@@ -702,13 +704,14 @@ describe("COMMENT TEST", ()=>{
      const user2 = await userModel.create(user2Reg);
  
      //login user
-     await request
+     const response = await request
        .post("/users/login")
        .send(user1Login)
-       .expect(302)
-       .expect((res) => {
-         expect(res.text).toBe(loginSuccessText);
-       });
+       .expect(200)
+      //  .expect(302)
+      //  .expect((res) => {
+      //    expect(res.text).toBe(loginSuccessText);
+      //  });
    
  
  
@@ -727,6 +730,7 @@ describe("COMMENT TEST", ()=>{
  
      await request
      .put(`/comments/update/${commentDb._id}`)
+     .set("token", response.body.token)
      .send({comment:"work yet to be done"})
      .expect(200)
      .expect((res)=>{
@@ -742,13 +746,14 @@ describe("COMMENT TEST", ()=>{
      const user2 = await userModel.create(user2Reg);
  
      //login user
-     await request
+     const response = await request
        .post("/users/login")
        .send(user1Login)
-       .expect(302)
-       .expect((res) => {
-         expect(res.text).toBe(loginSuccessText);
-       });
+       .expect(200)
+      //  .expect(302)
+      //  .expect((res) => {
+      //    expect(res.text).toBe(loginSuccessText);
+      //  });
    
  
  
@@ -767,6 +772,7 @@ describe("COMMENT TEST", ()=>{
  
      await request
      .delete(`/comments/${commentDb._id}`)
+     .set("token", response.body.token)
      .expect(200)
      .expect((res)=>{
        expect(res.body.message).toBe("comment Deleted successfully");
