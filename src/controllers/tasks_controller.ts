@@ -115,7 +115,17 @@ export async function createTask(req: userInterface, res: Response) {
     owner: req.user!._id,
   })
   try {
+<<<<<<< HEAD
     await task.save()
+=======
+    await task.save();
+    //TODO: Create an activity everytime a task is created or being assigned.
+    /**
+     * const newActivity =  activityModel.create({
+     * msg:`${req.user.fullname assigned ${req.body.assignee.fullname} to perform TASK: ${task.title}`
+     * }) created activityfor task function and create activity for comment function
+     */
+>>>>>>> 510ceca7bc307ccfa500ddbfc3a5aa1fb9e66ef6
     return res
       .status(201)
       .json({ msg: 'Task created successfully', Task: task })
@@ -148,10 +158,18 @@ export async function uploadFileCloudinary(req: Request, res: Response) {
   const newUpload = await fileModel.create({
     name: file?.originalname,
     url: file_secure_url,
+<<<<<<< HEAD
   })
   task.fileUploads.push(newUpload._id)
   await task.save()
   res.status(200).json({ msg: 'file uploaded successfully.' })
+=======
+  });
+  task.fileUploads.push(newUpload._id);
+  await task.save();
+
+  res.status(200).json({ msg: "file uploaded successfully." });
+>>>>>>> 510ceca7bc307ccfa500ddbfc3a5aa1fb9e66ef6
 }
 
 export async function getTasksByStatus(req: Request, res: Response) {
@@ -200,15 +218,20 @@ export async function updateTask(req: userInterface, res: Response) {
   let updatedTask = await Task.findOneAndUpdate(
     { owner: req.user!._id },
     {
-      title: title ? title : getTask.title,
-      description: description ? description : getTask.description,
-      status: status ? status : getTask.status,
-      assignee: assignee ? assignee : getTask.status,
+      title: title || getTask.title,
+      description: description || getTask.description,
+      status: status || getTask.status,
+      assignee: assignee || getTask.status,
       dueDate: dueDate ? new Date(dueDate) : getTask.dueDate,
       createdAt: createdAt ? new Date(createdAt) : getTask.createdAt,
     },
     { new: true }
   )
+
+  //TODO: only create activity when there is a change in assignee
+  if (getTask.assignee.toString() !== assignee) {
+    //create activity
+  }
 
   res.status(201).json({
     status: 'success',

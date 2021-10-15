@@ -6,9 +6,10 @@ interface RequestInterface extends Request {
 }
 
 interface UserInterface {
+  _id: string;
   email: string;
   password: string;
-  name: string;
+  fullname: string;
   createdAt: number;
 }
 

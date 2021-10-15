@@ -41,12 +41,17 @@ passport.use(
   )
 );
 
+const callbackURL =
+  process.env.NODE_ENV == "production"
+    ? `${process.env.HOME_URL}/users/google/redirect/`
+    : `${process.env.HOME_URL}:${process.env.PORT}/users/google/redirect`;
+
 passport.use(
   new GoogleStrategy(
     {
       clientID: process.env.GOOGLE_CLIENT_ID as string,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
-      callbackURL: `${process.env.HOME_URL}:${process.env.PORT}/users/google/redirect`,
+      callbackURL,
     },
     async function (accessToken, refreshToken, profile, done) {
       const currentUser = await userModel
@@ -88,6 +93,7 @@ passport.use(
           password,
           user.password as string
         );
+
         if (!passwordMatch) {
           return done(null, false, { message: "User password is incorrect" });
         } else {
@@ -101,11 +107,16 @@ passport.use(
 );
 
 passport.serializeUser((user: User, done) => {
+  //stores a cookie in the browser with the user id inside it
+  console.log("serializeUser called, loggedIn user:", user);
   done(null, user._id);
 });
 
 passport.deserializeUser((id, done) => {
+  console.log("deserialize user called.");
   userModel.findById(id, function (err: Error, user: User) {
     done(err, user);
   });
 });
+
+export default passport;
