@@ -11,6 +11,7 @@ import {
   viewProfile,
   updateProfile,
   createInviteUser,
+  uploadFileCloudinary
 } from "../controllers/users_controller";
 import { Router, Request, Response, NextFunction } from "express";
 import { authorization } from "../authentication/Auth";
@@ -96,6 +97,9 @@ router.post("/password/forgetPassword", forgetPassword);
 router.get("/password/resetPassword/:token", verifyResetPassword);
 router.post("/password/resetPassword/:token", resetPassword);
 router.post("/inviteUser/:token", createInviteUser);
+router.post("/upload/:projectId", authorization, uploadFileCloudinary);
+
+
 
 //googlesso, fbsso, profile, changepassword,
 export default router;

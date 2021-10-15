@@ -14,9 +14,9 @@ import userModel from '../src/models/user'
 import taskModel from '../src/models/task'
 import teamModel from '../src/models/teamModel'
 import projectModel from '../src/models/projectModel'
+import commentModel from '../src/models/comments'
 import bcrypt from 'bcrypt'
 import { response } from 'express'
-import Team from '../src/models/teamModel'
 
 //initial declaration for typescript intellisense support
 let request = supertest.agent()
@@ -729,6 +729,116 @@ describe('Get all info of all members of a team', () => {
       .expect((res) => {
         expect(res.body).toHaveProperty('message')
         // expect(res.text.message).toBe('success')
+      })
+  })
+})
+
+describe('COMMENT TEST', () => {
+  test('user should be able to create a comment on a task', async () => {
+    //register user1 into the database
+    const user1 = await userModel.create(user1Reg)
+    //register user2 into the database
+    const user2 = await userModel.create(user2Reg)
+
+    //login user
+    const response = await request
+      .post('/users/login')
+      .send(user1Login)
+      .expect(200)
+    // .expect(302)
+    // .expect((res) => {
+    //   expect(res.text).toBe(loginSuccessText);
+    // });
+
+    const taskDb = await taskModel.create({
+      ...sweepTheFloorTask,
+      owner: user1._id,
+      status: 'backlog',
+      assignee: user2._id,
+    })
+
+    await request
+      .post(`/comments/comment/${taskDb._id}`)
+      .set('token', response.body.token)
+      .send({ comment: 'nice work' })
+      .expect(200)
+      .expect((res) => {
+        expect(res.body.msg).toBe('comment added successfully')
+      })
+  })
+
+  test('user should be able to update a comment on a task', async () => {
+    //register user1 into the database
+    const user1 = await userModel.create(user1Reg)
+    //register user2 into the database
+    const user2 = await userModel.create(user2Reg)
+
+    //login user
+    const response = await request
+      .post('/users/login')
+      .send(user1Login)
+      .expect(200)
+    //  .expect(302)
+    //  .expect((res) => {
+    //    expect(res.text).toBe(loginSuccessText);
+    //  });
+
+    const taskDb = await taskModel.create({
+      ...sweepTheFloorTask,
+      owner: user1._id,
+      status: 'backlog',
+      assignee: user2._id,
+    })
+
+    const commentDb = await commentModel.create({
+      owner: user1._id,
+      body: 'nice work',
+    })
+
+    await request
+      .put(`/comments/update/${commentDb._id}`)
+      .set('token', response.body.token)
+      .send({ comment: 'work yet to be done' })
+      .expect(200)
+      .expect((res) => {
+        expect(res.body.status).toBe('success')
+      })
+  })
+
+  test('user should be able to delete a comment on a task', async () => {
+    //register user1 into the database
+    const user1 = await userModel.create(user1Reg)
+    //register user2 into the database
+    const user2 = await userModel.create(user2Reg)
+
+    //login user
+    const response = await request
+      .post('/users/login')
+      .send(user1Login)
+      .expect(200)
+    //  .expect(302)
+    //  .expect((res) => {
+    //    expect(res.text).toBe(loginSuccessText);
+    //  });
+
+    const taskDb = await taskModel.create({
+      ...sweepTheFloorTask,
+      owner: user1._id,
+      status: 'backlog',
+      assignee: user2._id,
+    })
+
+    const commentDb = await commentModel.create({
+      owner: user1._id,
+      body: 'nice work',
+    })
+
+    await request
+      .delete(`/comments/${commentDb._id}`)
+      .set('token', response.body.token)
+      .expect(200)
+      .expect((res) => {
+        expect(res.body.message).toBe('comment Deleted successfully')
       })
   })
 })

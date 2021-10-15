@@ -39,6 +39,9 @@ export async function addComment(req: Request, res: Response) {
     task: task,
   })
 }
+type customRequest = Request & {
+  user?: { _id?: string; email?: string; fullname?: string }
+}
 
 export async function getTasks(req: Request, res: Response) {
   const user = req.user as typeof req.user & { _id: string }
@@ -115,7 +118,7 @@ export async function createTask(req: userInterface, res: Response) {
     owner: req.user!._id,
   })
   try {
-    await task.save();
+    await task.save()
     //TODO: Create an activity everytime a task is created or being assigned.
     /**
      * const newActivity =  activityModel.create({
@@ -154,11 +157,11 @@ export async function uploadFileCloudinary(req: Request, res: Response) {
   const newUpload = await fileModel.create({
     name: file?.originalname,
     url: file_secure_url,
-  });
-  task.fileUploads.push(newUpload._id);
-  await task.save();
+  })
+  task.fileUploads.push(newUpload._id)
+  await task.save()
 
-  res.status(200).json({ msg: "file uploaded successfully." });
+  res.status(200).json({ msg: 'file uploaded successfully.' })
 }
 
 export async function getTasksByStatus(req: Request, res: Response) {
@@ -249,7 +252,6 @@ export async function getAllFilesByTask(req: userInterface, res: Response) {
     }) as Promise<string>[]
     console.log(filesUrl, 'file check')
     const arrrayOfUrls = await Promise.all(filesUrl) ///awaited the array of promises to get  the URL's
-
 
     return res.status(201).json({
       status: 'success',

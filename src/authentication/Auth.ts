@@ -22,6 +22,7 @@ async function authorization(req: Request, res: Response, next: NextFunction) {
       const { id } = jwtPayLoad as PayLoadInterface;
       const user = await UserModel.findById(id);
       if (user === null) {
+        console.log("user is null")
         return res.status(404).json({
           msg: "User not found.",
         });

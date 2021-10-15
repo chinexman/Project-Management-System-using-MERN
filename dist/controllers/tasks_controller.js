@@ -145,7 +145,7 @@ async function uploadFileCloudinary(req, res) {
     });
     task.fileUploads.push(newUpload._id);
     await task.save();
-    res.status(200).json({ msg: "file uploaded successfully." });
+    res.status(200).json({ msg: 'file uploaded successfully.' });
 }
 exports.uploadFileCloudinary = uploadFileCloudinary;
 async function getTasksByStatus(req, res) {
