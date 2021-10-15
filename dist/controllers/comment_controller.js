@@ -4,11 +4,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteComment = exports.updateComment = exports.addComment = void 0;
+const activity_1 = __importDefault(require("../models/activity"));
 const task_1 = __importDefault(require("../models/task"));
 const joi_1 = __importDefault(require("joi"));
 const comments_1 = __importDefault(require("../models/comments"));
 async function addComment(req, res) {
-    var _a;
+    var _a, _b;
     const commentSchemaJoi = joi_1.default.object({
         comment: joi_1.default.string().required(),
     });
@@ -22,7 +23,6 @@ async function addComment(req, res) {
     }
     const user_id = (_a = req.user) === null || _a === void 0 ? void 0 : _a._id;
     const task = await task_1.default.findById(req.params.taskid);
-    console.log(task);
     if (!task) {
         return res.status(404).json({
             msg: "You can't add comment to this task. Task does not exist.",
@@ -30,11 +30,15 @@ async function addComment(req, res) {
     }
     const newComment = await comments_1.default.create({
         body: req.body.comment,
-        commenter: user_id
+        commenter: user_id,
     });
     //add comment to task
     task.comments.push(newComment._id);
     task.save();
+    //add activity for comment
+    await activity_1.default.create({
+        message: `${(_b = req.user) === null || _b === void 0 ? void 0 : _b.fullname} commented on the ${task.title} Task`,
+    });
     return res.status(200).json({
         msg: "comment added successfully",
         task: task,
@@ -42,6 +46,7 @@ async function addComment(req, res) {
 }
 exports.addComment = addComment;
 async function updateComment(req, res) {
+    var _a;
     const CommentId = req.params.commentid;
     const commentSchemaJoi = joi_1.default.object({
         comment: joi_1.default.string(),
@@ -66,6 +71,10 @@ async function updateComment(req, res) {
     let updatedComment = await comments_1.default.findOneAndUpdate({ owner: req.user._id }, {
         body: comment ? comment : getComment.comment,
     }, { new: true });
+    //adding activity for update of comment
+    await activity_1.default.create({
+        message: `${(_a = req.user) === null || _a === void 0 ? void 0 : _a.fullname} updated a ${comment}`,
+    });
     res.status(200).json({
         status: "success",
         data: updatedComment,

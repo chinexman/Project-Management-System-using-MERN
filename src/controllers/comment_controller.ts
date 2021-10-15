@@ -1,6 +1,7 @@
+import activityModel from "../models/activity";
 import taskModel from "../models/task";
 import Task from "../models/task";
-import { Request, Response } from "express";
+import express, { Request, Response } from "express";
 import Joi from "joi";
 import commentModel from "../models/comments";
 
@@ -26,7 +27,7 @@ export async function addComment(req: customRequest, res: Response) {
   }
   const user_id = req.user?._id;
   const task = await taskModel.findById(req.params.taskid);
-  console.log(task);
+
   if (!task) {
     return res.status(404).json({
       msg: "You can't add comment to this task. Task does not exist.",
@@ -34,28 +35,27 @@ export async function addComment(req: customRequest, res: Response) {
   }
   const newComment = await commentModel.create({
     body: req.body.comment,
-    commenter: user_id
+    commenter: user_id,
   });
   //add comment to task
   task.comments.push(newComment._id);
   task.save();
+
+  //add activity for comment
+  await activityModel.create({
+    message: `${req.user?.fullname} commented on the ${task.title} Task`,
+  });
+
   return res.status(200).json({
     msg: "comment added successfully",
     task: task,
   });
 }
 
-
-
-
-
-
-
 export async function updateComment(req: userInterface, res: Response) {
   const CommentId = req.params.commentid;
   const commentSchemaJoi = Joi.object({
     comment: Joi.string(),
-  
   });
 
   const validationResult = commentSchemaJoi.validate(req.body);
@@ -80,49 +80,51 @@ export async function updateComment(req: userInterface, res: Response) {
   let updatedComment = await commentModel.findOneAndUpdate(
     { owner: req.user!._id },
     {
-      body: comment? comment : getComment.comment,
-      
+      body: comment ? comment : getComment.comment,
     },
     { new: true }
   );
 
+  //adding activity for update of comment
+  await activityModel.create({
+    message: `${req.user?.fullname} updated a ${comment}`,
+  });
   res.status(200).json({
     status: "success",
     data: updatedComment,
   });
 }
 
-
 export async function deleteComment(req: Request, res: Response) {
-    const user = req.user as typeof req.user & { _id: string };
-    const comment_id = req.params.commentid;
-    if (
-      !(await commentModel.exists({
-        _id: comment_id,
-      }))
-    ) {
-      return res.status(404).json({
-        message: "Comment does not exist!",
-      });
-    }
-  
-    if (
-      !(await commentModel.exists({
-        _id: comment_id,
-        owner: user._id,
-      }))
-    ) {
-      return res.status(403).json({
-        message: "You are not authorized to delete this comment.",
-      });
-    }
-    const deletedComment = await commentModel.findOneAndDelete({
+  const user = req.user as typeof req.user & { _id: string };
+  const comment_id = req.params.commentid;
+  if (
+    !(await commentModel.exists({
       _id: comment_id,
-      owner: user._id,
-    });
-  
-    res.status(200).json({
-      message: "comment Deleted successfully",
-      deletedComment,
+    }))
+  ) {
+    return res.status(404).json({
+      message: "Comment does not exist!",
     });
   }
+
+  if (
+    !(await commentModel.exists({
+      _id: comment_id,
+      owner: user._id,
+    }))
+  ) {
+    return res.status(403).json({
+      message: "You are not authorized to delete this comment.",
+    });
+  }
+  const deletedComment = await commentModel.findOneAndDelete({
+    _id: comment_id,
+    owner: user._id,
+  });
+
+  res.status(200).json({
+    message: "comment Deleted successfully",
+    deletedComment,
+  });
+}

@@ -10,7 +10,7 @@ import mainUsersRouter from "./routers/users_router";
 import tasksRouter from "./routers/tasks_router";
 import mainProjectRouter from "./routers/project_router";
 import mainTeamRouter from "./routers/teams_router";
-import mainCommentRouter from "./routers/comment_router"
+import mainCommentRouter from "./routers/comment_router";
 import multer from "multer";
 import cors from "cors";
 import passport from "./authentication/passportStrategies";
@@ -70,7 +70,7 @@ app.use("/users", mainUsersRouter);
 app.use("/tasks", tasksRouter);
 app.use("/projects", mainProjectRouter);
 app.use("/teams", mainTeamRouter);
-app.use("/comments", mainCommentRouter)
+app.use("/comments", mainCommentRouter);
 
 //app.use(sendMail)
 // catch 404 and forward to error handler
