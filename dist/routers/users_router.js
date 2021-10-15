@@ -4,10 +4,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const users_controller_1 = require("../controllers/users_controller");
-const passport_1 = __importDefault(require("passport"));
 const express_1 = require("express");
 const Auth_1 = require("../authentication/Auth");
-require("../authentication/passportStrategies");
+const passportStrategies_1 = __importDefault(require("../authentication/passportStrategies"));
+const generateToken_1 = require("../utils/generateToken");
 const router = (0, express_1.Router)();
 // Welcome Page
 router.get("/welcome", Auth_1.authorization, (req, res) => {
@@ -15,30 +15,42 @@ router.get("/welcome", Auth_1.authorization, (req, res) => {
     res.json({ msg: `welcome ${user.fullname}` });
 });
 router.post("/login", (req, res, next) => {
-    passport_1.default.authenticate("local", {
-        successRedirect: "/users/welcome",
-        failureRedirect: "/users/loginfail",
-        failureFlash: true,
+    // res.setHeader("Access-Control-Allow-Origin", "http://localhost:3001");
+    //err,user,info
+    // passport.authenticate("local", {
+    //   successRedirect: "/users/welcome",
+    //   failureRedirect: "/users/loginfail",
+    //   failureFlash: true,
+    // })(req, res, next);
+    passportStrategies_1.default.authenticate("local", (err, user, info) => {
+        if (!user) {
+            return res.status(401).json({
+                msg: "Invalid user name or password.",
+            });
+        }
+        //create token
+        const token = (0, generateToken_1.generateJwtToken)(user);
+        res.status(200).json({
+            msg: `welcome ${user.fullname}`,
+            token,
+        });
     })(req, res, next);
 });
 router.get("/logout", Auth_1.authorization, users_controller_1.logout);
 router.get("/loginfail", function (req, res, next) {
     let msg = req.flash("error")[0];
-    res.json({
-        msg,
+    console.log("login fail: ", msg);
+    res.status(403).json({
+        msg: "invalid email or password",
     });
 });
 //google
-router.get("/google", passport_1.default.authenticate("google", { scope: ["profile", "email"] }));
-router.get("/google/redirect", passport_1.default.authenticate("google"), users_controller_1.googleSuccessCallBackFn);
-router.get("/auth/facebook", passport_1.default.authenticate("facebook", {
+router.get("/google", passportStrategies_1.default.authenticate("google", { scope: ["profile", "email"] }));
+router.get("/google/redirect", passportStrategies_1.default.authenticate("google"), users_controller_1.ssoCallback);
+router.get("/auth/facebook", passportStrategies_1.default.authenticate("facebook", {
     scope: ["public_profile", "email"],
 }));
-router.get("/auth/facebook/callback", passport_1.default.authenticate("facebook", {
-    successRedirect: "/users/welcome",
-    failureRedirect: "/users/loginfail",
-    failureFlash: true,
-}));
+router.get("/auth/facebook/callback", passportStrategies_1.default.authenticate("facebook"), users_controller_1.ssoCallback);
 router.get("/loginPage", users_controller_1.loginPage);
 router.post("/signup", users_controller_1.createUser);
 router.get("/profile", Auth_1.authorization, users_controller_1.viewProfile);

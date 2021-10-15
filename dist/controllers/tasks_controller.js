@@ -76,6 +76,12 @@ async function createTask(req, res) {
     });
     try {
         await task.save();
+        //TODO: Create an activity everytime a task is created or being assigned.
+        /**
+         * const newActivity =  activityModel.create({
+         * msg:`${req.user.fullname assigned ${req.body.assignee.fullname} to perform TASK: ${task.title}`
+         * }) created activityfor task function and create activity for comment function
+         */
         return res
             .status(201)
             .json({ msg: "Task created successfully", Task: task });
@@ -154,13 +160,17 @@ async function updateTask(req, res) {
         });
     }
     let updatedTask = await task_2.default.findOneAndUpdate({ owner: req.user._id }, {
-        title: title ? title : getTask.title,
-        description: description ? description : getTask.description,
-        status: status ? status : getTask.status,
-        assignee: assignee ? assignee : getTask.status,
+        title: title || getTask.title,
+        description: description || getTask.description,
+        status: status || getTask.status,
+        assignee: assignee || getTask.status,
         dueDate: dueDate ? new Date(dueDate) : getTask.dueDate,
         createdAt: createdAt ? new Date(createdAt) : getTask.createdAt,
     }, { new: true });
+    //TODO: only create activity when there is a change in assignee
+    if (getTask.assignee.toString() !== assignee) {
+        //create activity
+    }
     res.status(201).json({
         status: "success",
         data: updatedTask,

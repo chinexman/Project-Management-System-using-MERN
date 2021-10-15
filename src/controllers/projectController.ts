@@ -126,8 +126,10 @@ async function createInvite(req: customRequest, res: Response) {
       process.env.JWT_SECRETKEY as string,
       { expiresIn: process.env.JWT_EMAIL_EXPIRES as string }
     );
-
-    const link = `${process.env.HOME_URL}:${process.env.PORT}/users/inviteUser/${token}`;
+    const isDeployed = process.env.NODE_ENV === "production";
+    const link = `${process.env.HOME_URL}${
+      isDeployed ? "" : ":" + process.env.PORT
+    }/users/inviteUser/${token}`;
 
     body = `
                 You have be invited by ${fullname}

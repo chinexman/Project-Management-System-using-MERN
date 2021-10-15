@@ -97,13 +97,14 @@ describe("TASK TEST", () => {
     const user2 = await userModel.create(user2Reg);
 
     //owner login
-    await request
+    const response = await request
       .post("/users/login")
       .send(user1Login)
-      .expect(302)
-      .expect((res) => {
-        expect(res.text).toBe(loginSuccessText);
-      });
+      .expect(200);
+    // .expect(302)
+    // .expect((res) => {
+    //   expect(res.text).toBe(loginSuccessText);
+    // });
     //owner create task
     await request
       .post("/tasks/create")
@@ -111,6 +112,7 @@ describe("TASK TEST", () => {
         ...sweepTheFloorTask,
         assignee: user2._id,
       })
+      .set("token", response.body.token)
       .expect(201)
       .expect((response) => {
         expect(response.body.msg).toBe("Task created successfully");
@@ -121,16 +123,17 @@ describe("TASK TEST", () => {
     //register user1 into the database
     await userModel.create(user1Reg);
     //login
-    await request
+    const response = await request
       .post("/users/login")
       .send(user1Login)
-      .expect(302)
-      .expect((res) => {
-        expect(res.text).toBe(loginSuccessText);
-      });
+      .expect(200);
+    // .expect((res) => {
+    //   expect(res.text).toBe(loginSuccessText);
+    // });
     //user can get task assigned to them
     await request
       .get("/tasks")
+      .set("token", response.body.token)
       .expect(200)
       .expect((res) => {
         expect(Array.isArray(res.body.tasks)).toBe(true);
@@ -151,17 +154,18 @@ describe("TASK TEST", () => {
     });
 
     //user2 login
-    await request
+    let response = await request
       .post("/users/login")
       .send(user2Login)
-      .expect(302)
-      .expect((res) => {
-        expect(res.text).toBe(loginSuccessText);
-      });
+      .expect(200);
+    // .expect((res) => {
+    //   expect(res.text).toBe(loginSuccessText);
+    // });
 
     //user2 should not be allowed to delete task
     await request
       .delete(`/tasks/${taskDb._id}`)
+      .set("token", response.body.token)
       .expect(403)
       .expect((res) => {
         expect(res.body.message).toBe(
@@ -170,20 +174,18 @@ describe("TASK TEST", () => {
       });
 
     //user2 logsout
-    await request.get("/users/logout").expect(200);
+    // await request.get("/users/logout").expect(200);
 
     //user1 logs in
-    await request
-      .post("/users/login")
-      .send(user1Login)
-      .expect(302)
-      .expect((res) => {
-        expect(res.text).toBe(loginSuccessText);
-      });
+    response = await request.post("/users/login").send(user1Login).expect(200);
+    // .expect((res) => {
+    //   expect(res.text).toBe(loginSuccessText);
+    // });
 
     //user1 deletes the task
     await request
       .delete(`/tasks/${taskDb._id}`)
+      .set("token", response.body.token)
       .expect(200)
       .expect((res) => {
         expect(res.body.message).toBe("Deleted successfully");
@@ -214,13 +216,13 @@ describe("TASK TEST", () => {
     });
 
     //login user
-    await request
+    const response = await request
       .post("/users/login")
       .send(user1Login)
-      .expect(302)
-      .expect((res) => {
-        expect(res.text).toBe(loginSuccessText);
-      });
+      .expect(200);
+    // .expect((res) => {
+    //   expect(res.text).toBe(loginSuccessText);
+    // });
 
     await request
       .put(`/tasks/update/${taskDb._id}`)
@@ -232,6 +234,7 @@ describe("TASK TEST", () => {
         createdAt: new Date("11/13/2021"),
         dueDate: new Date("11/16/2021"),
       })
+      .set("token", response.body.token)
       .expect(201)
       .expect((res) => {
         expect(res.body.status).toBe("success");
@@ -249,13 +252,13 @@ describe("TEAM TEST", () => {
     //sign up owner
     const user1Db = await userModel.create(user1Reg);
     //login owner
-    await request
+    const response = await request
       .post("/users/login")
       .send(user1Login)
-      .expect(302)
-      .expect((res) => {
-        expect(res.text).toBe(loginSuccessText);
-      });
+      .expect(200);
+    // .expect((res) => {
+    //   expect(res.text).toBe(loginSuccessText);
+    // });
 
     //create project
     const projectA = await projectModel.create({
@@ -266,6 +269,7 @@ describe("TEAM TEST", () => {
     //create team
     await request
       .post(`/teams/create/${projectA._id}`)
+      .set("token", response.body.token)
       .send(teamB)
       .expect(201)
       .expect((response) => {
@@ -298,17 +302,18 @@ describe("TEAM TEST", () => {
     });
 
     //user2 will login
-    await request
+    const response = await request
       .post("/users/login")
       .send(user2Login)
-      .expect(302)
-      .expect((res) => {
-        expect(res.text).toBe(loginSuccessText);
-      });
+      .expect(200);
+    // .expect((res) => {
+    //   expect(res.text).toBe(loginSuccessText);
+    // });
 
     //user2 will leave the team
     await request
       .get(`/teams/leave/${team._id}`)
+      .set("token", response.body.token)
       .expect(200)
       .expect((res) => {
         expect(res.body.message).toBe(
@@ -343,18 +348,19 @@ describe("TEAM TEST", () => {
     });
 
     //user1 will login
-    await request
+    const response = await request
       .post("/users/login")
       .send(user1Login)
-      .expect(302)
-      .expect((res) => {
-        expect(res.text).toBe(loginSuccessText);
-      });
+      .expect(200);
+    // .expect((res) => {
+    //   expect(res.text).toBe(loginSuccessText);
+    // });
 
     // user1 will add user 2 to team
 
     await request
       .post(`/teams/addmember/${team._id}`)
+      .set("token", response.body.token)
       .send({ newMemberID: user2Db._id })
       .expect(200)
       .expect((res) => {
@@ -382,18 +388,19 @@ describe("TEAM TEST", () => {
     });
 
     //user1 will login
-    await request
+    const response = await request
       .post("/users/login")
       .send(user1Login)
-      .expect(302)
-      .expect((res) => {
-        expect(res.text).toBe(loginSuccessText);
-      });
+      .expect(200);
+    // .expect((res) => {
+    //   expect(res.text).toBe(loginSuccessText);
+    // });
 
     // user1 will add user 2 to team
 
     await request
       .post(`/teams/addmember/${team._id}`)
+      .set("token", response.body.token)
       .send({ newMemberID: user2Db._id })
       .expect(200)
       .expect((res) => {
@@ -402,6 +409,7 @@ describe("TEAM TEST", () => {
 
     await request
       .get(`/teams/getAllTeamMembers/${team._id}`)
+      .set("token", response.body.token)
       .expect(200)
       .expect((res) => {
         expect(res.body.members.length).toBe(1);
@@ -433,16 +441,17 @@ describe("TEAM TEST", () => {
     });
 
     //user1 will login
-    await request
+    const response = await request
       .post("/users/login")
       .send(user1Login)
-      .expect(302)
-      .expect((res) => {
-        expect(res.text).toBe(loginSuccessText);
-      });
+      .expect(200);
+    // .expect((res) => {
+    //   expect(res.text).toBe(loginSuccessText);
+    // });
 
     await request
       .put(`/teams/updateTeamDetails/${team._id}`)
+      .set("token", response.body.token)
       .send({
         teamName: "the name of the team",
         about: "about the team ",
@@ -483,28 +492,31 @@ describe("TEAM TEST", () => {
       assignee: user2Db._id,
     });
 
-    await request
+    const response = await request
       .post("/users/login")
       .send(user1Login)
-      .expect(302)
-      .expect((res) => {
-        expect(res.text).toBe(loginSuccessText);
-      });
+      .expect(200);
+    // .expect((res) => {
+    //   expect(res.text).toBe(loginSuccessText);
+    // });
 
     await request
       .get(`/tasks/getTasks/backlog`)
+      .set("token", response.body.token)
       .expect(200)
       .expect((res) => {
         expect(res.body.tasks.length).toBe(1);
       });
     await request
       .get(`/tasks/getTasks/todo`)
+      .set("token", response.body.token)
       .expect(200)
       .expect((res) => {
         expect(res.body.tasks.length).toBe(1);
       });
     await request
       .get(`/tasks/getTasks/done`)
+      .set("token", response.body.token)
       .expect(200)
       .expect((res) => {
         expect(res.body.tasks.length).toBe(1);
@@ -518,16 +530,17 @@ describe("PROJECT TEST", () => {
     const user1Db = await userModel.create(user1Reg);
 
     //login user
-    await request
+    const response = await request
       .post("/users/login")
       .send(user1Login)
-      .expect(302)
-      .expect((res) => {
-        expect(res.text).toBe(loginSuccessText);
-      });
+      .expect(200);
+    // .expect((res) => {
+    //   expect(res.text).toBe(loginSuccessText);
+    // });
 
     await request
       .post("/projects/create")
+      .set("token", response.body.token)
       .send({ projectname: "nodejs" })
       .expect(201)
       .expect((res) => {
@@ -548,16 +561,17 @@ describe("PROJECT TEST", () => {
     });
 
     //login user
-    await request
+    const response = await request
       .post("/users/login")
       .send(user1Login)
-      .expect(302)
-      .expect((res) => {
-        expect(res.text).toBe(loginSuccessText);
-      });
+      .expect(200);
+    // .expect((res) => {
+    //   expect(res.text).toBe(loginSuccessText);
+    // });
 
     await request
       .post("/projects/invite")
+      .set("token", response.body.token)
       .send({ email: user2Login.email, projectname: projectA.name })
       .expect(200)
       .expect((res) => {
@@ -568,6 +582,7 @@ describe("PROJECT TEST", () => {
 
     await request
       .post("/projects/invite")
+      .set("token", response.body.token)
       .send({ email: "chinesskks@gmail.com", projectname: projectA.name })
       .expect(200)
       .expect((res) => {
@@ -594,16 +609,17 @@ describe("PROJECT TEST", () => {
     });
 
     //login user
-    await request
+    const response = await request
       .post("/users/login")
       .send(user1Login)
-      .expect(302)
-      .expect((res) => {
-        expect(res.text).toBe(loginSuccessText);
-      });
+      .expect(200);
+    // .expect((res) => {
+    //   expect(res.text).toBe(loginSuccessText);
+    // });
 
     await request
       .get("/projects/getproject")
+      .set("token", response.body.token)
       .expect(200)
       .expect((res) => {
         expect(res.body.projects.length).toBe(2);
@@ -620,18 +636,19 @@ describe("PROJECT TEST", () => {
     });
 
     //login user
-    await request
+    const response = await request
       .post("/users/login")
       .send(user1Login)
-      .expect(302)
-      .expect((res) => {
-        expect(res.text).toBe(loginSuccessText);
-      });
+      .expect(200);
+    // .expect((res) => {
+    //   expect(res.text).toBe(loginSuccessText);
+    // });
 
     //user should update project
     const newProjectName = "new Project name";
     await request
       .put(`/projects/updateproject/${projectA._id}`)
+      .set("token", response.body.token)
       .send({
         projectname: newProjectName,
       })

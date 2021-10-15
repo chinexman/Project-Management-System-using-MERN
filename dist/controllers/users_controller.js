@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createInviteUser = exports.uploadFileCloudinary = exports.updateProfile = exports.viewProfile = exports.resetPassword = exports.verifyResetPassword = exports.forgetPassword = exports.changePassword = exports.googleSuccessCallBackFn = exports.loginPage = exports.logout = exports.activateUserAcct = exports.createUser = void 0;
+exports.createInviteUser = exports.uploadFileCloudinary = exports.updateProfile = exports.viewProfile = exports.resetPassword = exports.verifyResetPassword = exports.forgetPassword = exports.changePassword = exports.ssoCallback = exports.loginPage = exports.logout = exports.activateUserAcct = exports.createUser = void 0;
 //user_controller
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const validate_1 = __importDefault(require("../validations/validate"));
@@ -14,7 +14,7 @@ const projectModel_1 = __importDefault(require("../models/projectModel"));
 const cloudinary_1 = require("../utils/cloudinary");
 const file_1 = __importDefault(require("../models/file"));
 const joi_1 = __importDefault(require("joi"));
-const _ = require("lodash");
+const generateToken_1 = require("../utils/generateToken");
 const secret = process.env.JWT_SECRETKEY;
 async function createUser(req, res) {
     try {
@@ -29,7 +29,8 @@ async function createUser(req, res) {
         }
         const token = jsonwebtoken_1.default.sign({ fullname, email, password }, process.env.JWT_SECRETKEY, { expiresIn: process.env.JWT_EMAIL_EXPIRES });
         email = email;
-        const body = `<h2>Thank you for successfully signing up, click <a href="${process.env.HOME_URL}:${process.env.PORT}/users/acct-activation/${token}">here</a> to activate your account</h2>  `;
+        const isDeployed = process.env.NODE_ENV === "production";
+        const body = `<h2>Thank you for successfully signing up, click <a href="${process.env.HOME_URL}${isDeployed ? "" : ":" + process.env.PORT}/users/acct-activation/${token}">here</a> to activate your account</h2>  `;
         if (process.env.NODE_ENV != "test") {
             (0, nodemailer_1.default)(email, body);
         }
@@ -91,10 +92,16 @@ function loginPage(req, res) {
     res.render("loginPage");
 }
 exports.loginPage = loginPage;
-function googleSuccessCallBackFn(req, res) {
-    res.redirect("/users/welcome");
+function ssoCallback(req, res) {
+    const user = req.user;
+    const token = (0, generateToken_1.generateJwtToken)(user);
+    res.cookie("token", token, { httpOnly: true });
+    res.status(200).json({
+        msg: `welcome ${user.fullname}`,
+        token,
+    });
 }
-exports.googleSuccessCallBackFn = googleSuccessCallBackFn;
+exports.ssoCallback = ssoCallback;
 async function changePassword(req, res) {
     const { oldPassword, newPassword, repeatPassword } = req.body;
     //validation of all input fields
@@ -139,7 +146,8 @@ async function forgetPassword(req, res) {
         const user = await user_1.default.findOne({ email: email });
         if (user) {
             const token = jsonwebtoken_1.default.sign({ id: user._id }, secret, { expiresIn: "30mins" });
-            const link = `${process.env.HOME_URL}:${process.env.PORT}/users/password/resetPassword/${token}`;
+            const isDeployed = process.env.NODE_ENV === "production";
+            const link = `${process.env.HOME_URL}${isDeployed ? "" : ":" + process.env.PORT}/users/password/resetPassword/${token}`;
             const body = `        Dear ${user.fullname},        <p>Follow this <a href=${link}> link </a> to change your password. The link would expire in 30 mins.</P>              `;
             (0, nodemailer_1.default)(email, body);
             res.status(200).json({
