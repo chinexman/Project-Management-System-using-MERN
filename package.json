@@ -5,8 +5,7 @@
   "scripts": {
     "start": "node ./bin/www",
     "dev": "nodemon ./bin/www",
-    "test": "jest",
-    "heroku-postbuild": "tsc"
+    "test": "jest"
   },
   "dependencies": {
     "bcrypt": "^5.0.1",
