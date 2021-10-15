@@ -15,6 +15,7 @@ import multer from "multer";
 import cors from "cors";
 import passport from "./authentication/passportStrategies";
 
+//Begining of the app
 const app = express();
 const storage = multer.memoryStorage();
 const upload = multer({ storage }).single("file");

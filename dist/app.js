@@ -19,6 +19,7 @@ const comment_router_1 = __importDefault(require("./routers/comment_router"));
 const multer_1 = __importDefault(require("multer"));
 const cors_1 = __importDefault(require("cors"));
 const passportStrategies_1 = __importDefault(require("./authentication/passportStrategies"));
+//Begining of the app
 const app = (0, express_1.default)();
 const storage = multer_1.default.memoryStorage();
 const upload = (0, multer_1.default)({ storage }).single("file");
