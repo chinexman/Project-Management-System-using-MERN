@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getYesterdayActivity = exports.getActivity = exports.updateTask = exports.getTasksByStatus = exports.uploadFileCloudinary = exports.createTask = exports.deleteTask = exports.getTasks = exports.addComment = void 0;
+exports.getYesterdayActivity = exports.getActivity = exports.getAllFilesByTask = exports.updateTask = exports.getTasksByStatus = exports.uploadFileCloudinary = exports.createTask = exports.deleteTask = exports.getTasks = exports.addComment = void 0;
 const activity_1 = __importDefault(require("../models/activity"));
 const task_1 = __importDefault(require("../models/task"));
 const task_2 = __importDefault(require("../models/task"));
@@ -134,7 +134,7 @@ async function uploadFileCloudinary(req, res) {
     if (!task) {
         return res.status(404).json({ msg: "No task id found" });
     }
-    const file = req.file;
+    const file = req.file; //
     if (!req.file) {
         return res.status(400).json({ msg: "no file was uploaded." });
     }
@@ -220,6 +220,36 @@ async function updateTask(req, res) {
     });
 }
 exports.updateTask = updateTask;
+async function getAllFilesByTask(req, res) {
+    const { taskId } = req.params;
+    const taskExist = await task_1.default.exists({ _id: taskId });
+    try {
+        if (!taskExist) {
+            return res.status(404).json({
+                msg: "Task with the title does not exists for that particular user",
+            });
+        }
+        const requestedTask = await task_1.default.findOne({ _id: taskId });
+        const fileUploads = requestedTask === null || requestedTask === void 0 ? void 0 : requestedTask.fileUploads;
+        console.log(fileUploads);
+        const filesUrl = fileUploads === null || fileUploads === void 0 ? void 0 : fileUploads.map(async (file) => {
+            console.log(file, "fileId");
+            const fileObj = await file_1.default.findById(file);
+            console.log(fileObj, "file");
+            return fileObj.url;
+        });
+        console.log(filesUrl, "file check");
+        const arrrayOfUrls = await Promise.all(filesUrl); ///awaited the array of promises to get  the URL's
+        return res.status(201).json({
+            status: "success",
+            data: arrrayOfUrls,
+        });
+    }
+    catch (err) {
+        res.status(400).send(err);
+    }
+}
+exports.getAllFilesByTask = getAllFilesByTask;
 async function getActivity(req, res) {
     const todayDate = new Date();
     const allActivities = await activity_1.default.find({});

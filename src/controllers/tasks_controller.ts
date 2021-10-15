@@ -41,6 +41,9 @@ export async function addComment(req: Request, res: Response) {
     task: task,
   });
 }
+type customRequest = Request & {
+  user?: { _id?: string; email?: string; fullname?: string };
+};
 
 export async function getTasks(req: Request, res: Response) {
   const user = req.user as typeof req.user & { _id: string };
@@ -147,7 +150,7 @@ export async function uploadFileCloudinary(req: Request, res: Response) {
   if (!task) {
     return res.status(404).json({ msg: "No task id found" });
   }
-  const file = req.file;
+  const file = req.file; //
   if (!req.file) {
     return res.status(400).json({ msg: "no file was uploaded." });
   }
@@ -244,6 +247,37 @@ export async function updateTask(req: userInterface, res: Response) {
     status: "success",
     data: updatedTask,
   });
+}
+
+export async function getAllFilesByTask(req: userInterface, res: Response) {
+  const { taskId } = req.params;
+  const taskExist = await taskModel.exists({ _id: taskId });
+  try {
+    if (!taskExist) {
+      return res.status(404).json({
+        msg: "Task with the title does not exists for that particular user",
+      });
+    }
+
+    const requestedTask = await taskModel.findOne({ _id: taskId });
+    const fileUploads = requestedTask?.fileUploads;
+    console.log(fileUploads);
+    const filesUrl = fileUploads?.map(async (file: String) => {
+      console.log(file, "fileId");
+      const fileObj = await fileModel.findById(file);
+      console.log(fileObj, "file");
+      return fileObj.url;
+    }) as Promise<string>[];
+    console.log(filesUrl, "file check");
+    const arrrayOfUrls = await Promise.all(filesUrl); ///awaited the array of promises to get  the URL's
+
+    return res.status(201).json({
+      status: "success",
+      data: arrrayOfUrls,
+    });
+  } catch (err) {
+    res.status(400).send(err);
+  }
 }
 
 export async function getActivity(req: express.Request, res: express.Response) {

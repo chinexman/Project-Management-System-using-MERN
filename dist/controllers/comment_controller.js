@@ -22,7 +22,7 @@ async function addComment(req, res) {
         });
     }
     const user_id = (_a = req.user) === null || _a === void 0 ? void 0 : _a._id;
-    const task = await task_1.default.findById(req.params.id);
+    const task = await task_1.default.findById(req.params.taskid);
     if (!task) {
         return res.status(404).json({
             msg: "You can't add comment to this task. Task does not exist.",
@@ -47,7 +47,7 @@ async function addComment(req, res) {
 exports.addComment = addComment;
 async function updateComment(req, res) {
     var _a;
-    const CommentId = req.params.comment;
+    const CommentId = req.params.commentid;
     const commentSchemaJoi = joi_1.default.object({
         comment: joi_1.default.string(),
     });
@@ -83,7 +83,7 @@ async function updateComment(req, res) {
 exports.updateComment = updateComment;
 async function deleteComment(req, res) {
     const user = req.user;
-    const comment_id = req.params.id;
+    const comment_id = req.params.commentid;
     if (!(await comments_1.default.exists({
         _id: comment_id,
     }))) {

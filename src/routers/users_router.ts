@@ -3,7 +3,7 @@ import {
   activateUserAcct,
   logout,
   loginPage,
-  googleSuccessCallBackFn,
+  ssoCallback,
   changePassword,
   resetPassword,
   verifyResetPassword,
@@ -11,11 +11,12 @@ import {
   viewProfile,
   updateProfile,
   createInviteUser,
+  uploadFileCloudinary
 } from "../controllers/users_controller";
-import passport from "passport";
 import { Router, Request, Response, NextFunction } from "express";
 import { authorization } from "../authentication/Auth";
-import "../authentication/passportStrategies";
+import passport from "../authentication/passportStrategies";
+import { generateJwtToken } from "../utils/generateToken";
 
 const router = Router();
 
@@ -30,10 +31,26 @@ router.get("/welcome", authorization, (req, res) => {
 });
 
 router.post("/login", (req, res, next) => {
-  passport.authenticate("local", {
-    successRedirect: "/users/welcome",
-    failureRedirect: "/users/loginfail",
-    failureFlash: true,
+  // res.setHeader("Access-Control-Allow-Origin", "http://localhost:3001");
+  //err,user,info
+  // passport.authenticate("local", {
+  //   successRedirect: "/users/welcome",
+  //   failureRedirect: "/users/loginfail",
+  //   failureFlash: true,
+  // })(req, res, next);
+  passport.authenticate("local", (err, user, info) => {
+    if (!user) {
+      return res.status(401).json({
+        msg: "Invalid user name or password.",
+      });
+    }
+
+    //create token
+    const token = generateJwtToken(user);
+    res.status(200).json({
+      msg: `welcome ${user.fullname}`,
+      token,
+    });
   })(req, res, next);
 });
 
@@ -43,8 +60,9 @@ router.get(
   "/loginfail",
   function (req: Request, res: Response, next: NextFunction) {
     let msg = req.flash("error")[0];
-    res.json({
-      msg,
+    console.log("login fail: ", msg);
+    res.status(403).json({
+      msg: "invalid email or password",
     });
   }
 );
@@ -55,11 +73,7 @@ router.get(
   passport.authenticate("google", { scope: ["profile", "email"] })
 );
 
-router.get(
-  "/google/redirect",
-  passport.authenticate("google"),
-  googleSuccessCallBackFn
-);
+router.get("/google/redirect", passport.authenticate("google"), ssoCallback);
 
 router.get(
   "/auth/facebook",
@@ -70,11 +84,8 @@ router.get(
 
 router.get(
   "/auth/facebook/callback",
-  passport.authenticate("facebook", {
-    successRedirect: "/users/welcome",
-    failureRedirect: "/users/loginfail",
-    failureFlash: true,
-  })
+  passport.authenticate("facebook"),
+  ssoCallback
 );
 router.get("/loginPage", loginPage);
 router.post("/signup", createUser);
@@ -86,6 +97,9 @@ router.post("/password/forgetPassword", forgetPassword);
 router.get("/password/resetPassword/:token", verifyResetPassword);
 router.post("/password/resetPassword/:token", resetPassword);
 router.post("/inviteUser/:token", createInviteUser);
+router.post("/upload/:projectId", authorization, uploadFileCloudinary);
+
+
 
 //googlesso, fbsso, profile, changepassword,
 export default router;

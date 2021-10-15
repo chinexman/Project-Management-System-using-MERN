@@ -26,7 +26,8 @@ export async function addComment(req: customRequest, res: Response) {
     });
   }
   const user_id = req.user?._id;
-  const task = await taskModel.findById(req.params.id);
+  const task = await taskModel.findById(req.params.taskid);
+
   if (!task) {
     return res.status(404).json({
       msg: "You can't add comment to this task. Task does not exist.",
@@ -52,7 +53,7 @@ export async function addComment(req: customRequest, res: Response) {
 }
 
 export async function updateComment(req: userInterface, res: Response) {
-  const CommentId = req.params.comment;
+  const CommentId = req.params.commentid;
   const commentSchemaJoi = Joi.object({
     comment: Joi.string(),
   });
@@ -96,7 +97,7 @@ export async function updateComment(req: userInterface, res: Response) {
 
 export async function deleteComment(req: Request, res: Response) {
   const user = req.user as typeof req.user & { _id: string };
-  const comment_id = req.params.id;
+  const comment_id = req.params.commentid;
   if (
     !(await commentModel.exists({
       _id: comment_id,

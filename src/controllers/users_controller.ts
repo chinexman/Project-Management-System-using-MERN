@@ -6,8 +6,11 @@ import bcrypt from "bcrypt";
 import UserModel from "../models/user";
 import sendMail from "../utils/nodemailer";
 import projectModel from "../models/projectModel";
+import { cloudinaryUpload } from "../utils/cloudinary";
+import fileModel from "../models/file";
 import Joi from "joi";
-const _ = require("lodash");
+import { generateJwtToken } from "../utils/generateToken";
+import { UserInterface } from "../interfaces/interface";
 
 const secret: string = process.env.JWT_SECRETKEY as string;
 
@@ -28,7 +31,12 @@ export async function createUser(req: Request, res: Response) {
       { expiresIn: process.env.JWT_EMAIL_EXPIRES as string }
     );
     email = email;
-    const body = `<h2>Thank you for successfully signing up, click <a href="${process.env.HOME_URL}:${process.env.PORT}/users/acct-activation/${token}">here</a> to activate your account</h2>  `;
+    const isDeployed = process.env.NODE_ENV === "production";
+    const body = `<h2>Thank you for successfully signing up, click <a href="${
+      process.env.HOME_URL
+    }${
+      isDeployed ? "" : ":" + process.env.PORT
+    }/users/acct-activation/${token}">here</a> to activate your account</h2>  `;
     if (process.env.NODE_ENV != "test") {
       sendMail(email, body);
     }
@@ -91,8 +99,14 @@ export function loginPage(req: Request, res: Response) {
   res.render("loginPage");
 }
 
-export function googleSuccessCallBackFn(req: Request, res: Response) {
-  res.redirect("/users/welcome");
+export function ssoCallback(req: Request, res: Response) {
+  const user = req.user as UserInterface;
+  const token = generateJwtToken(user);
+  res.cookie("token", token, { httpOnly: true });
+  res.status(200).json({
+    msg: `welcome ${user.fullname}`,
+    token,
+  });
 }
 type customRequest = { user?: any } & Request;
 export async function changePassword(req: customRequest, res: Response) {
@@ -139,7 +153,10 @@ export async function forgetPassword(req: Request, res: Response) {
     const user = await UserModel.findOne({ email: email });
     if (user) {
       const token = jwt.sign({ id: user._id }, secret, { expiresIn: "30mins" });
-      const link = `${process.env.HOME_URL}:${process.env.PORT}/users/password/resetPassword/${token}`;
+      const isDeployed = process.env.NODE_ENV === "production";
+      const link = `${process.env.HOME_URL}${
+        isDeployed ? "" : ":" + process.env.PORT
+      }/users/password/resetPassword/${token}`;
       const body = `        Dear ${user.fullname},        <p>Follow this <a href=${link}> link </a> to change your password. The link would expire in 30 mins.</P>              `;
       sendMail(email, body);
       res.status(200).json({
@@ -257,6 +274,51 @@ export async function updateProfile(req: customRequest, res: Response) {
     status: "success",
     data: updatedProfile,
   });
+}
+
+export async function uploadFileCloudinary(req: customRequest, res: Response) {
+  const user_id = req.user!._id;
+  let findProfile = await UserModel.findOne({ userId: user_id });
+  if (!findProfile) {
+    return res.status(404).json({
+      status: "failed",
+      message: "User does not exist",
+    });
+  }
+  const file = req.file;
+  if (!req.file) {
+    return res.status(400).json({ msg: "no file was uploaded." });
+  }
+  const response = await cloudinaryUpload(
+    file?.originalname as string,
+    file?.buffer as Buffer
+  );
+  if (!response) {
+    return res
+      .status(500)
+      .json({ msg: "Unable to upload file. please try again." });
+  }
+  //data to keep
+  const file_secure_url = response.secure_url;
+  //done with processing.
+  const newUpload = await fileModel.create({
+    name: file?.originalname,
+    url: file_secure_url,
+  });
+  console.log(newUpload._id);
+  let updatedProfile = await UserModel.findOneAndUpdate(
+    { userId: user_id },
+    {
+     profileImage: newUpload._id,
+    },
+    { new: true }
+  );
+   console.log(updatedProfile)
+  res.status(200).json({ 
+    
+    msg: "file uploaded successfully.",
+    data: updatedProfile
+});
 }
 
 export async function createInviteUser(req: Request, res: Response) {

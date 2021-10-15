@@ -3,7 +3,7 @@ import express, { Request, Response, NextFunction } from "express";
 import path from "path";
 import cookieParser from "cookie-parser";
 import logger from "morgan";
-import passport from "passport";
+// import passport from "passport";
 import cookieSession from "cookie-session";
 import flash from "connect-flash";
 import mainUsersRouter from "./routers/users_router";
@@ -12,10 +12,19 @@ import mainProjectRouter from "./routers/project_router";
 import mainTeamRouter from "./routers/teams_router";
 import mainCommentRouter from "./routers/comment_router";
 import multer from "multer";
+import cors from "cors";
+import passport from "./authentication/passportStrategies";
 
 const app = express();
 const storage = multer.memoryStorage();
 const upload = multer({ storage }).single("file");
+
+const corsOptions = {
+  //allow requests from the client
+  origin: [process.env.FRONTEND_URL as string],
+  credentials: true,
+  exposedHeaders: ["set-cookie"],
+};
 
 // view engine setup
 app.set("views", path.resolve(path.join(__dirname, "../", "views")));
@@ -26,6 +35,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(upload);
+app.use(cors(corsOptions));
 
 app.use(
   cookieSession({
@@ -53,6 +63,9 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 /*  ROUTES
 
 */
+app.get("/", (req: express.Request, res: express.Response) => {
+  res.render("loginPage");
+});
 app.use("/users", mainUsersRouter);
 app.use("/tasks", tasksRouter);
 app.use("/projects", mainProjectRouter);

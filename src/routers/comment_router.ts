@@ -8,8 +8,8 @@ import {
 
 const router = Router();
 
-router.post("/comment/:id", authorization, addComment);
-router.put("/update/:comment", authorization, updateComment);
-router.delete("/:id", authorization, deleteComment);
+router.post("/comment/:taskid", authorization, addComment);
+router.put("/update/:commentid", authorization, updateComment);
+router.delete("/:commentid", authorization, deleteComment);
 
 export default router;
