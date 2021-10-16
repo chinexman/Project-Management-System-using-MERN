@@ -89,6 +89,7 @@ async function createTask(req, res) {
     const validationResult = taskSchemaJoi.validate(req.body);
     //check for errors
     if (validationResult.error) {
+        console.log("validation error");
         return res.status(400).json({
             msg: validationResult.error.details[0].message,
         });
@@ -98,6 +99,12 @@ async function createTask(req, res) {
         title: title,
         description: description,
     });
+    const assigneeUser = await user_1.default.findById(assignee);
+    if (!assigneeUser) {
+        return res.status(400).json({
+            msg: "Assignee does not exist.",
+        });
+    }
     if (getTask) {
         return res.status(400).json({
             msg: "Task with the title already exists for that particular user",
@@ -109,23 +116,19 @@ async function createTask(req, res) {
     });
     try {
         await task.save();
-        //TODO: Create an activity everytime a task is created or being assigned.
         const assigner = (_a = req.user) === null || _a === void 0 ? void 0 : _a.fullname;
-        const assigneeUser = await user_1.default.findById(assignee);
         await activity_1.default.create({
             message: `${assigner} assigned ${assigneeUser.fullname} to perform Task: ${task.title} task`,
         });
-        /**
-         * const newActivity =  activityModel.create({
-         * msg:`${req.user.fullname assigned ${req.body.assignee.fullname} to perform TASK: ${task.title}`
-         * }) created activityfor task function and create activity for comment function
-         */
         return res
             .status(201)
             .json({ msg: "Task created successfully", Task: task });
     }
     catch (err) {
-        res.status(400).send(err);
+        console.log(err);
+        res.status(500).json({
+            msg: "Unable to create task",
+        });
     }
 }
 exports.createTask = createTask;
