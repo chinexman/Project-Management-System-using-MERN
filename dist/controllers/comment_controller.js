@@ -13,90 +13,114 @@ async function addComment(req, res) {
         comment: joi_1.default.string().required(),
     });
     console.log(req.body);
-    const validationResult = commentSchemaJoi.validate(req.body);
-    //check for errors
-    if (validationResult.error) {
-        return res.status(400).json({
-            msg: validationResult.error.details[0].message,
+    try {
+        const validationResult = commentSchemaJoi.validate(req.body);
+        //check for errors
+        if (validationResult.error) {
+            return res.status(400).json({
+                msg: validationResult.error.details[0].message,
+            });
+        }
+        const user_id = (_a = req.user) === null || _a === void 0 ? void 0 : _a._id;
+        const task = await task_1.default.findById(req.params.taskid);
+        console.log(task);
+        if (!task) {
+            return res.status(404).json({
+                msg: "You can't add comment to this task. Task does not exist.",
+            });
+        }
+        const newComment = await comments_1.default.create({
+            body: req.body.comment,
+            commenter: user_id
+        });
+        //add comment to task
+        task.comments.push(newComment._id);
+        task.save();
+        return res.status(200).json({
+            msg: "comment added successfully",
+            task: task,
         });
     }
-    const user_id = (_a = req.user) === null || _a === void 0 ? void 0 : _a._id;
-    const task = await task_1.default.findById(req.params.id);
-    console.log(task);
-    if (!task) {
-        return res.status(404).json({
-            msg: "You can't add comment to this task. Task does not exist.",
+    catch (err) {
+        res.status(500).json({
+            message: "unable to add a comment ,Please try again",
+            error: err
         });
     }
-    const newComment = await comments_1.default.create({
-        body: req.body.comment,
-        commenter: user_id
-    });
-    //add comment to task
-    task.comments.push(newComment._id);
-    task.save();
-    return res.status(200).json({
-        msg: "comment added successfully",
-        task: task,
-    });
 }
 exports.addComment = addComment;
 async function updateComment(req, res) {
-    const CommentId = req.params.comment;
+    const CommentId = req.params.commentid;
     const commentSchemaJoi = joi_1.default.object({
         comment: joi_1.default.string(),
     });
-    const validationResult = commentSchemaJoi.validate(req.body);
-    //check for errors
-    if (validationResult.error) {
-        return res.status(400).json({
-            msg: validationResult.error.details[0].message,
+    try {
+        const validationResult = commentSchemaJoi.validate(req.body);
+        //check for errors
+        if (validationResult.error) {
+            return res.status(400).json({
+                msg: validationResult.error.details[0].message,
+            });
+        }
+        const { comment } = req.body;
+        const getComment = await comments_1.default.findOne({
+            _id: CommentId,
+            owner: req.user._id,
+        });
+        if (!getComment) {
+            return res.status(404).json({
+                msg: "Comment with the title does not exists for that particular user",
+            });
+        }
+        let updatedComment = await comments_1.default.findOneAndUpdate({ owner: req.user._id }, {
+            body: comment ? comment : getComment.comment,
+        }, { new: true });
+        res.status(200).json({
+            status: "success",
+            data: updatedComment,
         });
     }
-    const { comment } = req.body;
-    const getComment = await comments_1.default.findOne({
-        _id: CommentId,
-        owner: req.user._id,
-    });
-    if (!getComment) {
-        return res.status(404).json({
-            msg: "Comment with the title does not exists for that particular user",
+    catch (err) {
+        res.status(500).json({
+            message: "unable to update , please try again",
+            error: err
         });
     }
-    let updatedComment = await comments_1.default.findOneAndUpdate({ owner: req.user._id }, {
-        body: comment ? comment : getComment.comment,
-    }, { new: true });
-    res.status(200).json({
-        status: "success",
-        data: updatedComment,
-    });
 }
 exports.updateComment = updateComment;
 async function deleteComment(req, res) {
     const user = req.user;
-    const comment_id = req.params.id;
-    if (!(await comments_1.default.exists({
-        _id: comment_id,
-    }))) {
-        return res.status(404).json({
-            message: "Comment does not exist!",
+    const comment_id = req.params.commentid;
+    try {
+        if (!(await comments_1.default.exists({
+            _id: comment_id,
+        }))) {
+            return res.status(404).json({
+                message: "Comment does not exist!",
+            });
+        }
+        if (!(await comments_1.default.exists({
+            _id: comment_id,
+            owner: user._id,
+        }))) {
+            return res.status(403).json({
+                message: "You are not authorized to delete this comment.",
+            });
+        }
+        const deletedComment = await comments_1.default.findOneAndDelete({
+            _id: comment_id,
+            owner: user._id,
+        });
+        res.status(200).json({
+            message: "comment Deleted successfully",
+            deletedComment,
         });
     }
-    if (!(await comments_1.default.exists({
-        _id: comment_id,
-        owner: user._id,
-    }))) {
-        return res.status(403).json({
-            message: "You are not authorized to delete this comment.",
+    catch (err) {
+        res.status(500).json({
+            message: "unable to delete , like cause : invalid comment id",
+            error: err
         });
     }
-    const deletedComment = await comments_1.default.findOneAndDelete({
-        _id: comment_id,
-        owner: user._id,
-    });
-    res.status(200).json({
-        message: "comment Deleted successfully",
-        deletedComment,
-    });
 }
 exports.deleteComment = deleteComment;
