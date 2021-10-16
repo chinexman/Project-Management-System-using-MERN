@@ -160,9 +160,6 @@ async function getTasksByStatus(req, res) {
     //  const taskStatus = await Task.findById({ status: req.params.status });
     try {
         const getTask = await task_2.default.find({ status: req.params.status });
-        if (getTask.length < 1) {
-            return res.status(404).json({ msg: `${req.params.status} cleared` });
-        }
         res.status(200).json({ tasks: getTask });
     }
     catch (err) {
