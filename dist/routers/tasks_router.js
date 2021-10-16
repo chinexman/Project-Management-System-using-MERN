@@ -11,7 +11,7 @@ router.post("/create", Auth_1.authorization, tasks_controller_1.createTask);
 router.get("/getTasks/:status", Auth_1.authorization, tasks_controller_1.getTasksByStatus);
 router.post("/upload/:taskid", Auth_1.authorization, tasks_controller_1.uploadFileCloudinary);
 router.put("/update/:task", Auth_1.authorization, tasks_controller_1.updateTask);
-//router.get("/activity/:timeline", authorization, getActivity);
 router.get("/activity", Auth_1.authorization, tasks_controller_1.getActivity);
 router.get("/yesterActivities", Auth_1.authorization, tasks_controller_1.getYesterdayActivity);
+router.get("/getFiles/:taskId", Auth_1.authorization, tasks_controller_1.getAllFilesByTask);
 exports.default = router;

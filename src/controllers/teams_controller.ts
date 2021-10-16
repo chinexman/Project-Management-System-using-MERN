@@ -218,7 +218,8 @@ export async function leaveTeam(req: customRequest, res: Response) {
 }
 
 ///get information for all teammabers
-export async function getUserDetails(req: customRequest, res: Response) {
+export async function 
+getUserDetails(req: customRequest, res: Response) {
   const { teamId } = req.params
   const teamInfo = await Team.findOne({ _id: teamId })
   try {
