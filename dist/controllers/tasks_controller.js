@@ -133,30 +133,39 @@ async function createTask(req, res) {
 }
 exports.createTask = createTask;
 async function uploadFileCloudinary(req, res) {
-    const task = await task_2.default.findById({ _id: req.params.taskid });
-    if (!task) {
-        return res.status(404).json({ msg: "No task id found" });
+    try {
+        const user = req.user;
+        const task = await task_2.default.findById({ _id: req.params.taskid });
+        if (!task) {
+            return res.status(404).json({ msg: "No task id found" });
+        }
+        const file = req.file; //
+        if (!req.file) {
+            return res.status(400).json({ msg: "no file was uploaded." });
+        }
+        const response = await (0, cloudinary_1.cloudinaryUpload)(file === null || file === void 0 ? void 0 : file.originalname, file === null || file === void 0 ? void 0 : file.buffer);
+        if (!response) {
+            throw new Error("Unable to upload file. please try again.");
+        }
+        //data to keep
+        const file_secure_url = response.secure_url;
+        //done with processing.
+        const newUpload = await file_1.default.create({
+            name: file === null || file === void 0 ? void 0 : file.originalname,
+            url: file_secure_url,
+        });
+        task.fileUploads.push(newUpload._id);
+        await task.save();
+        await activity_1.default.create({
+            message: `${user.fullname} uploaded ${file === null || file === void 0 ? void 0 : file.originalname}.`,
+        });
+        res.status(200).json({ msg: "file uploaded successfully." });
     }
-    const file = req.file; //
-    if (!req.file) {
-        return res.status(400).json({ msg: "no file was uploaded." });
-    }
-    const response = await (0, cloudinary_1.cloudinaryUpload)(file === null || file === void 0 ? void 0 : file.originalname, file === null || file === void 0 ? void 0 : file.buffer);
-    if (!response) {
+    catch (err) {
         return res
             .status(500)
             .json({ msg: "Unable to upload file. please try again." });
     }
-    //data to keep
-    const file_secure_url = response.secure_url;
-    //done with processing.
-    const newUpload = await file_1.default.create({
-        name: file === null || file === void 0 ? void 0 : file.originalname,
-        url: file_secure_url,
-    });
-    task.fileUploads.push(newUpload._id);
-    await task.save();
-    res.status(200).json({ msg: "file uploaded successfully." });
 }
 exports.uploadFileCloudinary = uploadFileCloudinary;
 async function getTasksByStatus(req, res) {

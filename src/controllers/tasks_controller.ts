@@ -150,34 +150,41 @@ export async function createTask(req: userInterface, res: Response) {
 }
 
 export async function uploadFileCloudinary(req: Request, res: Response) {
-  const task = await Task.findById({ _id: req.params.taskid });
-  if (!task) {
-    return res.status(404).json({ msg: "No task id found" });
-  }
-  const file = req.file; //
-  if (!req.file) {
-    return res.status(400).json({ msg: "no file was uploaded." });
-  }
-  const response = await cloudinaryUpload(
-    file?.originalname as string,
-    file?.buffer as Buffer
-  );
-  if (!response) {
+  try {
+    const user = req.user as typeof req.user & { fullname: string };
+    const task = await Task.findById({ _id: req.params.taskid });
+    if (!task) {
+      return res.status(404).json({ msg: "No task id found" });
+    }
+    const file = req.file; //
+    if (!req.file) {
+      return res.status(400).json({ msg: "no file was uploaded." });
+    }
+    const response = await cloudinaryUpload(
+      file?.originalname as string,
+      file?.buffer as Buffer
+    );
+    if (!response) {
+      throw new Error("Unable to upload file. please try again.");
+    }
+    //data to keep
+    const file_secure_url = response.secure_url;
+    //done with processing.
+    const newUpload = await fileModel.create({
+      name: file?.originalname,
+      url: file_secure_url,
+    });
+    task.fileUploads.push(newUpload._id);
+    await task.save();
+    await activityModel.create({
+      message: `${user!.fullname} uploaded ${file?.originalname}.`,
+    });
+    res.status(200).json({ msg: "file uploaded successfully." });
+  } catch (err) {
     return res
       .status(500)
       .json({ msg: "Unable to upload file. please try again." });
   }
-  //data to keep
-  const file_secure_url = response.secure_url;
-  //done with processing.
-  const newUpload = await fileModel.create({
-    name: file?.originalname,
-    url: file_secure_url,
-  });
-  task.fileUploads.push(newUpload._id);
-  await task.save();
-
-  res.status(200).json({ msg: "file uploaded successfully." });
 }
 
 export async function getTasksByStatus(req: Request, res: Response) {

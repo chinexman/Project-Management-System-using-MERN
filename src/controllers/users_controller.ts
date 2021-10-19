@@ -102,11 +102,13 @@ export function loginPage(req: Request, res: Response) {
 export function ssoCallback(req: Request, res: Response) {
   const user = req.user as UserInterface;
   const token = generateJwtToken(user);
-  res.cookie("token", token, { httpOnly: true });
-  res.status(200).json({
-    msg: `welcome ${user.fullname}`,
-    token,
-  });
+  // res.cookie("token", token, { httpOnly: true });
+  // res.restatus(200).json({
+  //   msg: `welcome ${user.fullname}`,
+  //   token,
+  // });
+  const redirectUrl = process.env.FRONTEND_SSO_REDIRECT as string;
+  res.redirect(`${redirectUrl}/${token}`);
 }
 type customRequest = { user?: any } & Request;
 export async function changePassword(req: customRequest, res: Response) {
@@ -154,9 +156,11 @@ export async function forgetPassword(req: Request, res: Response) {
     if (user) {
       const token = jwt.sign({ id: user._id }, secret, { expiresIn: "30mins" });
       const isDeployed = process.env.NODE_ENV === "production";
-      const link = `${process.env.HOME_URL}${
-        isDeployed ? "" : ":" + process.env.PORT
-      }/users/password/resetPassword/${token}`;
+      // const link = `${process.env.HOME_URL}${
+      //   isDeployed ? "" : ":" + process.env.PORT
+      // }/users/password/resetPassword/${token}`;
+      // FRONTEND_RESET_PASSWORD=http://localhost:3001/resetpassword
+      const link = `${process.env.FRONTEND_RESET_PASSWORD}/${token}`;
       const body = `        Dear ${user.fullname},        <p>Follow this <a href=${link}> link </a> to change your password. The link would expire in 30 mins.</P>              `;
       sendMail(email, body);
       res.status(200).json({
@@ -171,8 +175,8 @@ export async function forgetPassword(req: Request, res: Response) {
     }
   } catch (err) {
     console.log(err);
-    res.status(404).json({
-      message: "Route crashed",
+    res.status(500).json({
+      message: "server error, unable to process your request.",
     });
   }
 }
@@ -189,7 +193,7 @@ export async function verifyResetPassword(req: Request, res: Response) {
       });
     }
   } catch (err) {
-    res.json({
+    res.status(500).json({
       message: err,
     });
   }
@@ -210,8 +214,8 @@ export async function resetPassword(req: Request, res: Response) {
             { password: newPassword },
             { new: true }
           );
-          res.status(400).json({
-            updatedUser: updatedUser,
+          res.status(200).json({
+            message: "password updated successfully!",
           });
           return;
         } else {
@@ -233,8 +237,8 @@ export async function resetPassword(req: Request, res: Response) {
       return;
     }
   } catch (err: any) {
-    res.status(400).json({
-      message: "This is the catch block message",
+    res.status(500).json({
+      message: "Server Error, unable to complete request",
     });
     return;
   }
@@ -309,16 +313,15 @@ export async function uploadFileCloudinary(req: customRequest, res: Response) {
   let updatedProfile = await UserModel.findOneAndUpdate(
     { userId: user_id },
     {
-     profileImage: newUpload._id,
+      profileImage: newUpload._id,
     },
     { new: true }
   );
-   console.log(updatedProfile)
-  res.status(200).json({ 
-    
+  console.log(updatedProfile);
+  res.status(200).json({
     msg: "file uploaded successfully.",
-    data: updatedProfile
-});
+    data: updatedProfile,
+  });
 }
 
 export async function createInviteUser(req: Request, res: Response) {

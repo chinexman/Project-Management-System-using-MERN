@@ -24,7 +24,7 @@ const corsOptions = {
   //allow requests from the client
   origin: [process.env.FRONTEND_URL as string],
   credentials: true,
-  exposedHeaders: ["set-cookie"],
+  exposedHeaders: ["Set-Cookie"],
 };
 
 // view engine setup
