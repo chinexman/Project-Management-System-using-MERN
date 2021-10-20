@@ -7,7 +7,9 @@ import UserModel from "../models/user";
 import sendMail from "../utils/nodemailer";
 import projectModel from "../models/projectModel";
 import { cloudinaryUpload } from "../utils/cloudinary";
+import pictureModel from "../models/profilePicUpload";
 import fileModel from "../models/file";
+
 import Joi from "joi";
 import { generateJwtToken } from "../utils/generateToken";
 import { UserInterface } from "../interfaces/interface";
@@ -420,7 +422,7 @@ export async function uploadPictureCloudinary(
   //data to keep
   const file_secure_url = response.secure_url;
   //done with processing.
-  const newUpload = await fileModel.create({
+  const newUpload = await pictureModel.create({
     name: file?.originalname,
     url: file_secure_url,
   });

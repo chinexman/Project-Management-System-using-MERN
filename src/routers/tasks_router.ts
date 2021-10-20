@@ -26,4 +26,5 @@ router.get("/activity", authorization, getActivity);
 router.get("/yesterActivities", authorization, getYesterdayActivity);
 router.get("/getFiles/:taskId", authorization, getAllFilesByTask);
 
+
 export default router;
