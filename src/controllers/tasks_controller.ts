@@ -390,3 +390,16 @@ export async function getYesterdayActivity(
   // console.log(getDate);
   // console.log(typeof getDate);
 }
+
+
+export async function allFiles(req: userInterface, res: Response) {
+  try {
+    const allFiles = await fileModel.find();
+    if (allFiles.length < 1) {
+      return res.status(404).json({ msg: `no file uploaded cleared` });
+    }
+    res.status(200).json({ files: allFiles });
+  } catch (err) {
+    res.status(400).send(err);
+  }
+}

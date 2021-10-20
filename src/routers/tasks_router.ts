@@ -11,6 +11,7 @@ import {
   getActivity,
   getYesterdayActivity,
   getAllFilesByTask,
+  allFiles,
 } from "../controllers/tasks_controller";
 
 const router = Router();
@@ -25,6 +26,7 @@ router.put("/update/:task", authorization, updateTask);
 router.get("/activity", authorization, getActivity);
 router.get("/yesterActivities", authorization, getYesterdayActivity);
 router.get("/getFiles/:taskId", authorization, getAllFilesByTask);
+router.get("/allfiles", authorization, allFiles);
 
 
 export default router;
