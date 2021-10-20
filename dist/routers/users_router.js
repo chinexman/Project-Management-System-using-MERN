@@ -62,5 +62,6 @@ router.get("/password/resetPassword/:token", users_controller_1.verifyResetPassw
 router.post("/password/resetPassword/:token", users_controller_1.resetPassword);
 router.post("/inviteUser/:token", users_controller_1.createInviteUser);
 router.post("/upload/:projectId", Auth_1.authorization, users_controller_1.uploadFileCloudinary);
+router.post("/uploadProfile", Auth_1.authorization, users_controller_1.uploadPictureCloudinary);
 //googlesso, fbsso, profile, changepassword,
 exports.default = router;
