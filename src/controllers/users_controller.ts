@@ -282,49 +282,7 @@ export async function updateProfile(req: customRequest, res: Response) {
   });
 }
 
-export async function uploadFileCloudinary(req: customRequest, res: Response) {
-  const user_id = req.user!._id;
-  let findProfile = await UserModel.findOne({ _id: user_id });
-  if (!findProfile) {
-    return res.status(404).json({
-      status: "failed",
-      message: "User does not exist",
-    });
-  }
-  const file = req.file;
-  if (!req.file) {
-    return res.status(400).json({ msg: "no file was uploaded." });
-  }
-  const response = await cloudinaryUpload(
-    file?.originalname as string,
-    file?.buffer as Buffer
-  );
-  if (!response) {
-    return res
-      .status(500)
-      .json({ msg: "Unable to upload file. please try again." });
-  }
-  //data to keep
-  const file_secure_url = response.secure_url;
-  //done with processing.
-  const newUpload = await fileModel.create({
-    name: file?.originalname,
-    url: file_secure_url,
-  });
-  console.log(newUpload._id);
-  let updatedProfile = await UserModel.findOneAndUpdate(
-    { _id: user_id },
-    {
-      profileImage: newUpload._id,
-    },
-    { new: true }
-  );
-  console.log(updatedProfile);
-  res.status(200).json({
-    msg: "file uploaded successfully.",
-    data: updatedProfile,
-  });
-}
+
 
 export async function createInviteUser(req: Request, res: Response) {
   try {

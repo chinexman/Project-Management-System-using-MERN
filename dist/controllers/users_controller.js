@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.uploadPictureCloudinary = exports.createInviteUser = exports.uploadFileCloudinary = exports.updateProfile = exports.viewProfile = exports.resetPassword = exports.verifyResetPassword = exports.forgetPassword = exports.changePassword = exports.ssoCallback = exports.loginPage = exports.logout = exports.activateUserAcct = exports.createUser = void 0;
+exports.uploadPictureCloudinary = exports.createInviteUser = exports.updateProfile = exports.viewProfile = exports.resetPassword = exports.verifyResetPassword = exports.forgetPassword = exports.changePassword = exports.ssoCallback = exports.loginPage = exports.logout = exports.activateUserAcct = exports.createUser = void 0;
 //user_controller
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const validate_1 = __importDefault(require("../validations/validate"));
@@ -12,7 +12,7 @@ const user_1 = __importDefault(require("../models/user"));
 const nodemailer_1 = __importDefault(require("../utils/nodemailer"));
 const projectModel_1 = __importDefault(require("../models/projectModel"));
 const cloudinary_1 = require("../utils/cloudinary");
-const file_1 = __importDefault(require("../models/file"));
+const profilePicUpload_1 = __importDefault(require("../models/profilePicUpload"));
 const joi_1 = __importDefault(require("joi"));
 const generateToken_1 = require("../utils/generateToken");
 const secret = process.env.JWT_SECRETKEY;
@@ -275,43 +275,6 @@ async function updateProfile(req, res) {
     });
 }
 exports.updateProfile = updateProfile;
-async function uploadFileCloudinary(req, res) {
-    const user_id = req.user._id;
-    let findProfile = await user_1.default.findOne({ _id: user_id });
-    if (!findProfile) {
-        return res.status(404).json({
-            status: "failed",
-            message: "User does not exist",
-        });
-    }
-    const file = req.file;
-    if (!req.file) {
-        return res.status(400).json({ msg: "no file was uploaded." });
-    }
-    const response = await (0, cloudinary_1.cloudinaryUpload)(file === null || file === void 0 ? void 0 : file.originalname, file === null || file === void 0 ? void 0 : file.buffer);
-    if (!response) {
-        return res
-            .status(500)
-            .json({ msg: "Unable to upload file. please try again." });
-    }
-    //data to keep
-    const file_secure_url = response.secure_url;
-    //done with processing.
-    const newUpload = await file_1.default.create({
-        name: file === null || file === void 0 ? void 0 : file.originalname,
-        url: file_secure_url,
-    });
-    console.log(newUpload._id);
-    let updatedProfile = await user_1.default.findOneAndUpdate({ _id: user_id }, {
-        profileImage: newUpload._id,
-    }, { new: true });
-    console.log(updatedProfile);
-    res.status(200).json({
-        msg: "file uploaded successfully.",
-        data: updatedProfile,
-    });
-}
-exports.uploadFileCloudinary = uploadFileCloudinary;
 async function createInviteUser(req, res) {
     try {
         const token = req.params.token;
@@ -392,7 +355,7 @@ async function uploadPictureCloudinary(req, res) {
     //data to keep
     const file_secure_url = response.secure_url;
     //done with processing.
-    const newUpload = await file_1.default.create({
+    const newUpload = await profilePicUpload_1.default.create({
         name: file === null || file === void 0 ? void 0 : file.originalname,
         url: file_secure_url,
     });

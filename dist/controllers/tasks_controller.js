@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getYesterdayActivity = exports.getActivity = exports.getAllFilesByTask = exports.updateTask = exports.getTasksByStatus = exports.uploadFileCloudinary = exports.createTask = exports.deleteTask = exports.getTasks = exports.addComment = void 0;
+exports.allFiles = exports.getYesterdayActivity = exports.getActivity = exports.getAllFilesByTask = exports.updateTask = exports.getTasksByStatus = exports.uploadFileCloudinary = exports.createTask = exports.deleteTask = exports.getTasks = exports.addComment = void 0;
 const activity_1 = __importDefault(require("../models/activity"));
 const task_1 = __importDefault(require("../models/task"));
 const task_2 = __importDefault(require("../models/task"));
@@ -245,13 +245,15 @@ async function getAllFilesByTask(req, res) {
             console.log(file, "fileId");
             const fileObj = await file_1.default.findById(file);
             console.log(fileObj, "file");
-            return fileObj.url;
+            // return fileObj.url;
+            return fileObj;
         });
         console.log(filesUrl, "file check");
         const arrrayOfUrls = await Promise.all(filesUrl); ///awaited the array of promises to get  the URL's
         return res.status(201).json({
             status: "success",
-            data: arrrayOfUrls,
+            // data: arrrayOfUrls,
+            data: filesUrl
         });
     }
     catch (err) {
@@ -345,3 +347,16 @@ async function getYesterdayActivity(req, res) {
     // console.log(typeof getDate);
 }
 exports.getYesterdayActivity = getYesterdayActivity;
+async function allFiles(req, res) {
+    try {
+        const allFiles = await file_1.default.find();
+        if (allFiles.length < 1) {
+            return res.status(404).json({ msg: `no file uploaded cleared` });
+        }
+        res.status(200).json({ files: allFiles });
+    }
+    catch (err) {
+        res.status(400).send(err);
+    }
+}
+exports.allFiles = allFiles;

@@ -14,4 +14,5 @@ router.put("/update/:task", Auth_1.authorization, tasks_controller_1.updateTask)
 router.get("/activity", Auth_1.authorization, tasks_controller_1.getActivity);
 router.get("/yesterActivities", Auth_1.authorization, tasks_controller_1.getYesterdayActivity);
 router.get("/getFiles/:taskId", Auth_1.authorization, tasks_controller_1.getAllFilesByTask);
+router.get("/allfiles", Auth_1.authorization, tasks_controller_1.allFiles);
 exports.default = router;
